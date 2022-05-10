@@ -43,8 +43,7 @@ class caveGen:
 			for c in range(1, self.__cols - 1):
 				wall_count = self.__adj_wall_count(r, c) #count walls surrounding given cell
 				#5|4 celluar automata test. if theres more than 5 walls around given cell change it to WALL | less than 4 change to FLOOR
-				if self.__map[r][c]
-				 == FLOOR:
+				if self.__map[r][c] == FLOOR:
 					if wall_count > 5:
 						self.__map[r][c] = WALL
 				elif wall_count < 4:
