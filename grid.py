@@ -34,9 +34,33 @@ class caveGen:
 		# 	print('\n')
 
 		#much better and 'new' approach thanks to Uncle
-		print('\n\n'.join(
+		print('\n'.join(
 			(self.__get_row_as_string(row) for row in self.__map)
 		))
+
+	def gen_map(self):
+		for r in range(1, self.__rows - 1):
+			for c in range(1, self.__cols - 1):
+				wall_count = self.__adj_wall_count(r, c) #count walls surrounding given cell
+				#5|4 celluar automata test. if theres more than 5 walls around given cell change it to WALL | less than 4 change to FLOOR
+				if self.__map[r][c]
+				 == FLOOR:
+					if wall_count > 5:
+						self.__map[r][c] = WALL
+				elif wall_count < 4:
+					self.__map[r][c] = FLOOR
+
+		return self.__map
+
+	def __adj_wall_count(self, sr, sc):
+		count = 0
+
+		for r in (-1, 0, 1):
+			for c in (-1, 0, 1):
+				if self.__map[(sr + r)][(sc + c)] != FLOOR and not(r == 0 and c == 0):
+					count += 1
+
+		return count
 
 	def __get_row_as_string(self, row):
 		return ' '.join((TILE_MAPPING[cell] for cell in row))
@@ -58,15 +82,15 @@ class caveGen:
 				self.__map[rand_r][rand_c] = FLOOR
 				open_count -= 1
 
-		open_count2 = int((self.__area / 2) * initial_open)
-		print(open_count2)
-		while open_count2 > 0:
-			rand_r = randrange(1, self.__rows - 1)
-			rand_c = randrange(1, self.__cols - 1)
+		# open_count2 = int((self.__area / 2) * initial_open)
+		# print(open_count2)
+		# while open_count2 > 0:
+		# 	rand_r = randrange(1, self.__rows - 1)
+		# 	rand_c = randrange(1, self.__cols - 1)
 
-			if self.__map[rand_r][rand_c] == FLOOR:
-				self.__map[rand_r][rand_c] = TREE
-			open_count2 -= 1		
+		# 	if self.__map[rand_r][rand_c] == FLOOR:
+		# 		self.__map[rand_r][rand_c] = TREE
+		# 	open_count2 -= 1		
 
 def validate_input(prompt):
 	while True:
@@ -86,4 +110,7 @@ if __name__ == '__main__':
 	width = validate_input("Enter the # of columns: ")
 	#initial = float(input("Enter percentage of open spaces (Best results for pre gen are 0.4-0.5): "))
 	cave = caveGen(length, width, 0.41)
+	cave.print_grid()
+	print("\n")
+	cave.gen_map()
 	cave.print_grid()
