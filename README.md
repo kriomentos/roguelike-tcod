@@ -1,0 +1,11 @@
+# TODOs
+- Joining lone rooms in cave generator
+- Another generator for dungeons Rogue style 
+- Field of view
+- Movable entities (without any stats, just defaults)
+- Enemies
+- Stats system
+- Saving and loading
+- Interface
+- Inventory and items
+- Overworld map with points for caves/dungeons
