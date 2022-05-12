@@ -9,13 +9,16 @@
 - Interface
 - Inventory and items
 - Overworld map with points for caves/dungeons
+- Graphical tiles
+- Configurable settings and graphics
 
-# Requirements
+## Requirements
 - Python 3.7+
 - tcod 13.6.2
 
-# Running
+## Running
 First install tcod
 `pip install tcod`
+
 Then run the in terminal from the folder with files
 `python main.py`
