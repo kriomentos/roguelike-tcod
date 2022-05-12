@@ -1,6 +1,6 @@
 from random import randrange
-
-#import numpy as np
+from scipy import signal
+import numpy as np
 
 import tile_types
 
@@ -16,12 +16,15 @@ TILE_MAPPING = {
     TREE: '^'
 }
 
+kernel = np.ones((3, 3), dtype="int")
+kernel[1, 1] = 0
+
 class caveGen:
     def __init__(self, rows, cols, initial_open = 0.40):
         self.__rows = rows
         self.__cols = cols
-        self.__map = []
-        #self.__map = np.full((self.__rows, self.__cols), fill_value = tile_types.floor, order="F")
+        self.__map = np.full((rows, cols), fill_value = WALL, order="F")
+        self.__map_new = self.__map.copy()
         self.__pre_genenerate_map(initial_open)
 
     @property
@@ -43,47 +46,52 @@ class caveGen:
             (self.__get_row_as_string(row) for row in self.__map)
         ))
 
-    def gen_map(self):
-        for r in range(1, self.__rows - 1):
-            for c in range(1, self.__cols - 1):
-                wall_count = self.__adj_wall_count(r, c) #count walls surrounding given cell
-                #5|4 celluar automata test. if theres more than 5 walls around given cell change it to WALL | less than 4 change to FLOOR
-                if self.__map[r][c] == FLOOR:
-                    if wall_count > 5:
-                        self.__map[r][c] = WALL
-                elif wall_count < 4:
-                    self.__map[r][c] = FLOOR
-
-        return self.__map
-
-    def __adj_wall_count(self, sr, sc):
-        count = 0
-
-        for r in (-1, 0, 1):
-            for c in (-1, 0, 1):
-                if self.__map[(sr + r)][(sc + c)] != FLOOR and not(r == 0 and c == 0):
-                    count += 1
-
-        return count
-
     def __get_row_as_string(self, row):
         return ' '.join((TILE_MAPPING[cell] for cell in row))
 
+    def gen_map(self):
+        self.__map_new = signal.convolve2d(self.__map, kernel, mode = "same")
+
+    #     for r in range(1, self.__rows - 1):
+    #         for c in range(1, self.__cols - 1):
+    #             wall_count = self.__adj_wall_count(r, c) #count walls surrounding given cell
+                
+    #             #5|4 celluar automata test. if theres more than 5 walls around given cell change it to WALL | less than 4 change to FLOOR
+    #             #if self.__map[r, c] == FLOOR:
+                
+    #             if wall_count > 5:
+    #                     self.__map[r, c] = WALL
+    #             elif wall_count < 4:
+    #                 self.__map[r, c] = FLOOR
+
+        return self.__map_new
+
+    # def __adj_wall_count(self, sr, sc):
+    #     count = 0
+
+    #     for r in (-1, 0, 1):
+    #         for c in (-1, 0, 1):
+    #             if self.__map[(sr + r)][(sc + c)] != FLOOR and not(r == 0 and c == 0):
+    #                 count += 1
+
+    #     return count
+
     def __pre_genenerate_map(self, initial_open):
-        for r in range(0, self.__rows):
-            #fill grid with WALLS
-            row = [WALL for _ in range(0, self.__cols)]
-            self.__map.append(row)
+        # for r in range(0, self.__rows):
+        #     #fill grid with WALLS
+        #     row = [WALL for _ in range(0, self.__cols)]
+        #     self.__map.append(row)
+
         #numbers of spots to "open"
         open_count = int(self.__area * initial_open)
-        print(open_count)
+
         #randomly select cell and turn it into FLOOR until we run out of open spots
         while open_count > 0:
             rand_r = randrange(1, self.__rows - 1)
             rand_c = randrange(1, self.__cols - 1)
 
-            if self.__map[rand_r][rand_c] == WALL:
-                self.__map[rand_r][rand_c] = FLOOR
+            if self.__map[rand_r, rand_c] == WALL:
+                self.__map[rand_r, rand_c] = FLOOR
                 open_count -= 1
 
         # open_count2 = int((self.__area / 2) * initial_open)
@@ -98,26 +106,23 @@ class caveGen:
 
 def validate_input(prompt):
   while True:
-      try:
-          value = int(input(prompt)) # assert value is integer
-      except ValueError:
-          print("Input must be number, try again")
-          continue
+    try:
+        value = int(input(prompt)) # assert value is integer
+    except ValueError:
+        print("Input must be number, try again")
+        continue
 
-      if value > 5:
-          return value
-      else:
-          print("Input must be positive and bigger than 5, try again")
+    if value > 5:
+        return value
+    else:
+        print("Input must be positive and bigger than 5, try again")
 
 if __name__ == '__main__':
-  length = validate_input("Enter the # of rows: ")
-  width = validate_input("Enter the # of columns: ")
-  #initial = float(input("Enter percentage of open spaces (Best results for pre gen are 0.4-0.5): "))
-  cave = caveGen(length, width, 0.41)
-  cave.print_grid()
-  print("\n")
-  cave.gen_map()
-  cave.print_grid()
-  print("\n")
-  cave.gen_map()
-  cave.print_grid()
+    length = validate_input("Enter the # of rows: ")
+    width = validate_input("Enter the # of columns: ")
+    #initial = float(input("Enter percentage of open spaces (Best results for pre gen are 0.4-0.5): "))
+    cave = caveGen(length, width, 0.41)
+    cave.print_grid()
+    cave.gen_map()
+    #cave.gen_map()
+    cave.print_grid()
