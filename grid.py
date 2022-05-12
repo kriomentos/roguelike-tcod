@@ -118,3 +118,6 @@ if __name__ == '__main__':
   print("\n")
   cave.gen_map()
   cave.print_grid()
+  print("\n")
+  cave.gen_map()
+  cave.print_grid()

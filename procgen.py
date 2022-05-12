@@ -33,22 +33,21 @@ def generate_dungeon(
 
     changes = 0
 
+    #for n in range(2):
     for x in range(1, dungeon.width - 1):
         for y in range(1, dungeon.height - 1):
             wall_count = __adj_wall_count(dungeon, x, y)
-            if dungeon.tiles[x, y] == tile_types.floor:
-                if wall_count > 5:
-                    dungeon.tiles[x, y] = tile_types.wall
-                    changes += 1
+            #if dungeon.tiles[x, y] == tile_types.floor:
+            if wall_count > 5:
+                dungeon.tiles[x, y] = tile_types.wall
             elif wall_count < 4:
-                    dungeon.tiles[x, y] = tile_types.floor
-                    changes += 1
-    print(changes)
+                dungeon.tiles[x, y] = tile_types.floor
 
     return dungeon
 
 def __adj_wall_count(dungeon, x, y):
     count = 0
+
     for r in (-1, 0, 1):
         for c in (-1, 0, 1):
             if dungeon.tiles[(x + r), (y + c)] != tile_types.floor and not(r == 0 and c == 0):
