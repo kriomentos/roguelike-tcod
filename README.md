@@ -22,11 +22,14 @@ There will definitely be bad code practices and a lot of experimenting.
 ## Requirements
 - Python 3.7+
 - tcod 13.6.2
+- scipy 1.8.0
 
 ## Running
-First install tcod
+First install tcod & scipy
 
 `pip install tcod`
+
+`pip install scipy`
 
 Then run it in terminal from within the source folder
 
