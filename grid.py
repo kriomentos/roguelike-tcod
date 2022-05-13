@@ -20,7 +20,7 @@ kernel = np.ones((3, 3), dtype="int")
 kernel[1, 1] = 0
 
 class caveGen:
-    def __init__(self, rows, cols, initial_open = 0.40):
+    def __init__(self, rows, cols, initial_open):
         self.__rows = rows
         self.__cols = cols
         self.__map = np.full((rows, cols), fill_value = WALL, order="F")
@@ -46,7 +46,7 @@ class caveGen:
             (self.__get_row_as_string(row) for row in self.__map)
         ))
 
-        f = open("grid_output.txt", "a")
+        f = open("grid_output.txt", "w")
         f.write('\n\n')
         f.write('\n'.join(
             (self.__get_row_as_string(row) for row in self.__map)
@@ -122,8 +122,8 @@ def validate_input(prompt):
 if __name__ == '__main__':
     length = validate_input("Enter the # of rows: ")
     width = validate_input("Enter the # of columns: ")
-    #initial = float(input("Enter percentage of open spaces (Best results for pre gen are 0.4-0.5): "))
-    cave = caveGen(length, width, 0.45)
+    initial = float(input("Enter percentage of open spaces (Best results for pre gen are 0.4-0.5): "))
+    cave = caveGen(length, width, initial)
     cave.print_grid()
     cave.gen_map()
     #cave.gen_map()

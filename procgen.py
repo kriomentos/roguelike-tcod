@@ -14,6 +14,7 @@ import tile_types
 if TYPE_CHECKING:
     from entity import Entity
 
+#helper kelner for convolve2d, basically 3x3 array [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
 kernel = np.ones((3, 3), dtype = "int")
 kernel[1, 1] = 0
 
@@ -31,6 +32,7 @@ def generate_dungeon(
     #number of fields to "open" or replace/carve out with floors
     open_count = (dungeon.area * initial_open)
 
+    #randomly selected tile gets replaced with floor/carved out
     while open_count > 0:
         rand_w = randrange(1, dungeon.width - 1)
         rand_h = randrange(1, dungeon.height - 1)

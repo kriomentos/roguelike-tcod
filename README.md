@@ -34,3 +34,17 @@ First install tcod & scipy
 Then run it in terminal from within the source folder
 
 `python main.py`
+
+Player character is represented as `@` character
+
+Movement using arrow keys. Esc to exit the window 'gracefully'
+
+## Extras
+
+By running `python grid.py` you can generate varying size cave with cellular automata smoothing
+
+It will ask for dimensions and percentage of 'open tiles'
+
+Accepted dimensions are at least bigger than 5 for both rows and columns, with no upper bound (the bigger it is the more time it takes, with safely generated 1000x1000 maps. But they are barely readable at this point)
+
+Open tiles is a float between 0 - 1, with best results being between 0.4 - 0.5. It is not recommended to go above 0.8 as the generator is not guaranteed to finish in reasonable time and there's no failsafe to terminate it (requires manual terminating).
