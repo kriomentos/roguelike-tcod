@@ -14,6 +14,7 @@ graphic_dt = np.dtype(
 # Tile struct used for statically defined tile data.
 tile_dt = np.dtype(
     [
+        ("value", int),
         ("walkable", np.bool),  # True if this tile can be walked over.
         ("transparent", np.bool),  # True if this tile doesn't block FOV.
         ("dark", graphic_dt),  # Graphics for when this tile is not in FOV.
@@ -23,20 +24,23 @@ tile_dt = np.dtype(
 
 def new_tile(
     *,  # Enforce the use of keywords, so that parameter order doesn't matter.
+    value: int,
     walkable: int,
     transparent: int,
     dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
 ) -> np.ndarray:
     """Helper function for defining individual tile types """
-    return np.array((walkable, transparent, dark), dtype = tile_dt)
+    return np.array((value, walkable, transparent, dark), dtype = tile_dt)
 
 
 floor = new_tile(
+    value = 1,
     walkable = True, 
     transparent = True, 
     dark = (ord("."), (100, 100, 100), (0, 0, 0)),
 )
 wall = new_tile(
+    value = 0,
     walkable = False, 
     transparent = False, 
     dark = (ord("#"), (150, 150, 150), (0, 0, 0)),

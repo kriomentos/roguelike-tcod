@@ -11,7 +11,7 @@ def main() -> None:
 
     map_width = 80
     map_height = 45
-    init_open = 0.41
+    init_open = 0.45
 
     tileset = tcod.tileset.load_tilesheet(
         "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD

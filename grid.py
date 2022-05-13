@@ -46,25 +46,27 @@ class caveGen:
             (self.__get_row_as_string(row) for row in self.__map)
         ))
 
+        f = open("grid_output.txt", "a")
+        f.write('\n\n')
+        f.write('\n'.join(
+            (self.__get_row_as_string(row) for row in self.__map)
+        ))
+        f.close()
+
     def __get_row_as_string(self, row):
         return ' '.join((TILE_MAPPING[cell] for cell in row))
 
     def gen_map(self):
         self.__map_new = signal.convolve2d(self.__map, kernel, mode = "same")
 
-    #     for r in range(1, self.__rows - 1):
-    #         for c in range(1, self.__cols - 1):
-    #             wall_count = self.__adj_wall_count(r, c) #count walls surrounding given cell
-                
-    #             #5|4 celluar automata test. if theres more than 5 walls around given cell change it to WALL | less than 4 change to FLOOR
-    #             #if self.__map[r, c] == FLOOR:
-                
-    #             if wall_count > 5:
-    #                     self.__map[r, c] = WALL
-    #             elif wall_count < 4:
-    #                 self.__map[r, c] = FLOOR
+        for r in range(1, self.__rows - 1):
+            for c in range(1, self.__cols - 1): 
+                if self.__map_new[r, c] > 4:
+                    self.__map[r, c] = FLOOR
+                elif self.__map_new[r, c] < 3:
+                    self.__map[r, c] = WALL
 
-        return self.__map_new
+        return self.__map
 
     # def __adj_wall_count(self, sr, sc):
     #     count = 0
@@ -121,7 +123,7 @@ if __name__ == '__main__':
     length = validate_input("Enter the # of rows: ")
     width = validate_input("Enter the # of columns: ")
     #initial = float(input("Enter percentage of open spaces (Best results for pre gen are 0.4-0.5): "))
-    cave = caveGen(length, width, 0.41)
+    cave = caveGen(length, width, 0.45)
     cave.print_grid()
     cave.gen_map()
     #cave.gen_map()
