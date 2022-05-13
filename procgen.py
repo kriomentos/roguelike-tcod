@@ -16,7 +16,7 @@ def generate_dungeon(
     map_width: int,
     map_height: int,
     initial_open: int,
-    player: Entity,
+    player: Entity
 ) -> GameMap:
     """Generate a new dungeon map."""
     dungeon = GameMap(map_width, map_height)
