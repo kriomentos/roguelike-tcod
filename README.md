@@ -41,7 +41,7 @@ Movement using arrow keys. Esc to exit the window 'gracefully'
 
 ## Extras
 
-By running `python grid.py` from within Extras folder, you can generate varying size cave with cellular automata smoothing
+By running `python cave_generator.py` from within Extras folder, you can generate varying size cave with cellular automata smoothing
 
 It will ask for dimensions and percentage of 'open tiles'
 
