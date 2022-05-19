@@ -1,12 +1,18 @@
+from __future__ import annotations
+
 import random
-from typing import Iterator, Tuple
+from typing import Iterator, List, Tuple, TYPE_CHECKING
 from game_map import GameMap
 import tile_types
 import tcod
 
+#if TYPE_CHECKING:
+from entity import Entity
+
 TILE_MAPPING = {
     0: '#',
     1: '.',
+    2: '@'
 }
 
 class RectangularRoom:
@@ -23,38 +29,86 @@ class RectangularRoom:
 
         return center_x, center_y
 
+    # return inside of the room, not counting the walls
     @property
     def inner(self) -> Tuple[slice, slice]:
         return slice(self.x1 + 1, self.x2), slice(self.y1 + 1, self.y2)
 
+    def intersects(self, other: RectangularRoom) -> bool:
+        return(
+            self.x1 <= other.x2
+            and self.x2 >= other.x1
+            and self.y1 <= other.y2
+            and self.y2 >= other.y1
+        )
+
 def tunnel_between(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
+    # return L shaped tunnel between two points
     x1, y1 = start
     x2, y2 = end
+
     if random.random() < 0.5:
+        # go horizontal, then vertical
         corner_x, corner_y = x2, y1
     else:
+        # go vertical, then horizontal
         corner_x, corner_y = x1, y2
 
-def generate_dungeon(map_width, map_height) -> GameMap:
+    for x, y in tcod.los.bresenham((x1, y1), (corner_x, corner_y)).tolist():
+        yield x, y
+    for x, y in tcod.los.bresenham((corner_x, corner_y), (x2, y2)).tolist():
+        yield x, y
+
+def generate_dungeon(
+    max_rooms: int,
+    room_min_size: int,
+    room_max_size: int,
+    map_width: int, 
+    map_height: int,
+) -> GameMap:
+
     dungeon = GameMap(map_width, map_height)
 
-    room_1 = RectangularRoom(x = 20, y = 15, width = 10, height = 15)
-    room_2 = RectangularRoom(x = 35, y = 15, width = 10, height = 15)
+    rooms: List[RectangularRoom] = []
 
-    dungeon.tiles[room_1.inner] = tile_types.floor
-    dungeon.tiles[room_2.inner] = tile_types.floor
+    for r in range(max_rooms):
+        room_width = random.randint(room_min_size, room_max_size)
+        room_height = random.randint(room_min_size, room_max_size)
 
+        x = random.randint(0, dungeon.width - room_width - 1)
+        y = random.randint(0, dungeon.height - room_height - 1)
+
+        new_room = RectangularRoom(x, y, room_width, room_height)
+
+        if any(new_room.intersects(other_room) for other_room in rooms):
+            continue # intersects go next room
+        # if not then room is valid
+
+        # dig out the room
+        dungeon.tiles[new_room.inner] = tile_types.floor
+
+        if len(rooms) == 0:
+            # spawn player in first room
+            dungeon.tiles[new_room.center] = tile_types.player
+            print(dungeon.tiles[new_room.center])
+        else:
+            # dig out tunnels for the current room and the previous one, we don't do it for first, as it has no room previous to it
+            for x, y in tunnel_between(rooms[-1].center, new_room.center):
+                dungeon.tiles[x, y] = tile_types.floor
+
+        # we add the new room to our list of rooms
+        rooms.append(new_room)
+
+        # hacked way of placing player glyph just for graphic representation
+        dungeon.tiles[rooms[0].center] = tile_types.player
     return dungeon
 
 def print_map(map):
-    # for r in range(map.width):
-    #     for c in range(map.height):
-    #         print('{}'.format(map.tiles['value'][r, c]), end='')
-    #     print('\n')
     print('\n'.join(
         ((' '.join((TILE_MAPPING[cell] for cell in row))) for row in map.tiles['value'])
     ))
 
 if __name__ == '__main__':
-    map = generate_dungeon(45, 80)
+    player = 2
+    map = generate_dungeon(30, 6, 10, 45, 80)
     print_map(map)

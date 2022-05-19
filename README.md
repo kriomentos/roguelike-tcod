@@ -7,7 +7,10 @@ There will definitely be bad code practices and a lot of experimenting.
 
 ## TODOs | IDEAS
 - Joining lone rooms in cave generator
-- Another generator for dungeons Rogue style 
+- Another generator for dungeons Rogue style
+    - Rework room connecting method
+    - Add generators for features
+    - Add enemies and loot
 - Field of view
 - Movable & destroyable entities
 - Enemies
