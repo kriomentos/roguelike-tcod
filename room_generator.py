@@ -1,10 +1,10 @@
 from __future__ import annotations
-
 import random
 from typing import Iterator, List, Tuple, TYPE_CHECKING
 from game_map import GameMap
 import tile_types
 import tcod
+import search_tree
 
 #if TYPE_CHECKING:
 from entity import Entity
@@ -59,14 +59,14 @@ def tunnel_between(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tup
     for x, y in tcod.los.bresenham((corner_x, corner_y), (x2, y2)).tolist():
         yield x, y
 
-def neighbour(node):
-    dirs = [[1, 0], [0, 1], [-1, 0], [0, -1]]
-    result = []
-    for dir in dirs:
-        neighbor = [node[0].center + dir[1], node[1].center + dir[1]]
-        if neighbor in rooms:
-            result.append(neighbor)
-    return result
+# def neighbour(node):
+#     dirs = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+#     result = []
+#     for dir in dirs:
+#         neighbor = [node[0].center + dir[1], node[1].center + dir[1]]
+#         if neighbor in rooms:
+#             result.append(neighbor)
+#     return result
 
 def generate_dungeon(
     max_rooms: int,
@@ -98,8 +98,7 @@ def generate_dungeon(
 
         if len(rooms) == 0:
             # spawn player in first room
-            dungeon.tiles[new_room.center] = tile_types.player
-            print(dungeon.tiles[new_room.center])
+            pass
         else:
             # dig out tunnels for the current room and the previous one, we don't do it for first, as it has no room previous to it
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
@@ -122,4 +121,6 @@ def print_map(map):
 if __name__ == '__main__':
     player = 2
     map = generate_dungeon(30, 6, 10, 45, 80)
+    start = (20, 25)
+    parents = breadth_first()
     print_map(map)
