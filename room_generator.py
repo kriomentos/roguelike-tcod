@@ -59,6 +59,15 @@ def tunnel_between(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tup
     for x, y in tcod.los.bresenham((corner_x, corner_y), (x2, y2)).tolist():
         yield x, y
 
+def neighbour(node):
+    dirs = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+    result = []
+    for dir in dirs:
+        neighbor = [node[0].center + dir[1], node[1].center + dir[1]]
+        if neighbor in rooms:
+            result.append(neighbor)
+    return result
+
 def generate_dungeon(
     max_rooms: int,
     room_min_size: int,
@@ -101,6 +110,8 @@ def generate_dungeon(
 
         # hacked way of placing player glyph just for graphic representation
         dungeon.tiles[rooms[0].center] = tile_types.player
+
+        # print(rooms.type())
     return dungeon
 
 def print_map(map):
