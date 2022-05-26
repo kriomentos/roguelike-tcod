@@ -18,6 +18,7 @@ class GameMap:
 
         self.visible = np.full((width, height), fill_value = False, order = "F") # tiles the player can see currently
         self.explored = np.full((width, height), fill_value = False, order = "F") # tiles the player has seen already
+    
     @property
     def area(self):
         return self.width * self.height
