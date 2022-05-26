@@ -25,7 +25,7 @@ def generate_dungeon(
     player: Entity
 ) -> GameMap:
     # Generate a new dungeon map.
-    dungeon = GameMap(map_width, map_height)
+    dungeon = GameMap(map_width, map_height, entities = [player])
     # helper map for convolve calculation
     wall_count = GameMap(map_width, map_height)
 
