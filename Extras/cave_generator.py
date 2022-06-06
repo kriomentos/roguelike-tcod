@@ -2,7 +2,6 @@ from random import randrange
 from scipy import signal
 import numpy as np
 
-
 EMPTY = -1
 WALL = 0
 FLOOR = 1
@@ -17,6 +16,12 @@ TILE_MAPPING = {
 
 kernel = np.ones((3, 3), dtype="int")
 kernel[1, 1] = 0
+
+# kernel = [
+#     [0, 1, 0],
+#     [1, 0, 1],
+#     [0, 1, 0]
+# ]
 
 class caveGen:
     def __init__(self, rows, cols, initial_open):
@@ -61,6 +66,13 @@ class caveGen:
 
         for r in range(1, self.__rows - 1):
             for c in range(1, self.__cols - 1): 
+                # if self.__map_new[r, c] == 3:
+                #     self.__map[r, c] = FLOOR
+                # elif self.__map_new[r, c] < 1:
+                #     self.__map[r, c] = FLOOR
+                # elif self.__map_new[r, c] > 5:
+                #     self.__map[r, c] = WALL
+
                 if self.__map_new[r, c] > 4:
                     self.__map[r, c] = FLOOR
                 elif self.__map_new[r, c] < 3:
@@ -116,5 +128,6 @@ if __name__ == '__main__':
     width = validate_input("Enter the # of columns: ")
     initial = float(input("Enter percentage of open spaces (Best results for pre gen are 0.4-0.5): "))
     cave = caveGen(length, width, initial)
-    cave.gen_map()
+    for _ in range(2):
+        cave.gen_map()
     cave.print_grid()
