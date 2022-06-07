@@ -4,6 +4,8 @@ import numpy as np
 import sys
 from typing import Tuple
 
+from tcod import heightmap_add
+
 sys.setrecursionlimit(10000)
 
 EMPTY = -1
@@ -35,47 +37,50 @@ class Maze:
         dir = [1, 2, 3, 4]
         facing = random.choice(dir)
         if facing == 1: # TOP WALL
-            point = [1, random.randrange(1, self.width - 1)]
+            point = [1, random.randrange(2, self.width - 2)]
+            if self.__maze[2, point[1]] == 0:
+                point[1] = random.randrange(2, self.width - 2)
         elif facing == 2: # BOTTOM WALL
-            point = [self.height - 1, random.randrange(1, self.width - 1)]
+            point = [self.height - 2, random.randrange(2, self.width - 2)]
         elif facing == 3: # LEFT WALL
-            point = [random.randrange(1, self.width - 1), 1]
+            point = [random.randrange(2, self.width - 2), 1]
         elif facing == 4: # RIGHT WALL
-            point = [random.randrange(1, self.width - 1), self.width -1]
+            point = [random.randrange(2, self.width - 2), self.width - 2]
 
         return point
 
     def gen_map(self):
-        for i in range(self.height):
-            for j in range(self.width):
+        for i in range(self.width):
+            for j in range(self.height):
                 if i % 2 == 1 or j % 2 == 1:
                     self.__maze[i, j] = 0
                 if i == 0 or j == 0 or i == self.height - 1 or j == self.width - 1:
                     self.__maze[i, j] = 0.5
 
-        sx = random.randrange(2, self.width - 2, 2)
-        sy = random.randrange(2, self.height - 2, 2)
+        sx = random.choice(range(2, self.width - 2, 2))
+        sy = random.choice(range(2, self.height - 2, 2))
 
         self.generate(sx, sy)
 
-        for i in range(self.height):
-            for j in range(self.width):
+        for i in range(self.width):
+            for j in range(self.height):
                 if self.__maze[i, j] == 0.5:
                     self.__maze[i, j] = 1
                 if i == 0 or j == 0 or i == self.height - 1 or j == self.width - 1:
                     self.__maze[i, j] = -1
 
         start = self.start_end()
-        print(start.x)
-        self.__maze[start] = 2
-        self.__maze[self.height - 2, self.width - 3] = 1
+        end = self.start_end()
+
+        self.__maze[start[0], start[1]] = 1
+        self.__maze[end[0], end[1]] = 1
 
         return 0
     
     def generate(self, cx, cy):
         self.__maze[cy, cx] = 0.5
 
-        if(self.__maze[cy - 2, cx] == 0.5 and self.__maze[cy + 2, cx] == 0.5 and self.__maze[cy, cx -2] == 0.5 and self.__maze[cy, cx + 2] == 0.5):
+        if(self.__maze[cy - 2, cx] == 0.5 and self.__maze[cy + 2, cx] == 0.5 and self.__maze[cy, cx - 2] == 0.5 and self.__maze[cy, cx + 2] == 0.5):
             pass
         else:
             li = [1, 2, 3, 4]
@@ -106,27 +111,6 @@ class Maze:
                 else:
                     nx = cx
                     mx = cx
-                # match dir:
-                #     case 1:
-                #         nx = cx
-                #         mx = cx
-                #         ny = cy - 2
-                #         my = cy - 1   
-                #     case 2:
-                #         nx = cx
-                #         mx = cx
-                #         ny = cy + 2
-                #         my = cy + 1
-                #     case 3:
-                #         nx = cx - 2
-                #         mx = cx - 1
-                #         ny = cy
-                #         my = cy
-                #     case 4:
-                #         nx = cx + 2
-                #         mx = cx + 1
-                #         ny = cy
-                #         my = cy 
 
                 if self.__maze[ny, nx] != 0.5:
                     self.__maze[my, mx] = 0.5
@@ -148,14 +132,14 @@ def validate_input(prompt):
             print("Input must be number, try again")
             continue
 
-        if value > 5:
+        if value > 2:
             return value
         else:
             print("Input must be positive and bigger than 5, try again")
 
 if __name__ == '__main__':
-    length = validate_input("Enter the # of rows: ")
-    width = validate_input("Enter the # of columns: ")
-    maze = Maze(length, width)
+    width = validate_input("Enter the # of rows: ")
+    height = validate_input("Enter the # of columns: ")
+    maze = Maze(width, height)
     maze.gen_map()
     maze.print_grid()
