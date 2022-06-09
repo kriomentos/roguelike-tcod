@@ -31,7 +31,7 @@ class Maze:
 
         self.width = width
         self.height = height
-        self.__maze = np.ones((width, height), dtype = float)
+        self.__maze = np.zeros((width, height), dtype = float)
 
     def start_end(self) -> Tuple[int, int]:
         dir = [1, 2, 3, 4]
@@ -45,38 +45,29 @@ class Maze:
         elif facing == 3: # LEFT WALL
             point = [random.randrange(2, self.width - 2), 1]
         elif facing == 4: # RIGHT WALL
-            point = [random.randrange(2, self.width - 2), self.width - 2]
+            point = [random.randrange(2, self.width - 2), self.width]
 
         return point
 
     def gen_map(self):
-        for i in range(self.width):
-            for j in range(self.height):
-                if i % 2 == 1 or j % 2 == 1:
-                    self.__maze[i, j] = 0
-                if i == 0 or j == 0 or i == self.height - 1 or j == self.width - 1:
-                    self.__maze[i, j] = 0.5
+        self.__maze[1::2,1::2] = 1
+        self.__maze = np.pad(self.__maze, pad_width = 1, mode = 'constant', constant_values = 0.5)
 
         sx = random.choice(range(2, self.width - 2, 2))
         sy = random.choice(range(2, self.height - 2, 2))
 
         self.generate(sx, sy)
 
-        for i in range(self.width):
-            for j in range(self.height):
-                if self.__maze[i, j] == 0.5:
-                    self.__maze[i, j] = 1
-                if i == 0 or j == 0 or i == self.height - 1 or j == self.width - 1:
-                    self.__maze[i, j] = -1
+        # numpy fancy indexing, select all indices of value 0.5 and change thme to -1
+        self.__maze[self.__maze == 0.5] = -1
 
         start = self.start_end()
         end = self.start_end()
-
-        self.__maze[start[0], start[1]] = 1
-        self.__maze[end[0], end[1]] = 1
+        self.__maze[start[0], start[1]] = 2
+        self.__maze[end[0], end[1]] = 2
 
         return 0
-    
+
     def generate(self, cx, cy):
         self.__maze[cy, cx] = 0.5
 
@@ -108,9 +99,6 @@ class Maze:
                     mx = cx + 1
                     ny = cy
                     my = cy
-                else:
-                    nx = cx
-                    mx = cx
 
                 if self.__maze[ny, nx] != 0.5:
                     self.__maze[my, mx] = 0.5
