@@ -1,10 +1,7 @@
+import cProfile
 import random
-import re
 import numpy as np
 import sys
-from typing import Tuple
-
-from tcod import heightmap_add
 
 sys.setrecursionlimit(10000)
 
@@ -33,19 +30,25 @@ class Maze:
         self.height = height
         self.__maze = np.zeros((width, height), dtype = float)
 
-    def start_end(self) -> Tuple[int, int]:
+    def start_end(self):
         dir = [1, 2, 3, 4]
         facing = random.choice(dir)
         if facing == 1: # TOP WALL
-            point = [1, random.randrange(2, self.width - 2)]
-            if self.__maze[2, point[1]] == 0:
-                point[1] = random.randrange(2, self.width - 2)
+            point = [1, random.randrange(2, self.width - 1)]
+            if self.__maze[2, point[1]] == 0 or self.__maze[1, point[1]] == 2:
+                point = self.start_end()
         elif facing == 2: # BOTTOM WALL
-            point = [self.height - 2, random.randrange(2, self.width - 2)]
+            point = [self.height, random.randrange(2, self.width - 1)]
+            if self.__maze[self.height - 1, point[1]] == 0 or self.__maze[self.height, point[1]] == 2:
+                point = self.start_end()
         elif facing == 3: # LEFT WALL
-            point = [random.randrange(2, self.width - 2), 1]
+            point = [random.randrange(2, self.width - 1), 1]
+            if self.__maze[point[0], 2] == 0 or self.__maze[point[0], 1] == 2:
+                point = self.start_end()
         elif facing == 4: # RIGHT WALL
-            point = [random.randrange(2, self.width - 2), self.width]
+            point = [random.randrange(2, self.width - 1), self.width]
+            if self.__maze[point[0], self.width - 1] == 0 or self.__maze[point[0], self.width] == 2:
+                point = self.start_end()
 
         return point
 
@@ -62,8 +65,8 @@ class Maze:
         self.__maze[self.__maze == 0.5] = -1
 
         start = self.start_end()
-        end = self.start_end()
         self.__maze[start[0], start[1]] = 2
+        end = self.start_end()
         self.__maze[end[0], end[1]] = 2
 
         return 0
@@ -125,9 +128,14 @@ def validate_input(prompt):
         else:
             print("Input must be positive and bigger than 5, try again")
 
+# def run():
+#     maze = Maze(100, 100)
+#     maze.gen_map()
+
 if __name__ == '__main__':
-    width = validate_input("Enter the # of rows: ")
-    height = validate_input("Enter the # of columns: ")
-    maze = Maze(width, height)
+    # cProfile.run('run()')
+    # width = validate_input("Enter the # of rows: ")
+    # height = validate_input("Enter the # of columns: ")
+    maze = Maze(10, 10)
     maze.gen_map()
     maze.print_grid()
