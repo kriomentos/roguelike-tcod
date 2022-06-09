@@ -64,6 +64,12 @@ class Maze:
         # numpy fancy indexing, select all indices of value 0.5 and change thme to -1
         self.__maze[self.__maze == 0.5] = -1
 
+        for i in range(0, 35):
+            sx = random.choice(range(2, self.width - 2, 2))
+            sy = random.choice(range(2, self.height - 2, 2))
+            if self.__maze[sx, sy] == -1:
+                self.__maze[sx, sy] = 1
+
         start = self.start_end()
         self.__maze[start[0], start[1]] = 2
         end = self.start_end()
@@ -136,6 +142,6 @@ if __name__ == '__main__':
     # cProfile.run('run()')
     # width = validate_input("Enter the # of rows: ")
     # height = validate_input("Enter the # of columns: ")
-    maze = Maze(10, 10)
+    maze = Maze(20, 20)
     maze.gen_map()
     maze.print_grid()
