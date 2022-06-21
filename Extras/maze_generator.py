@@ -140,8 +140,8 @@ def validate_input(prompt):
 
 if __name__ == '__main__':
     # cProfile.run('run()')
-    # width = validate_input("Enter the # of rows: ")
-    # height = validate_input("Enter the # of columns: ")
-    maze = Maze(20, 20)
+    width = validate_input("Enter the # of rows: ")
+    height = validate_input("Enter the # of columns: ")
+    maze = Maze(width, height)
     maze.gen_map()
     maze.print_grid()
