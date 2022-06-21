@@ -1,14 +1,12 @@
 from __future__ import annotations
-from html import entities
 from typing import Iterable, TYPE_CHECKING
-from xml.dom.minidom import Entity
 import numpy as np  # type: ignore
 from tcod.console import Console
 
 import tile_types
 
 if TYPE_CHECKING:
-    from entity import E
+    from entity import Entity
 
 class GameMap:
     def __init__(self, width: int, height: int, entities: Iterable[Entity] = ()):
@@ -28,12 +26,21 @@ class GameMap:
         return 0 <= x < self.width and 0 <= y < self.height
 
     def render(self, console: Console) -> None:
-        # prints the whole map, its called from within Engine when we render every bit to console 
-        console.tiles_rgb[0:self.width, 0:self.height] = np.select(
-            condlist = [self.visible, self.explored],
-            choicelist = [self.tiles["light"], self.tiles["dark"]],
-            default = tile_types.SHROUD
-        )
+        # prints the whole map, its called from within Engine when we render every bit to console
+        # print based on condition whether tiles are visible or were explored already
+        # if not default to SHROUDed tile, which is just empty black square 
+        # console.tiles_rgb[0:self.width, 0:self.height] = np.select(
+        #     condlist = [self.visible, self.explored],
+        #     choicelist = [self.tiles["light"], self.tiles["dark"]],
+        #     default = tile_types.SHROUD
+        # )
+
+        # display whole map without FOV function
+        console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["dark"]
+
         for entity in self.entities:
-            if self.visible[entity.x, entity.y]:
-                console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
+            # don't apply FOV to entites
+            console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
+            # display enitty only if in FOV
+            # if self.visible[entity.x, entity.y]:
+            #     console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
