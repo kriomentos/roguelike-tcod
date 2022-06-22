@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Iterable, TYPE_CHECKING
+from typing import Iterable, Optional, TYPE_CHECKING
 import numpy as np  # type: ignore
 from tcod.console import Console
 
@@ -21,6 +21,15 @@ class GameMap:
     def area(self):
         return self.width * self.height
 
+    # check list of entities and return one being at [x, y] location
+    def get_blocking_entity_at_location(self, location_x: int, location_y: int) -> Optional[Entity]:
+        for entity in self.entities:
+            if entity.blocks_movement and entity.x == location_x and entity.y == location_y:
+                return entity
+
+        return None
+
+    # check if given coordinates are within bounds of game map
     def in_bounds(self, x: int, y: int) -> bool:
         # Return True if x and y are inside of the bounds of this map.
         return 0 <= x < self.width and 0 <= y < self.height
