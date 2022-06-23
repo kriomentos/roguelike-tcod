@@ -5,13 +5,14 @@ from typing import TYPE_CHECKING
 from scipy import signal
 
 import numpy as np
+from engine import Engine
 
 from game_map import GameMap
 import tile_types
 import entity_factories
 
 if TYPE_CHECKING:
-    from entity import Entity
+    from engine import Engine
 
 # helper kernel for convolve2d, basically 3x3 array [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
 kernel = np.ones((3, 3), dtype = "int")
@@ -19,7 +20,6 @@ kernel[1, 1] = 0
 
 
 def place_entities(dungeon: GameMap, maximum_monsters: int):
-    num_of_monsters = randint(0, maximum_monsters)
 
     x = randint(1, dungeon.width - 1)
     y = randint(0, dungeon.height - 1)
@@ -37,12 +37,13 @@ def generate_dungeon(
     map_height: int,
     initial_open: int,
     max_monsters: int,
-    player: Entity
+    engine: Engine,
 ) -> GameMap:
     # Generate a new dungeon map.
-    dungeon = GameMap(map_width, map_height, entities = [player])
+    player = engine.player
+    dungeon = GameMap(engine, map_width, map_height, entities = [player])
     # helper map for convolve calculation
-    wall_count = GameMap(map_width, map_height)
+    wall_count = GameMap(engine, map_width, map_height)
 
     # number of fields to "open" or replace/carve out with floors
     open_count = (dungeon.area * initial_open)
@@ -69,5 +70,7 @@ def generate_dungeon(
                 dungeon.tiles[x, y] = tile_types.wall
 
     place_entities(dungeon, max_monsters)
+
+    player.place(40, 20, dungeon)
 
     return dungeon

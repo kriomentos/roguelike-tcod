@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 from turtle import clone
-from typing import Tuple, TypeVar, TYPE_CHECKING
+from typing import Optional, Tuple, TypeVar, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from game_map import GameMap
@@ -11,8 +11,11 @@ T = TypeVar("T", bound = "Entity")
 
 class Entity:
     # Generic object for entities
+    gamemap: GameMap
+
     def __init__(
-        self, 
+        self,
+        gamemap: Optional[GameMap] = None,
         x: int = 0, # integers for position in Fortran grid
         y: int = 0, 
         char: str = "?", # string character for visual representation
@@ -26,14 +29,29 @@ class Entity:
         self.color = color
         self.name = name
         self.blocks_movement = blocks_movement
+        if gamemap:
+            # if gamemap isn't provided now, it will be set later
+            self.gamemap = gamemap
+            gamemap.entities.add(self)
 
     # creating copy of generic entity, used by factories to spawn it on game map
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         clone = copy.deepcopy(self) # create deep copy of provided facotry entity
         clone.x = x # using factories we just copy cooridnates provided during placement
         clone.y = y
+        clone.gamemap = gamemap
         gamemap.entities.add(clone) # add clone to the gamemap object to hold
         return clone
+
+    def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
+        # palce entity at new location, handles moving across gamemaps
+        self.x = x
+        self.y = y
+        if gamemap:
+            if hasattr(self, "gamemap"): # possibly uninitialized
+                self.gamemap.entities.remove(self)
+            self.gamemap = gamemap
+            gamemap.entities.add(self)
 
     def move(self, dx: int, dy: int) -> None:
         self.x += dx
