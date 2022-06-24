@@ -1,8 +1,9 @@
 from __future__ import annotations
-from typing import Iterable, Optional, TYPE_CHECKING
+from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 import numpy as np  # type: ignore
 from tcod.console import Console
 
+from entity import Actor
 import tile_types
 
 if TYPE_CHECKING:
@@ -32,6 +33,14 @@ class GameMap:
     def area(self):
         return self.width * self.height
 
+    @property
+    def actors(self) -> Iterator[Actor]:
+        yield from (
+            entity
+            for entity in self.entities
+            if isinstance(entity, Actor) and entity.is_alive
+        )
+
     # check list of entities and return one being at [x, y] location
     def get_blocking_entity_at_location(self, location_x: int, location_y: int) -> Optional[Entity]:
         for entity in self.entities:
@@ -44,6 +53,13 @@ class GameMap:
 
         return None
 
+    def get_actor_at_location(self, x: int, y: int) -> Optional[Actor]:
+        for actor in self.actors:
+            if actor.x == x and actor.y == y:
+                return actor
+        
+        return None
+
     # check if given coordinates are within bounds of game map
     def in_bounds(self, x: int, y: int) -> bool:
         # Return True if x and y are inside of the bounds of this map.
@@ -53,18 +69,18 @@ class GameMap:
         # prints the whole map, its called from within Engine when we render every bit to console
         # print based on condition whether tiles are visible or were explored already
         # if not, default to SHROUDed tile, which is just empty black square 
-        # console.tiles_rgb[0 : self.width, 0 : self.height] = np.select(
-        #     condlist = [self.visible, self.explored],
-        #     choicelist = [self.tiles["light"], self.tiles["dark"]],
-        #     default = tile_types.SHROUD,
-        # )
+        console.tiles_rgb[0 : self.width, 0 : self.height] = np.select(
+            condlist = [self.visible, self.explored],
+            choicelist = [self.tiles["light"], self.tiles["dark"]],
+            default = tile_types.SHROUD,
+        )
 
         # display whole map without FOV function
-        console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["dark"]
+        # console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["dark"]
 
         for entity in self.entities:
             # don't apply FOV to entites
-            console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
+            # console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
             # display entity only if in FOV
-            # if self.visible[entity.x, entity.y]:
-            #     console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
+            if self.visible[entity.x, entity.y]:
+                console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)

@@ -1,6 +1,4 @@
 from __future__ import annotations
-from html import entities
-from os import pread
 
 from typing import TYPE_CHECKING
 

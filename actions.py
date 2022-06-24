@@ -1,5 +1,4 @@
 from __future__ import annotations
-from select import select
 
 from typing import Optional, Tuple, TYPE_CHECKING
 
@@ -29,6 +28,10 @@ class Action:
 class EscapeAction(Action):
     def perform(self) -> None:
         raise SystemExit()
+
+class WaitAction(Action):
+    def perform(self) -> None:
+        pass
 
 class ActionWithDirection(Action):
     def __init__(self, entity: Entity, dx: int, dy: int):
