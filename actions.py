@@ -4,11 +4,11 @@ from typing import Optional, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Entity
+    from entity import Actor, Entity
 
 # default action
 class Action:
-    def __init__(self, entity: Entity) -> None:
+    def __init__(self, entity: Actor) -> None:
         super().__init__()
         self.entity = entity
 
@@ -34,7 +34,7 @@ class WaitAction(Action):
         pass
 
 class ActionWithDirection(Action):
-    def __init__(self, entity: Entity, dx: int, dy: int):
+    def __init__(self, entity: Actor, dx: int, dy: int):
         super().__init__(entity)
 
         self.dx = dx
@@ -50,18 +50,36 @@ class ActionWithDirection(Action):
         """Return the blocking entity at this actions destination.."""
         return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
     
+    @property
+    def target_actor(self) -> Optional[Actor]:
+        return self.engine.game_map.get_actor_at_location(*self.dest_xy)
+
     def perform(self) -> None:
         raise NotImplementedError()
 
 class MeleeAction(ActionWithDirection):
     def perform(self) -> None:
         # get entity we try to attack
-        target = self.blocking_entity
-        # if no entity to attack
+        target = self.target_actor
+
+        # if no entity to attack do nothing
         if not target:
             return
 
-        print(f"You kick the {target.name}, it does nothing")
+        # calculate damage 
+        # attack power of entity doing the action
+        # reduced by targets defense stat
+        damage = self.entity.fighter.power - target.fighter.defense
+
+        # fluff string to serve saying who does what to who
+        attack_desc = f'{self.entity.name.capitalize()} attacks {target.name}'
+
+        # self explanatory
+        if damage > 0:
+            print(f'{attack_desc} for {damage} hit points.')
+            target.fighter.hp -= damage # reduce current HP by the damage dealt
+        else:
+            print(f'{attack_desc} but does no damage.') # or not if the enemy power is too lowe
 
 class MovementAction(ActionWithDirection):
     # perform the movement action in given direction
@@ -83,7 +101,7 @@ class MovementAction(ActionWithDirection):
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
 
-        if self.blocking_entity:
+        if self.target_actor:
             return MeleeAction(self.entity, self.dx, self.dy).perform()
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()

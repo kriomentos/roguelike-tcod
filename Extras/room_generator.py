@@ -1,10 +1,16 @@
+'''
+In it's current stae it doesn't
+requires rewrite of Bresenham line tunnel creator
+generation method, placing entities and passing arguments
+'''
+
+
 from __future__ import annotations
 import random
 from typing import Iterator, List, Tuple, TYPE_CHECKING
 from game_map import GameMap
 import tile_types
 import tcod
-import search_tree
 
 #if TYPE_CHECKING:
 from entity import Entity
@@ -120,7 +126,13 @@ def print_map(map):
 
 if __name__ == '__main__':
     player = 2
-    map = generate_dungeon(30, 6, 10, 45, 80)
+    map = generate_dungeon(
+        30, # max rooms
+        6, # min room size
+        10, # max room size
+        45, # height
+        80  # width
+    )
     start = (20, 25)
-    parents = breadth_first()
+    # parents = breadth_first()
     print_map(map)

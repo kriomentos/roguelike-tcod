@@ -15,12 +15,12 @@ orc = Actor(
     color = (63, 127, 63), 
     name = "Orc", 
     ai_cls = HostileEnemy,
-    fighter = Fighter(hp = 10, defense = 0, power = 3),
+    fighter = Fighter(hp = 10, defense = 0, power = 4),
 )
 troll = Actor(
     char = "T", 
     color = (0, 127, 0), 
     name = "Troll",
     ai_cls = HostileEnemy,
-    fighter = Fighter(hp = 20, defense = 2, power = 4),
+    fighter = Fighter(hp = 20, defense = 2, power = 5),
 )

@@ -21,16 +21,22 @@ kernel[1, 1] = 0
 
 def place_entities(dungeon: GameMap, maximum_monsters: int):
 
-    x = randint(1, dungeon.width - 1)
-    y = randint(0, dungeon.height - 1)
+    for i in range(maximum_monsters):
+        # select random postion for enemy
+        # it is in bounds of the map minus the edges
+        x = randint(1, dungeon.width - 1)
+        y = randint(0, dungeon.height - 1)
 
-    if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
-        if random() < 0.8:
-            entity_factories.orc.spawn(dungeon, x, y)
-            print("Placed orc at: ", x, y)
-        else:
-            entity_factories.troll.spawn(dungeon, x, y)
-            print("Placed troll at: ", x, y)
+        # check if the selected spot doesn't contain any entity already
+        # if it does not then place one of the monsters
+        # 80% chance for orc 20% for troll
+        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
+            if random() < 0.8:
+                entity_factories.orc.spawn(dungeon, x, y)
+                print("Placed orc at: ", x, y)
+            else:
+                entity_factories.troll.spawn(dungeon, x, y)
+                print("Placed troll at: ", x, y)
 
 def generate_dungeon(
     map_width: int,

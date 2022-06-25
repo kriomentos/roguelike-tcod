@@ -20,7 +20,6 @@ class BaseAI(Action, BaseComponent):
 
     def get_path_to(self, dest_x: int, dest_y: int) -> List[Tuple[int, int]]:
         # calculates path to traget position or returns empty list if no valid path
-
         cost = np.array(self.entity.gamemap.tiles["walkable"], dtype = np.int8)
 
         for entity in self.entity.gamemap.entities:
@@ -29,6 +28,7 @@ class BaseAI(Action, BaseComponent):
                 # lower means more entity crowding behind each other
                 # higher encites them to take longer paths to surround player
                 cost[entity.x, entity.y] += 10
+                
         # create graph from the cost array (flat weight for all but active entities)
         # pass it to pathfinder
         graph = tcod.path.SimpleGraph(cost = cost, cardinal = 2, diagonal = 3)
@@ -37,7 +37,7 @@ class BaseAI(Action, BaseComponent):
         pathfinder.add_root((self.entity.x, self.entity.y))
 
         # calculate path to the destination and remove starting point
-        path: List[L[int]] = pathfinder.path_to((dest_x, dest_y))[1:].tolist()
+        path: List[List[int]] = pathfinder.path_to((dest_x, dest_y))[1:].tolist()
 
         # convert from List[List] to List[Tuple]
         return [(index[0], index[1]) for index in path]
@@ -63,7 +63,7 @@ class HostileEnemy(BaseAI):
         if self.path:
             dest_x, dest_y = self.path.pop(0)
             return MovementAction(
-                self.entity, dest_x = self.entity.x, dest_y = self.entity.y
+                self.entity, dest_x - self.entity.x, dest_y - self.entity.y
             ).perform()
 
         return WaitAction(self.entity).perform()
