@@ -75,12 +75,18 @@ class GameMap:
             default = tile_types.SHROUD,
         )
 
+        entities_for_rendering = sorted(
+            self.entities, key = lambda x: x.render_order.value
+        )
+
         # display whole map without FOV function
         # console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["dark"]
 
-        for entity in self.entities:
+        for entity in entities_for_rendering:
             # don't apply FOV to entites
             # console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
             # display entity only if in FOV
             if self.visible[entity.x, entity.y]:
-                console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
+                console.print(
+                    x = entity.x, y = entity.y, string = entity.char, fg = entity.color
+                )
