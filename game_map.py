@@ -75,6 +75,7 @@ class GameMap:
             default = tile_types.SHROUD,
         )
 
+        # sorted list of entities to render on gamemap, based on order value
         entities_for_rendering = sorted(
             self.entities, key = lambda x: x.render_order.value
         )
