@@ -1,5 +1,4 @@
 from __future__ import annotations
-from turtle import color
 
 from typing import TYPE_CHECKING
 
@@ -16,26 +15,33 @@ def render_bar(
     # i can't into basic maths
     bar_width = int(float(current_value) / maximum_value * total_width)
 
-    console.draw_rect(
-        x = 84, 
-        y = 2, 
-        width = 1, 
-        height = total_width, 
-        ch = 1, 
-        bg = color.bar_filled
-    )
+    # console.draw_rect(
+    #     x = 84, 
+    #     y = 2, 
+    #     width = 1, 
+    #     height = total_width, 
+    #     ch = 1, 
+    #     bg = color.bar_filled
+    # )
 
-    if bar_width >= 0:
+    console.draw_rect(x = 0, y = 45, width = total_width, height = 1, ch = 1, bg = color.bar_empty)
+
+    if bar_width > 0:
         console.draw_rect(
-            x = 84,
-            y = 2,
-            width = 1,
-            height = total_width - bar_width,
-            ch = 1,
-            bg = color.bar_empty
+            x = 0, y = 45, width = bar_width, height = 1, ch = 1, bg = color.bar_filled
         )
 
+    # if bar_width >= 0:
+    #     console.draw_rect(
+    #         x = 84,
+    #         y = 2,
+    #         width = 1,
+    #         height = total_width - bar_width,
+    #         ch = 1,
+    #         bg = color.bar_empty
+    #     )
+
     console.print(
-        x = 80, y = 0,
-        string = f"HP:\n {current_value}/\n{maximum_value}", fg = color.bar_text
+        x = 1, y = 45,
+        string = f"HP: {current_value}/{maximum_value}", fg = color.black
     )

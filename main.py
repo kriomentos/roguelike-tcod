@@ -2,6 +2,7 @@ import tcod
 
 import copy
 
+import color
 from engine import Engine
 import entity_factories
 from procgen import generate_dungeon
@@ -32,6 +33,10 @@ def main() -> None:
     )
 
     engine.update_fov()
+
+    engine.message_log.add_message(
+        "You stepped down into yet another dungeon!", color.welcome_text
+    )
 
     with tcod.context.new_terminal(
         screen_width,

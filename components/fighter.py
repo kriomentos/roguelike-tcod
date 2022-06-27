@@ -5,6 +5,8 @@ from components.base_component import BaseComponent
 from input_handlers import GameOverEventHandler
 from render_order import RenderOrder
 
+import color
+
 if TYPE_CHECKING:
     from entity import Actor
 
@@ -32,9 +34,11 @@ class Fighter(BaseComponent):
     def die(self) -> None:
         if self.engine.player is self.entity:
             death_massage = "You died"
+            death_massage_color = color.player_die
             self.engine.event_handler = GameOverEventHandler(self.engine)
         else:
             death_massage = f"{self.entity.name} is dead"
+            death_massage_color = color.enemy_die
 
         self.entity.char = "%"
         self.entity.color = (191, 0, 0)
@@ -43,4 +47,4 @@ class Fighter(BaseComponent):
         self.entity.name = f"Corpse of {self.entity.name}"
         self.entity.render_order = RenderOrder.CORPSE
 
-        print(death_massage)
+        self.engine.message_log.add_message(death_massage, death_massage_color)
