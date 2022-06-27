@@ -30,6 +30,10 @@ class GameMap:
         ) # tiles the player has seen already
     
     @property
+    def gamemap(self) -> GameMap:
+        return self
+
+    @property
     def area(self):
         return self.width * self.height
 
