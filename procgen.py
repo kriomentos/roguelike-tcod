@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 from scipy import signal
 
 import numpy as np
-from sqlalchemy import table
 from engine import Engine
 
 from game_map import GameMap

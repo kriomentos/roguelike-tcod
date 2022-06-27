@@ -113,6 +113,16 @@ class PushAction(ActionWithDirection):
         dest_x, dest_y = self.dest_xy
         target = self.blocking_entity
 
+        # if the desitnaiton is out of bounds do nothing
+        if not self.engine.game_map.in_bounds(dest_x, dest_y):
+            return
+        # if the destination is not walkable tile do nothing
+        if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
+            return
+        # if the destination is blocked by another enitty do nothing
+        if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+            return
+
         target.move(self.dx, self.dy)
 
 class BumpAction(ActionWithDirection):
