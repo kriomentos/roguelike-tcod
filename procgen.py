@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from scipy import signal
 
 import numpy as np
+from sqlalchemy import table
 from engine import Engine
 
 from game_map import GameMap
@@ -78,5 +79,6 @@ def generate_dungeon(
     place_entities(dungeon, max_monsters)
 
     player.place(40, 20, dungeon)
+    entity_factories.table.place(40, 21, dungeon)
 
     return dungeon

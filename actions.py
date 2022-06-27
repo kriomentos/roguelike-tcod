@@ -108,10 +108,19 @@ class MovementAction(ActionWithDirection):
         
         self.entity.move(self.dx, self.dy)
 
+class PushAction(ActionWithDirection):
+    def perform(self) -> None:
+        dest_x, dest_y = self.dest_xy
+        target = self.blocking_entity
+
+        target.move(self.dx, self.dy)
+
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
 
         if self.target_actor:
             return MeleeAction(self.entity, self.dx, self.dy).perform()
+        elif self.blocking_entity:
+            return PushAction(self.entity, self.dx, self.dy).perform()
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()
