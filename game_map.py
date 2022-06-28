@@ -73,11 +73,11 @@ class GameMap:
         # prints the whole map, its called from within Engine when we render every bit to console
         # print based on condition whether tiles are visible or were explored already
         # if not, default to SHROUDed tile, which is just empty black square 
-        console.tiles_rgb[0 : self.width, 0 : self.height] = np.select(
-            condlist = [self.visible, self.explored],
-            choicelist = [self.tiles["light"], self.tiles["dark"]],
-            default = tile_types.SHROUD,
-        )
+        # console.tiles_rgb[0 : self.width, 0 : self.height] = np.select(
+        #     condlist = [self.visible, self.explored],
+        #     choicelist = [self.tiles["light"], self.tiles["dark"]],
+        #     default = tile_types.SHROUD,
+        # )
 
         # sorted list of entities to render on gamemap, based on order value
         entities_for_rendering = sorted(
@@ -85,13 +85,13 @@ class GameMap:
         )
 
         # display whole map without FOV function
-        # console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["dark"]
+        console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["dark"]
 
         for entity in entities_for_rendering:
             # don't apply FOV to entites
-            # console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
+            console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
             # display entity only if in FOV
-            if self.visible[entity.x, entity.y]:
-                console.print(
-                    x = entity.x, y = entity.y, string = entity.char, fg = entity.color
-                )
+            # if self.visible[entity.x, entity.y]:
+            #     console.print(
+            #         x = entity.x, y = entity.y, string = entity.char, fg = entity.color
+            #     )
