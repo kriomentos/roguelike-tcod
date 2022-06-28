@@ -27,7 +27,7 @@ class BaseAI(Action):
                 # lower means more entity crowding behind each other
                 # higher encites them to take longer paths to surround player
                 cost[entity.x, entity.y] += 10
-                
+
         # create graph from the cost array (flat weight for all but active entities)
         # pass it to pathfinder
         graph = tcod.path.SimpleGraph(cost = cost, cardinal = 2, diagonal = 3)
@@ -57,7 +57,7 @@ class HostileEnemy(BaseAI):
         target = self.engine.player
         dx = target.x - self.entity.x
         dy = target.y - self.entity.y
-        
+
         distance = max(abs(dx), abs(dy))
 
         if self.engine.game_map.visible[self.entity.x, self.entity.y]:

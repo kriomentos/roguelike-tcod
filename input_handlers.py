@@ -109,7 +109,7 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_ESCAPE:
             action = EscapeAction(player)
         elif key == tcod.event.K_v:
-            self.engine.event_handler = HistoryViewer(self.engine)
+            self.engine.event_handler = HistoryViewer(self.engine)    
 
         return action
 

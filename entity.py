@@ -75,7 +75,7 @@ class Actor(Entity):
         y: int = 0, 
         char: str = "?", 
         color: Tuple[int, int, int] = (255, 255, 255), 
-        name: str = "<Unnamed>", 
+        name: str = "<Unnamed>",
         ai_cls: Type[BaseAI],
         fighter: Fighter,
     ):
@@ -90,7 +90,6 @@ class Actor(Entity):
         )
 
         self.ai: Optional[BaseAI] = ai_cls(self)
-        
         self.fighter = fighter
         self.fighter.parent = self
 

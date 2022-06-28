@@ -63,7 +63,7 @@ def generate_dungeon(
             dungeon.tiles[rand_w, rand_h] = tile_types.floor
             open_count -= 1
 
-    # gotta work with additional field "value" to get only weight of the tile. not the whole object (convolve works only on 2d arrays) 
+    # gotta work with additional field "value" to get only weight of the tile. not the whole object (convolve works only on 2d arrays)
     wall_count = signal.convolve2d(dungeon.tiles['value'], kernel, mode = "same")
 
     # we go through the map and simulate cellular automata rules using convolve values

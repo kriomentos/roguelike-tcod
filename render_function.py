@@ -28,11 +28,11 @@ def render_bar(
     bar_width = int(float(current_value) / maximum_value * total_width)
 
     # console.draw_rect(
-    #     x = 84, 
-    #     y = 2, 
-    #     width = 1, 
-    #     height = total_width, 
-    #     ch = 1, 
+    #     x = 84,
+    #     y = 2,
+    #     width = 1,
+    #     height = total_width,
+    #     ch = 1,
     #     bg = color.bar_filled
     # )
 

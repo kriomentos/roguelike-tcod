@@ -1,7 +1,7 @@
 white = (0xff, 0xff, 0xff)
 black = (0x0, 0x0, 0x0)
 
-# ANB16 palette, created by ANoob (https://lospec.com/palette-list/anb16) 
+# ANB16 palette, created by ANoob (https://lospec.com/palette-list/anb16)
 anb_black = (0x0a, 0x08, 0x0d)
 anb_grey = (0x69, 0x75, 0x94)
 anb_white = (0xdf, 0xe9, 0xf5)

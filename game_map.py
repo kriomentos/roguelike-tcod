@@ -11,10 +11,10 @@ if TYPE_CHECKING:
     from entity import Entity
 
 class GameMap:
-    def __init__(self, 
-        engine: Engine, 
-        width: int, 
-        height: int, 
+    def __init__(self,
+        engine: Engine,
+        width: int,
+        height: int,
         entities: Iterable[Entity] = ()
     ):
         self.engine = engine
@@ -28,7 +28,7 @@ class GameMap:
         self.explored = np.full(
             (width, height), fill_value = False, order = "F"
         ) # tiles the player has seen already
-    
+
     @property
     def gamemap(self) -> GameMap:
         return self
@@ -49,8 +49,8 @@ class GameMap:
     def get_blocking_entity_at_location(self, location_x: int, location_y: int) -> Optional[Entity]:
         for entity in self.entities:
             if (
-                entity.blocks_movement 
-                and entity.x == location_x 
+                entity.blocks_movement
+                and entity.x == location_x
                 and entity.y == location_y
             ):
                 return entity
@@ -61,7 +61,7 @@ class GameMap:
         for actor in self.actors:
             if actor.x == x and actor.y == y:
                 return actor
-        
+
         return None
 
     # check if given coordinates are within bounds of game map
@@ -72,7 +72,7 @@ class GameMap:
     def render(self, console: Console) -> None:
         # prints the whole map, its called from within Engine when we render every bit to console
         # print based on condition whether tiles are visible or were explored already
-        # if not, default to SHROUDed tile, which is just empty black square 
+        # if not, default to SHROUDed tile, which is just empty black square
         console.tiles_rgb[0 : self.width, 0 : self.height] = np.select(
             condlist = [self.visible, self.explored],
             choicelist = [self.tiles["light"], self.tiles["dark"]],

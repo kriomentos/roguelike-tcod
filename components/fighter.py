@@ -22,8 +22,8 @@ class Fighter(BaseComponent):
     @property
     def hp(self) -> int:
         return self._hp
-    
-    # allows us to modify value of hp ie take and do damage, 
+
+    # allows us to modify value of hp ie take and do damage,
     # it makes sure we never go below 0 or above max_hp
     @hp.setter
     def hp(self, value: int) -> None:

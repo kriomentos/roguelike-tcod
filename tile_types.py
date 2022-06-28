@@ -39,22 +39,22 @@ SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0)), dtype = graphic_dt)
 
 player = new_tile(
     value = 2,
-    walkable = True, 
-    transparent = True, 
+    walkable = True,
+    transparent = True,
     dark = (ord("@"), (100, 100, 100), (0, 0, 0)),
     light = (ord("@"), (100, 100, 100), (0, 0, 0)),
 )
 floor = new_tile(
     value = 1,
-    walkable = True, 
-    transparent = True, 
+    walkable = True,
+    transparent = True,
     dark = (ord("."), (255, 255, 255), (50, 50, 50)),
     light = (ord("."), (255, 255, 255), (100, 100, 100)),
 )
 wall = new_tile(
     value = 0,
-    walkable = False, 
-    transparent = False, 
+    walkable = False,
+    transparent = False,
     dark = (ord("#"), (255, 255, 255), (50, 50, 50)),
     light = (ord("#"), (255, 255, 255), (150, 150, 150)),
 )

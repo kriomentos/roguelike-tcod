@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from typing import Optional, Tuple, TYPE_CHECKING
+
+import tcod
 import color
 
 if TYPE_CHECKING:
@@ -50,7 +52,7 @@ class ActionWithDirection(Action):
     def blocking_entity(self) -> Optional[Entity]:
         """Return the blocking entity at this actions destination.."""
         return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
-    
+
     @property
     def target_actor(self) -> Optional[Actor]:
         return self.engine.game_map.get_actor_at_location(*self.dest_xy)
@@ -67,7 +69,7 @@ class MeleeAction(ActionWithDirection):
         if not target:
             return
 
-        # calculate damage 
+        # calculate damage
         # attack power of entity doing the action
         # reduced by targets defense stat
         damage = self.entity.fighter.power - target.fighter.defense
@@ -84,7 +86,7 @@ class MeleeAction(ActionWithDirection):
         if damage > 0:
             self.engine.message_log.add_message(
                 f'{attack_desc} for {damage} hit points.', attack_color
-            )  
+            )
             target.fighter.hp -= damage # reduce current HP by the damage dealt
         else:
             self.engine.message_log.add_message(
@@ -105,7 +107,7 @@ class MovementAction(ActionWithDirection):
         # if the destination is blocked by another entity do nothing
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
             return
-        
+
         self.entity.move(self.dx, self.dy)
 
 class PushAction(ActionWithDirection):
@@ -116,7 +118,7 @@ class PushAction(ActionWithDirection):
         print("dest_x: ", dest_x, "dest_y: ", dest_y)
 
         # if the desitnaiton is out of bounds do nothing
-        if not self.engine.game_map.in_bounds(dest_x, dest_y): 
+        if not self.engine.game_map.in_bounds(dest_x, dest_y):
             return
         # if the destination is not walkable tile do nothing
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
@@ -131,9 +133,8 @@ class PushAction(ActionWithDirection):
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
 
-        # if self.target_actor:
-        #     return PushAction(self.entity, self.dx, self.dy).perform()
         if self.target_actor:
             return MeleeAction(self.entity, self.dx, self.dy).perform()
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()
+
