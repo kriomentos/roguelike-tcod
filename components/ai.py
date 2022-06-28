@@ -1,5 +1,4 @@
 from __future__ import annotations
-from re import L
 
 from typing import List, Tuple, TYPE_CHECKING
 
@@ -41,6 +40,13 @@ class BaseAI(Action):
 
         # convert from List[List] to List[Tuple]
         return [(index[0], index[1]) for index in path]
+
+class Dummy(BaseAI):
+    def __init__(self, entity: Actor) -> None:
+        super().__init__(entity)
+
+    def perform(self) -> None:
+        return
 
 class HostileEnemy(BaseAI):
     def __init__(self, entity: Actor):

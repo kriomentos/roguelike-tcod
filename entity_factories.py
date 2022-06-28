@@ -1,4 +1,4 @@
-from components.ai import BaseAI, HostileEnemy
+from components.ai import Dummy, HostileEnemy
 from components.fighter import Fighter
 from entity import Actor, Entity
 import color
@@ -26,9 +26,10 @@ troll = Actor(
     fighter = Fighter(hp = 20, defense = 2, power = 5),
 )
 
-table = Entity(
+table = Actor(
     char = "+", 
     color = color.anb_brown, # (0, 127, 0), 
     name = "Table",
-    blocks_movement = True
+    ai_cls = Dummy,
+    fighter = Fighter(hp = 20, defense = 0, power = 0),
 )

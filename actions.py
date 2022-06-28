@@ -102,7 +102,7 @@ class MovementAction(ActionWithDirection):
         # if the destination is not walkable tile do nothing
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
             return
-        # if the destination is blocked by another enitty do nothing
+        # if the destination is blocked by another entity do nothing
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
             return
         
@@ -110,11 +110,13 @@ class MovementAction(ActionWithDirection):
 
 class PushAction(ActionWithDirection):
     def perform(self) -> None:
-        dest_x, dest_y = self.dest_xy
-        target = self.blocking_entity
+        target = self.target_actor
+        dest_x =  target.x + self.dx
+        dest_y = target.y + self.dy
+        print("dest_x: ", dest_x, "dest_y: ", dest_y)
 
         # if the desitnaiton is out of bounds do nothing
-        if not self.engine.game_map.in_bounds(dest_x, dest_y):
+        if not self.engine.game_map.in_bounds(dest_x, dest_y): 
             return
         # if the destination is not walkable tile do nothing
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
@@ -123,14 +125,15 @@ class PushAction(ActionWithDirection):
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
             return
 
+        # push the target in the direction we try to move
         target.move(self.dx, self.dy)
 
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
 
+        # if self.target_actor:
+        #     return PushAction(self.entity, self.dx, self.dy).perform()
         if self.target_actor:
             return MeleeAction(self.entity, self.dx, self.dy).perform()
-        elif self.blocking_entity:
-            return PushAction(self.entity, self.dx, self.dy).perform()
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()

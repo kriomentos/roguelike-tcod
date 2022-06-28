@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 import tcod
-from actions import Action, BumpAction, EscapeAction, WaitAction
+from actions import Action, BumpAction, EscapeAction, PushAction, WaitAction
 
 if TYPE_CHECKING:
     from engine import Engine
