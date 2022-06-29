@@ -25,7 +25,12 @@ enemy_atk = anb_brown
 player_die = anb_red
 enemy_die = anb_orange
 
+inavlid = anb_yellow
+impossible = anb_grey
+error = anb_red
+
 welcome_text = anb_blue
+health_recovered = anb_light_green
 
 bar_text = white
 bar_filled = anb_green
