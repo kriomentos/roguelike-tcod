@@ -36,13 +36,6 @@ def new_tile(
 # unexplored, unseen tiles
 SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0)), dtype = graphic_dt)
 
-player = new_tile(
-    value = 2,
-    walkable = True,
-    transparent = True,
-    dark = (ord("@"), (100, 100, 100), (0, 0, 0)),
-    light = (ord("@"), (100, 100, 100), (0, 0, 0)),
-)
 floor = new_tile(
     value = 1,
     walkable = True,
