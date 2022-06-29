@@ -85,13 +85,13 @@ class GameMap:
         )
 
         # display whole map without FOV function
-        # console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["dark"]
+        console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["dark"]
 
         for entity in entities_for_rendering:
             # don't apply FOV to entites
-            # console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
+            console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
             # display entity only if in FOV
-            if self.visible[entity.x, entity.y]:
-                console.print(
-                    x = entity.x, y = entity.y, string = entity.char, fg = entity.color
-                )
+            # if self.visible[entity.x, entity.y]:
+            #     console.print(
+            #         x = entity.x, y = entity.y, string = entity.char, fg = entity.color
+            #     )

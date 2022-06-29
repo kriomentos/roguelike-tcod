@@ -1,6 +1,8 @@
 from __future__ import annotations
+from math import floor
 
 from random import randrange, randint, random
+from textwrap import wrap
 from typing import TYPE_CHECKING
 from scipy import signal
 
@@ -17,7 +19,6 @@ if TYPE_CHECKING:
 # helper kernel for convolve2d, basically 3x3 array [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
 kernel = np.ones((3, 3), dtype = "int")
 kernel[1, 1] = 0
-
 
 def place_entities(dungeon: GameMap, maximum_monsters: int):
 
@@ -37,6 +38,23 @@ def place_entities(dungeon: GameMap, maximum_monsters: int):
             else:
                 entity_factories.troll.spawn(dungeon, x, y)
                 print("Placed troll at: ", x, y)
+
+def cellular_automata(dungeon: GameMap, min: int, max: int, count: GameMap):
+    count = signal.convolve2d(dungeon.tiles['value'], kernel, mode = "same", boundary = 'wrap')
+    for i in range(1, dungeon.width - 1):
+        for j in range(1, dungeon.height - 1):
+            # if the cell is a wall and in her neighbourhood is at least MAX floors
+            # then it "dies" and turns into floor
+            if dungeon.tiles[i, j] == tile_types.wall and count[i, j] >= max:
+                dungeon.tiles[i, j] = tile_types.floor
+            # same rule applies to floor cells, if they have less than MIN floors
+            # in neighbourhood, turn them into wall
+            elif dungeon.tiles[i, j] == tile_types.floor and count[i, j] < min:
+                dungeon.tiles[i, j] = tile_types.wall
+            elif count[i, j] < min:
+                dungeon.tiles[i, j] = tile_types.wall
+
+    return dungeon
 
 def generate_dungeon(
     map_width: int,
@@ -67,13 +85,8 @@ def generate_dungeon(
     wall_count = signal.convolve2d(dungeon.tiles['value'], kernel, mode = "same")
 
     # we go through the map and simulate cellular automata rules using convolve values
-    for x in range(1, dungeon.width - 1):
-        for y in range(1, dungeon.height - 1):
-
-            if wall_count[x, y] > 4:
-                dungeon.tiles[x, y] = tile_types.floor
-            elif wall_count[x, y] < 3:
-                dungeon.tiles[x, y] = tile_types.wall
+    for x in range(3):
+        cellular_automata(dungeon, 4, 5, wall_count)
 
     place_entities(dungeon, max_monsters)
 
