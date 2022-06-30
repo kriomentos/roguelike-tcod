@@ -1,6 +1,7 @@
 from components.ai import Dummy, HostileEnemy
+from components.consumable import HealingConsumable
 from components.fighter import Fighter
-from entity import Actor, Entity
+from entity import Actor, Item
 import color
 
 player = Actor(
@@ -10,7 +11,7 @@ player = Actor(
     ai_cls = HostileEnemy, # type of AI to use, player doesn't need it but it must be specified for all Actors
     fighter = Fighter(hp = 50, defense = 3, power = 5), # base statisics for Actor
 )
-
+# AI HOSTILE ACTORS
 orc = Actor(
     char = "o",
     color = color.anb_light_green, # (63, 127, 63),
@@ -25,11 +26,18 @@ troll = Actor(
     ai_cls = HostileEnemy,
     fighter = Fighter(hp = 20, defense = 2, power = 5),
 )
-
+# NON AI DESTROYABLE ACTORS
 table = Actor(
     char = "+",
     color = color.anb_brown, # (0, 127, 0),
     name = "Table",
     ai_cls = Dummy,
     fighter = Fighter(hp = 20, defense = 0, power = 0),
+)
+# ITEMS
+health_potion = Item(
+    char = "!",
+    color = color.anb_light_brown,
+    name = "Health potion",
+    consumable = HealingConsumable(amount = 4),
 )

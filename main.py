@@ -14,7 +14,8 @@ def main() -> None:
     map_width = 80
     map_height = 45
     init_open = 0.5
-    max_monsters = 3
+    max_monsters = 5
+    max_items = 3
 
     tileset = tcod.tileset.load_tilesheet(
         "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
@@ -29,6 +30,7 @@ def main() -> None:
         map_height = map_height,
         initial_open = init_open,
         max_monsters = max_monsters,
+        max_items = max_items,
         engine = engine,
     )
 

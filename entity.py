@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import copy
+import imp
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING
 
 from render_order import RenderOrder
 
 if TYPE_CHECKING:
     from components.ai import BaseAI
+    from components.consumable import Consumable
     from components.fighter import Fighter
     from game_map import GameMap
 
@@ -20,7 +22,7 @@ class Entity:
         self,
         parent: Optional[GameMap] = None,
         x: int = 0, # integers for position in Fortran grid
-        y: int = 0, 
+        y: int = 0,
         char: str = "?", # string character for visual representation
         color: Tuple[int, int, int] = (255, 255, 255), # RGB value for provided char
         name: str = "<Unnamed>", # name to be displayed when inspecting/interacting with entity
@@ -69,22 +71,22 @@ class Entity:
 
 class Actor(Entity):
     def __init__(
-        self, 
-        *, 
-        x: int = 0, 
-        y: int = 0, 
-        char: str = "?", 
-        color: Tuple[int, int, int] = (255, 255, 255), 
+        self,
+        *,
+        x: int = 0,
+        y: int = 0,
+        char: str = "?",
+        color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         ai_cls: Type[BaseAI],
         fighter: Fighter,
     ):
         super().__init__(
-            x = x, 
-            y = y, 
-            char = char, 
-            color = color, 
-            name = name, 
+            x = x,
+            y = y,
+            char = char,
+            color = color,
+            name = name,
             blocks_movement = True,
             render_order = RenderOrder.ACTOR,
         )
@@ -96,3 +98,27 @@ class Actor(Entity):
     @property
     def is_alive(self) -> bool:
         return bool(self.ai)
+
+class Item(Entity):
+    def __init__(
+        self,
+        *,
+        x: int = 0,
+        y: int = 0,
+        char: str = "?",
+        color: Tuple[int, int, int] = (255, 255, 255),
+        name: str = "<Unnamed>",
+        consumable: Consumable,
+    ):
+        super().__init__(
+            x = x,
+            y = y,
+            char = char,
+            color = color,
+            name = name,
+            blocks_movement = False,
+            render_order = RenderOrder.ITEM,
+        )
+
+        self.consumable = consumable
+        self.consumable.parent = self
