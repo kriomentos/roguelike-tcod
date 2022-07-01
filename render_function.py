@@ -36,7 +36,7 @@ def render_bar(
     #     bg = color.bar_filled
     # )
 
-    console.draw_rect(x = 0, y = 45, width = total_width, height = 1, ch = 1, bg = color.bar_empty)
+    console.draw_rect(x = 0, y = 44, width = total_width, height = 1, ch = 1, bg = color.bar_empty)
 
     if bar_width > 0:
         console.draw_rect(
@@ -54,7 +54,7 @@ def render_bar(
     #     )
 
     console.print(
-        x = 1, y = 45,
+        x = 1, y = 44,
         string = f"HP: {current_value}/{maximum_value}", fg = color.black
     )
 
