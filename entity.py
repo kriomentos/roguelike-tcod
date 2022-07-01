@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from components.ai import BaseAI
     from components.consumable import Consumable
     from components.fighter import Fighter
+    from components.inventory import Inventory
     from game_map import GameMap
 
 T = TypeVar("T", bound = "Entity")
@@ -79,6 +80,7 @@ class Actor(Entity):
         name: str = "<Unnamed>",
         ai_cls: Type[BaseAI],
         fighter: Fighter,
+        inventory: Inventory, # possibly can be an Optional[Inventory] = None? This way I could avoid defining it for every actor
     ):
         super().__init__(
             x = x,
@@ -93,6 +95,9 @@ class Actor(Entity):
         self.ai: Optional[BaseAI] = ai_cls(self)
         self.fighter = fighter
         self.fighter.parent = self
+
+        self.inventory = inventory
+        self.inventory.parent = self
 
     @property
     def is_alive(self) -> bool:

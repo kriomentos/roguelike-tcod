@@ -112,8 +112,7 @@ class MainGameEventHandler(EventHandler):
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
 
-            if event.mod and tcod.event.Modifier.SHIFT:
-                print("mod action")
+            if event.mod and tcod.event.Modifier.SHIFT: # if the shift is held, perform other action
                 action = PushAction(player, dx, dy)
             else:
                 action = BumpAction(player, dx, dy)
