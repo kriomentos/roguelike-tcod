@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 import tcod
+import actions
 from actions import (
     Action,
     BumpAction,
-    EscapeAction,
     PushAction,
+    PickupAction,
     WaitAction
 )
 import color
@@ -14,6 +15,7 @@ import exceptions
 
 if TYPE_CHECKING:
     from engine import Engine
+    from entity import Item
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -108,20 +110,38 @@ class MainGameEventHandler(EventHandler):
         key = event.sym
 
         player = self.engine.player
-
+        # perform move action in a given direction
+        # if modifier key is held change the behavior
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
 
-            if event.mod and tcod.event.Modifier.SHIFT: # if the shift is held, perform other action
+            # if the shift is held, perform other action
+            # that is push the enity in front of the player
+            if event.mod and tcod.event.Modifier.SHIFT:
                 action = PushAction(player, dx, dy)
+            # or just perform bump, which will resolve into move or attack
+            # depending on if there is a target blocking path
             else:
                 action = BumpAction(player, dx, dy)
+        # pass the turn doing nothing, it advances other AI entites turns
         elif key in WAIT_KEYS:
             action = WaitAction(player)
+        # escape action, now raises SystemExit
         elif key == tcod.event.K_ESCAPE:
-            action = EscapeAction(player)
+            raise SystemExit()
+        # open message log history view
+        # it also changes the event_handler so we can navigate it freeely
         elif key == tcod.event.K_v:
             self.engine.event_handler = HistoryViewer(self.engine)
+        # pick items or other pickupable things off the game_maps "floor"
+        elif key == tcod.event.K_g:
+            action = PickupAction(player)
+        # open inventory to select item to use
+        elif key == tcod.event.K_i:
+            self.engine.event_handler = InventoryActivateHandler(self.engine)
+        # open inventory to select item to drop
+        elif key == tcod.event.K_f:
+            self.engine.event_handler = InventoryDropHandler(self.engine)
 
         return action
 
@@ -177,3 +197,114 @@ class HistoryViewer(EventHandler):
             self.cursor = self.log_length # on END go to the bottom | last message
         else: # on any other action go back to main game state
             self.engine.event_handler = MainGameEventHandler(self.engine)
+
+class AskUserEventHandler(EventHandler):
+    # handle inputs for action with special input required
+
+    def handle_action(self, action: Optional[Action]) -> bool:
+        # go back to Main handler when valid action was performed
+        if super().handle_action(action):
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            return True
+        return False
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        # by default any key exits this handler
+        if event.sym in {
+            tcod.event.K_LSHIFT,
+            tcod.event.K_RSHIFT,
+            tcod.event.K_LCTRL,
+            tcod.event.K_RCTRL,
+            tcod.event.K_LALT,
+            tcod.event.K_RALT,
+        }:
+            return None
+        return self.on_exit()
+
+    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[Action]:
+        # any mouse click returns to main handler
+        return self.on_exit()
+
+    def on_exit(self) -> Optional[Action]:
+        # called on action exit or cancel
+        # returns to main handler
+        self.engine.event_handler = MainGameEventHandler(self.engine)
+        return None
+
+class InventoryEventHandler(AskUserEventHandler):
+    # this handler lets user select item
+    # rest of the action depends on subclass
+
+    TITLE = "<missing title>"
+
+    def on_render(self, console: tcod.Console) -> None:
+        # render inventory menu, with items in inventory and letter to select them
+        # moves to different position based on where the player is located,
+        # so player can see where he is
+        super().on_render(console)
+        number_of_items_in_inventory = len(self.engine.player.inventory.items)
+
+        height = number_of_items_in_inventory + 2
+
+        if height <= 3:
+            height = 3
+
+        if self.engine.player.x <= 30:
+            x = 40
+        else:
+            x = 0
+
+        y = 0
+
+        width = len(self.TITLE) + 4
+
+        console.draw_frame(
+            x = x,
+            y = y,
+            width = width,
+            height = height,
+            title = self.TITLE,
+            clear = True,
+            fg = color.anb_white,
+            bg = color.anb_black,
+        )
+
+        if number_of_items_in_inventory > 0:
+            for i, item in enumerate(self.engine.player.inventory.items):
+                item_key = chr(ord("a") + i)
+                console.print(x + 1, y + i + 1, f"({item_key} {item.name})")
+        else:
+            console.print(x + 1, y + 1, "(EMPTY)")
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        player = self.engine.player
+        key = event.sym
+        index = key - tcod.event.K_a
+
+        if 0 <= index <= 26:
+            try:
+                selected_tem = player.inventory.items[index]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry", color.inavlid)
+                return None
+            return self.on_item_selected(selected_tem)
+        return super().ev_keydown(event)
+
+    def on_item_selected(self, item: Item) -> Optional[Action]:
+        raise NotImplementedError()
+
+class InventoryActivateHandler(InventoryEventHandler):
+    # handle using item in inventory
+
+    TITLE = "Select an item to use"
+
+    def on_item_selected(self, item: Item) -> Optional[Action]:
+        return item.consumable.get_action(self.engine.player)
+
+class InventoryDropHandler(InventoryEventHandler):
+    # drop this item
+
+    TITLE = "Select an item to drop"
+
+    def on_item_selected(self, item: Item) -> Optional[Action]:
+        return actions.DropItem(self.engine.player, item)

@@ -1,13 +1,10 @@
 from __future__ import annotations
-from math import floor
 
 from random import randrange, randint, random
-from textwrap import wrap
 from typing import TYPE_CHECKING
 from scipy import signal
 
 import numpy as np
-from sqlalchemy import false
 from engine import Engine
 
 from game_map import GameMap
@@ -22,8 +19,8 @@ kernel = np.ones((3, 3), dtype = "int")
 kernel[1, 1] = 0
 
 def place_entities(dungeon: GameMap, maximum_monsters: int, maximum_items: int):
-    number_of_monsters = randint(0, maximum_monsters)
-    number_of_items = randint(0, maximum_items)
+    number_of_monsters = randint(1, maximum_monsters)
+    number_of_items = randint(1, maximum_items)
 
     for i in range(number_of_monsters):
         # select random postion for enemy using numpy.where
