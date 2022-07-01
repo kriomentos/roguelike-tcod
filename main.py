@@ -12,7 +12,7 @@ def main() -> None:
     screen_height = 50
 
     map_width = 80
-    map_height = 45
+    map_height = 44
     init_open = 0.5
     max_monsters = 5
     max_items = 3

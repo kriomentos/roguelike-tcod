@@ -1,6 +1,4 @@
 from __future__ import annotations
-import imp
-
 from typing import Optional, TYPE_CHECKING
 
 import actions

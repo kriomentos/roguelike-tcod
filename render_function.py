@@ -40,7 +40,7 @@ def render_bar(
 
     if bar_width > 0:
         console.draw_rect(
-            x = 0, y = 45, width = bar_width, height = 1, ch = 1, bg = color.bar_filled
+            x = 0, y = 44, width = bar_width, height = 1, ch = 1, bg = color.bar_filled
         )
 
     # if bar_width >= 0:
