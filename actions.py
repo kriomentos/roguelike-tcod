@@ -133,18 +133,34 @@ class MovementAction(ActionWithDirection):
 class PushAction(ActionWithDirection):
     def perform(self) -> None:
         target = self.target_actor
+
+        if not target:
+            raise exceptions.Impossible("Nothing to push")
+
         dest_x =  target.x + self.dx
         dest_y = target.y + self.dy
-        print("dest_x: ", dest_x, "dest_y: ", dest_y)
+
+        push_desc = f'{self.entity.name.capitalize()} pushes {target.name}'
 
         # if the desitnaiton is out of bounds do nothing
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
-            return
+            raise exceptions.Impossible("That way is blocked")
         # if the destination is not walkable tile do nothing
+        # and make target take flat damage (for now)
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
+            self.engine.message_log.add_message(
+                f'{push_desc} into wall, {target.name} takes 1 damage', color.player_atk
+            )
+            target.fighter.hp -= 1
             return
-        # if the destination is blocked by another enitty do nothing
+        # if the destination is blocked by another enitty make the target take damage
+        # but do nothing otherwise
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+            self.engine.message_log.add_message(
+                f'{push_desc} into {self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y).name}, both take 1 damage', color.player_atk
+            )
+            target.fighter.hp -= 1
+            self.engine.game_map.get_actor_at_location(dest_x, dest_y).fighter.hp -= 1
             return
 
         # push the target in the direction we try to move

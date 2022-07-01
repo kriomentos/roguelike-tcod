@@ -111,7 +111,12 @@ class MainGameEventHandler(EventHandler):
 
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
-            action = BumpAction(player, dx, dy)
+
+            if event.mod and tcod.event.Modifier.SHIFT:
+                print("mod action")
+                action = PushAction(player, dx, dy)
+            else:
+                action = BumpAction(player, dx, dy)
         elif key in WAIT_KEYS:
             action = WaitAction(player)
         elif key == tcod.event.K_ESCAPE:

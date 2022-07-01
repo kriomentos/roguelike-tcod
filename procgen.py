@@ -107,6 +107,6 @@ def generate_dungeon(
     place_entities(dungeon, max_monsters, max_items)
 
     player.place(40, 20, dungeon)
-    entity_factories.table.place(40, 21, dungeon)
+    entity_factories.table.spawn(dungeon, 40, 21)
 
     return dungeon
