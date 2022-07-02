@@ -1,4 +1,5 @@
 from __future__ import annotations
+from abc import abstractmethod
 
 from typing import Optional, Tuple, TYPE_CHECKING
 
@@ -102,8 +103,9 @@ class ActionWithDirection(Action):
     def target_actor(self) -> Optional[Actor]:
         return self.engine.game_map.get_actor_at_location(*self.dest_xy)
 
+    @abstractmethod
     def perform(self) -> None:
-        raise NotImplementedError()
+        pass
 
 class MeleeAction(ActionWithDirection):
     def perform(self) -> None:

@@ -11,11 +11,12 @@ There will definitely be bad code practices and a lot of experimenting.
 - Another generator for dungeons Rogue style
   - Rework room connecting method
   - Add generators for features
-  - Add loot (basic are in, needs more work)
+  - Add loot (basics are in, needs more work)
 - Stats system (more complicated one)
 - Saving and loading
 - Interface (barebones for now)
-- Inventory and items (add to player, now for enemies)
+- Inventory and items (added to player)
+  - Add inventory to enemies with drops on death
 - Overworld map with points for caves/dungeons
 - More AI types
 - Graphical tiles
@@ -40,6 +41,8 @@ Then run it in terminal from within the source folder
 `python main.py`
 
 Player character is represented as `@` character
+
+**Important `NumLock` must be disabled to run the rouge correctly, with it on movement will be ignored**
 
 Movement using arrow keys (Home, End and Page up/down for diagonals), Numpad or Vi.
 

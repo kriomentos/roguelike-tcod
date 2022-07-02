@@ -1,4 +1,5 @@
 from __future__ import annotations
+from abc import abstractmethod
 
 from typing import List, Tuple, TYPE_CHECKING
 
@@ -12,9 +13,9 @@ if TYPE_CHECKING:
 
 class BaseAI(Action):
     entity: Actor
-
+    @abstractmethod
     def perform(self) -> None:
-        raise NotImplementedError()
+        pass
 
     def get_path_to(self, dest_x: int, dest_y: int) -> List[Tuple[int, int]]:
         # calculates path to traget position or returns empty list if no valid path
