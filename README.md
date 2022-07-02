@@ -11,13 +11,13 @@ There will definitely be bad code practices and a lot of experimenting.
 - Another generator for dungeons Rogue style
   - Rework room connecting method
   - Add generators for features
-  - Add loot
-- Movable & destroyable entities
+  - Add loot (basic are in, needs more work)
 - Stats system (more complicated one)
 - Saving and loading
 - Interface (barebones for now)
-- Inventory and items
+- Inventory and items (add to player, now for enemies)
 - Overworld map with points for caves/dungeons
+- More AI types
 - Graphical tiles
 - Configurable settings and graphics
 
