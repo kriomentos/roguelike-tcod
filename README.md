@@ -41,7 +41,13 @@ Then run it in terminal from within the source folder
 
 Player character is represented as `@` character
 
-Movement using arrow keys. Esc to exit the window 'gracefully'
+Movement using arrow keys (Home, End and Page up/down for diagonals), Numpad or Vi.
+
+Skip turns using `,` `Num5` `Del` or `S`, pickup items `G`, use items from inventory `I`, drop them from inventory `D`
+
+To push entity insted of attacking use move keys while holding `Shift`
+
+Esc to exit the window 'gracefully'
 
 ## Extras
 
@@ -52,6 +58,5 @@ By running `python cave_generator.py` from within Extras folder, you can generat
 It will ask for dimensions and percentage of 'open tiles'
 
 Accepted dimensions are at least bigger than 5 for both rows and columns, with no upper bound (the bigger it is the more time it takes, with safely generated 1000x1000 maps. But they are barely readable at this point)
-I did manage to generate 10kx10k map, but it took 20 minutes on Ryzen 5 3600, the output file was 200MB plain text and required 1,5GB of RAM for calculations
 
 Open tiles is a % of cells that are born, between 0 - 1, with best results being between 0.4 - 0.5. It is not recommended to go above 0.8 as the generator is not guaranteed to finish in reasonable time and there's no failsafe to terminate it (requires manual terminating).
