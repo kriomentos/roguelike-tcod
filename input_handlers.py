@@ -147,6 +147,8 @@ class MainGameEventHandler(EventHandler):
         # open inventory to select item to drop
         elif key == tcod.event.K_f:
             self.engine.event_handler = InventoryDropHandler(self.engine)
+        elif key == tcod.event.K_SLASH:
+            self.engine.event_handler = LookHandler(self.engine)
 
         return action
 
@@ -313,3 +315,61 @@ class InventoryDropHandler(InventoryEventHandler):
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
         return actions.DropItem(self.engine.player, item)
+
+class SelectIndexHandler(AskUserEventHandler):
+    # handles user selecting index on map
+
+    def __init__(self, engine: Engine):
+        # set the cursor to player when handler is constructed
+        super().__init__(engine)
+        player = self.engine.player
+        engine.mouse_location = player.x, player.y
+
+    def on_render(self, console: tcod.Console) -> None:
+        # highlights tile under cursor
+        super().on_render(console)
+        x, y = self.engine.mouse_location
+        console.tiles_rgb["bg"][x, y] = color.anb_white
+        console.tiles_rgb["fg"][x, y] = color.anb_black
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        # handle key movement or confirmation keys
+
+        key = event.sym
+        if key in MOVE_KEYS:
+            modifier = 1
+            if event.mod and tcod.event.Modifier.SHIFT:
+                modifier *= 5
+            if event.mod and tcod.event.Modifier.CTRL:
+                modifier *= 10
+            if event.mod and tcod.event.Modifier.ALT:
+                modifier *= 20
+
+            x, y = self.engine.mouse_location
+            dx, dy = MOVE_KEYS[key]
+            x += dx * modifier
+            y += dy * modifier
+            # clamp cursor to map size
+            x = max(0, min(x, self.engine.game_map.width - 1))
+            y = max(0, min(y, self.engine.game_map.height - 1))
+            self.engine.mouse_location = x, y
+            return None
+        elif key in CONFIRM_KEYS:
+            return self.on_index_selected(*self.engine.mouse_location)
+        return super().ev_keydown(event)
+
+    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[Action]:
+        # left click confimrs
+        if self.engine.game_map.in_bounds(*event.tile):
+            if event.button == 1:
+                return self.on_index_selected(*event.tile)
+        return super().ev_mousebuttondown(event)
+
+    def on_index_selected(self, x: int, y: int) -> Optional[Action]:
+        raise NotImplementedError()
+
+class LookHandler(SelectIndexHandler):
+    # lets player look around using keyboard
+    def on_index_selected(self, x: int, y: int) -> None:
+        # go back to main handler
+        self.engine.event_handler = MainGameEventHandler(self.engine)
