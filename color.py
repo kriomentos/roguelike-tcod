@@ -31,6 +31,8 @@ error = anb_red
 
 welcome_text = anb_blue
 health_recovered = anb_light_green
+needs_target = anb_light_blue
+status_effect_applied = anb_deep_blue
 
 bar_text = white
 bar_filled = anb_green

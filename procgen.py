@@ -48,8 +48,13 @@ def place_entities(dungeon: GameMap, maximum_monsters: int, maximum_items: int):
         j = np.random.randint(len(y))
 
         if not any(entity.x == x[j] and entity.y == y[j] for entity in dungeon.entities):
-            entity_factories.health_potion.spawn(dungeon, x[j], y[j])
-            print("Placed potion at: ", x[j], y[j])
+            item_chance = random()
+            if item_chance < 0.7:
+                entity_factories.health_potion.spawn(dungeon, x[j], y[j])
+                print("Placed potion at: ", x[j], y[j])
+            else:
+                entity_factories.lightning_scroll.spawn(dungeon, x[j], y[j])
+                print("Placed lighting scroll at: ", x[j], y[j])
 
 def cellular_automata(dungeon: GameMap, min: int, max: int, count: GameMap):
     # on each pass we recalculate amount of neighbours, which gives much smoother output
