@@ -52,6 +52,12 @@ def place_entities(dungeon: GameMap, maximum_monsters: int, maximum_items: int):
             if item_chance < 0.7:
                 entity_factories.health_potion.spawn(dungeon, x[j], y[j])
                 print("Placed potion at: ", x[j], y[j])
+            elif item_chance < 0.8:
+                entity_factories.fireball_scroll.spawn(dungeon, x[j], y[j])
+                print("Placed fireball scroll at: ", x[j], y[j])
+            elif item_chance < 0.9:
+                entity_factories.confusion_scroll.spawn(dungeon, x[j], y[j])
+                print("Placed confusion scroll at: ", x[j], y[j])
             else:
                 entity_factories.lightning_scroll.spawn(dungeon, x[j], y[j])
                 print("Placed lighting scroll at: ", x[j], y[j])
@@ -108,6 +114,7 @@ def generate_dungeon(
 
     place_entities(dungeon, max_monsters, max_items)
 
+    entity_factories.confusion_scroll.spawn(dungeon, 45, 20)
     player.place(40, 20, dungeon)
     entity_factories.table.spawn(dungeon, 40, 21)
 
