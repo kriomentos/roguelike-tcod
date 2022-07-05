@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from components.base_component import BaseComponent
-from entity import Ticking
 from input_handlers import GameOverEventHandler
 from render_order import RenderOrder
 
