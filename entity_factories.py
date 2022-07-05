@@ -1,6 +1,6 @@
 from components import consumable
-from components.ai import Dummy, HostileEnemy
-from components.fighter import Fighter
+from components.ai import Dummy, HostileEnemy, TickingEntity
+from components.fighter import Fighter, Ticking
 from components.inventory import Inventory
 from entity import Actor, Item
 import color
@@ -63,4 +63,18 @@ fireball_scroll = Item(
     color = color.anb_red,
     name = "Fireball scroll",
     consumable = consumable.FireballDamageConsumable(damage = 12, radius = 3),
+)
+gascloud_scroll = Item(
+    char = "~",
+    color = color.anb_green,
+    name = "Gas cloud scroll",
+    consumable = consumable.GasDamageConsumable(damage = 12, radius = 3, turns_active = 3),
+)
+gas_cloud = Actor(
+    char = "8",
+    color = color.anb_green,
+    name = "",
+    ai_cls = TickingEntity,
+    fighter = Ticking(hp = 3, power = 3, radius = 3),
+    inventory = Inventory(capacity = 0),
 )

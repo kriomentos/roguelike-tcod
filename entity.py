@@ -9,7 +9,7 @@ from render_order import RenderOrder
 if TYPE_CHECKING:
     from components.ai import BaseAI
     from components.consumable import Consumable
-    from components.fighter import Fighter
+    from components.fighter import Fighter, Ticker
     from components.inventory import Inventory
     from game_map import GameMap
 

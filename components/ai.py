@@ -5,11 +5,11 @@ from typing import List, Optional, Tuple, TYPE_CHECKING
 
 import numpy as np
 import tcod
-
+import color
 from actions import Action, BumpAction, MeleeAction, MovementAction, WaitAction
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Actor, Ticking
 
 class BaseAI(Action):
     entity: Actor
@@ -108,3 +108,21 @@ class ConfusedEnemy(BaseAI):
             self.turns_remaining -= 1
 
             return BumpAction(self.entity, direction_x, direction_y).perform()
+
+class TickingEntity(BaseAI):
+    def __init__(self, entity: Ticking):
+        super().__init__(entity)
+
+    def perform(self) -> None:
+        target_xy = self.entity.x, self.entity.y
+        print(f"Target xy: {target_xy}")
+        if self.entity.fighter.hp <= 0:
+            self.entity.ai = None
+        else:
+            for actor in set(self.engine.game_map.actors) - {self.entity}:
+                if actor.distance(*target_xy) <= 3:
+                    self.engine.message_log.add_message(
+                        f"The {actor.name} coughs in toxic gas, taking {self.entity.fighter.power} damage"
+                    )
+                    actor.fighter.take_damage(self.entity.fighter.power)
+            self.entity.fighter.hp -= 1

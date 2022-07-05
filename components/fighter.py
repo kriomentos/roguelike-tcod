@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+
 from components.base_component import BaseComponent
+from entity import Ticking
 from input_handlers import GameOverEventHandler
 from render_order import RenderOrder
 
@@ -41,7 +43,7 @@ class Fighter(BaseComponent):
             death_massage_color = color.enemy_die
 
         self.parent.char = "%"
-        self.parent.color = (191, 0, 0)
+        self.parent.color = color.anb_red
         self.parent.blocks_movement = False
         self.parent.ai = None
         self.parent.name = f"Corpse of {self.parent.name}"
@@ -66,3 +68,35 @@ class Fighter(BaseComponent):
 
     def take_damage(self, amount: int) -> None:
         self.hp -= amount
+
+class Ticking(BaseComponent):
+    parent: Actor
+
+    def __init__(self, hp: int, power: int, radius: int) -> None:
+        self.max_hp = hp
+        self._hp = hp
+        self.power = power
+        self.radius = radius
+
+    @property
+    def hp(self) -> int:
+        return self._hp
+
+    # allows us to modify value of hp ie take and do damage,
+    # it makes sure we never go below 0 or above max_hp
+    @hp.setter
+    def hp(self, value: int) -> None:
+        self._hp = max(0, min(value, self.max_hp))
+        if self._hp == 0 and self.parent.ai:
+            self.die()
+
+    def die(self) -> None:
+        self.parent.char = ""
+        self.parent.color = color.anb_red
+        self.parent.blocks_movement = False
+        self.parent.ai = None
+        self.parent.name = f""
+        self.parent.render_order = RenderOrder.CORPSE
+
+    def take_damage(self, amount: int):
+        pass
