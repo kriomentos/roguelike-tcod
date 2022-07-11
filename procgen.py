@@ -119,6 +119,6 @@ def generate_dungeon(
 
     entity_factories.confusion_scroll.spawn(dungeon, 45, 20)
     player.place(40, 20, dungeon)
-    entity_factories.table.spawn(dungeon, 40, 21)
-    entity_factories.gas_cloud.spawn(dungeon, 40, 20)
+    entity_factories.mimic_table.spawn(dungeon, 40, 21)
+
     return dungeon

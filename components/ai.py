@@ -9,7 +9,7 @@ import color
 from actions import Action, BumpAction, MeleeAction, MovementAction, WaitAction
 
 if TYPE_CHECKING:
-    from entity import Actor, Ticking
+    from entity import Actor
 
 class BaseAI(Action):
     entity: Actor
@@ -109,8 +109,46 @@ class ConfusedEnemy(BaseAI):
 
             return BumpAction(self.entity, direction_x, direction_y).perform()
 
+class MimicHostileEnemy(BaseAI):
+    def __init__(self, entity: Actor):
+        super().__init__(entity)
+        self.path:  List[Tuple[int, int]] = []
+
+    def perform(self) -> None:
+        # if the mimics HP is less than maximum reveal itself
+        if self.entity.fighter.hp < self.entity.fighter.max_hp:
+            self.entity.char = "M"
+            self.entity.color = color.anb_red
+            self.entity.name = "Mimic"
+            # self.entity.ai = HostileEnemy
+
+            target = self.engine.player
+            dx = target.x - self.entity.x
+            dy = target.y - self.entity.y
+
+            distance = max(abs(dx), abs(dy))
+
+            if self.engine.game_map.visible[self.entity.x, self.entity.y]:
+                if distance <= 1:
+                    return MeleeAction(self.entity, dx, dy).perform()
+
+                self.path = self.get_path_to(target.x, target.y)
+
+            if self.path:
+                dest_x, dest_y = self.path.pop(0)
+                return MovementAction(
+                    self.entity, dest_x - self.entity.x, dest_y - self.entity.y
+                ).perform()
+
+            return WaitAction(self.entity).perform()
+
+        else:
+            return WaitAction(self.entity).perform()
+
+        return WaitAction(self.entity).perform()
+
 class TickingEntity(BaseAI):
-    def __init__(self, entity: Ticking):
+    def __init__(self, entity: Actor):
         super().__init__(entity)
 
     def perform(self) -> None:
