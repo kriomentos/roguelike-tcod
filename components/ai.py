@@ -110,6 +110,8 @@ class ConfusedEnemy(BaseAI):
             return BumpAction(self.entity, direction_x, direction_y).perform()
 
 class MimicHostileEnemy(BaseAI):
+    # we grab on init original position of the entity
+    # and if we showed message in log
     def __init__(self, entity: Actor, message: bool, origin_x: int, origin_y: int):
         super().__init__(entity)
         self.path:  List[Tuple[int, int]] = []
@@ -118,7 +120,14 @@ class MimicHostileEnemy(BaseAI):
         self.origin_y = origin_y
 
     def perform(self) -> None:
-        # if the mimics HP is less than maximum reveal itself
+        # if message wasn't shown in log
+        # check if the entity that is mimic was:
+        # a) damaged
+        # b) moved from original position
+        # if any one of those is true, change appearance of the entity
+        # to mimic and alter it's stats
+        # change the message as added so we don't loop over that part again in future
+        # which is super scuffed and hacked way of handling :)
         if not self.message:
             if self.entity.fighter.hp < self.entity.fighter.max_hp or self.entity.x != self.origin_x or self.entity.y != self.origin_y:
                 self.entity.char = "M"
@@ -132,6 +141,8 @@ class MimicHostileEnemy(BaseAI):
                 )
                 self.message = True
 
+        # if the message was added to log proceed as if it was normal HostileEnemy
+        # simply changing AI for whatever reason bricks every AI driven Actor ¯\_(ツ)_/¯
         if self.message:
             target = self.engine.player
             dx = target.x - self.entity.x

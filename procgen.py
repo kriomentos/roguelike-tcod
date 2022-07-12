@@ -65,7 +65,8 @@ def place_entities(dungeon: GameMap, maximum_monsters: int, maximum_items: int):
             else:
                 entity_factories.lightning_scroll.spawn(dungeon, x[j], y[j])
                 print("Placed lighting scroll at: ", x[j], y[j])
-
+# in future it wll take all gamemap objects (not Actors!)
+# and turn some into mimics, or not
 def make_mimic(dungeon: GameMap):
     target = dungeon.get_actor_at_location(40, 21)
     target.ai = components.ai.MimicHostileEnemy(
@@ -127,7 +128,7 @@ def generate_dungeon(
     entity_factories.confusion_scroll.spawn(dungeon, 45, 20)
     player.place(40, 20, dungeon)
     entity_factories.table.spawn(dungeon, 40, 21)
-
+    # create mimics in place of objects for now it's hardcoded
     make_mimic(dungeon)
 
     return dungeon
