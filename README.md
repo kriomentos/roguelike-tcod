@@ -12,6 +12,10 @@ There will definitely be bad code practices and a lot of experimenting.
   - Rework room connecting method
   - Add generators for features
   - Add loot (basics are in, needs more work)
+- Mimic enemy (make it less scuffed)
+
+- Improve handling of non-hostile entities
+  - Separate them into their own group of Objects
 - Stats system (more complicated one)
 - Saving and loading
 - Interface (barebones for now)
@@ -44,13 +48,13 @@ Player character is represented as `@` character
 
 **Important `NumLock` must be disabled to run the rouge correctly, with it on movement will be ignored**
 
-Movement using arrow keys (Home, End and Page up/down for diagonals), Numpad or Vi.
+Movement using arrow keys (`Home`, `End` and `Page Up`/`Down` for diagonals), Numpad or Vi.
 
 Skip turns using `,` `Num5` `Del` or `S`, pickup items `G`, use items from inventory `I`, drop them from inventory `D`
 
 To push entity insted of attacking use move keys while holding `Shift`
 
-Esc to exit the window 'gracefully'
+`Esc` to exit the window 'gracefully'
 
 ## Extras
 
