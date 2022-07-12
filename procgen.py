@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from scipy import signal
 
 import numpy as np
+import components
 from engine import Engine
 
 from game_map import GameMap
@@ -65,6 +66,12 @@ def place_entities(dungeon: GameMap, maximum_monsters: int, maximum_items: int):
                 entity_factories.lightning_scroll.spawn(dungeon, x[j], y[j])
                 print("Placed lighting scroll at: ", x[j], y[j])
 
+def make_mimic(dungeon: GameMap):
+    target = dungeon.get_actor_at_location(40, 21)
+    target.ai = components.ai.MimicHostileEnemy(
+        entity = target, message = False, origin_x = target.x, origin_y = target.y
+    )
+
 def cellular_automata(dungeon: GameMap, min: int, max: int, count: GameMap):
     # on each pass we recalculate amount of neighbours, which gives much smoother output
     # more passes equals smoother map and less artifacts
@@ -119,6 +126,8 @@ def generate_dungeon(
 
     entity_factories.confusion_scroll.spawn(dungeon, 45, 20)
     player.place(40, 20, dungeon)
-    entity_factories.mimic_table.spawn(dungeon, 40, 21)
+    entity_factories.table.spawn(dungeon, 40, 21)
+
+    make_mimic(dungeon)
 
     return dungeon

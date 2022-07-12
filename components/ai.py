@@ -110,18 +110,29 @@ class ConfusedEnemy(BaseAI):
             return BumpAction(self.entity, direction_x, direction_y).perform()
 
 class MimicHostileEnemy(BaseAI):
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Actor, message: bool, origin_x: int, origin_y: int):
         super().__init__(entity)
         self.path:  List[Tuple[int, int]] = []
+        self.message = message
+        self.origin_x = origin_x
+        self.origin_y = origin_y
 
     def perform(self) -> None:
         # if the mimics HP is less than maximum reveal itself
-        if self.entity.fighter.hp < self.entity.fighter.max_hp:
-            self.entity.char = "M"
-            self.entity.color = color.anb_red
-            self.entity.name = "Mimic"
-            # self.entity.ai = HostileEnemy
+        if not self.message:
+            if self.entity.fighter.hp < self.entity.fighter.max_hp or self.entity.x != self.origin_x or self.entity.y != self.origin_y:
+                self.entity.char = "M"
+                self.entity.color = color.anb_red
+                self.entity.name = "Mimic"
+                self.entity.fighter.defense = 2
+                self.entity.fighter.power = 4
+                # self.entity.ai = HostileEnemy
+                self.engine.message_log.add_message(
+                    f"The {self.entity.name} reveals it's disguise"
+                )
+                self.message = True
 
+        if self.message:
             target = self.engine.player
             dx = target.x - self.entity.x
             dy = target.y - self.entity.y
@@ -145,7 +156,6 @@ class MimicHostileEnemy(BaseAI):
         else:
             return WaitAction(self.entity).perform()
 
-        return WaitAction(self.entity).perform()
 
 class TickingEntity(BaseAI):
     def __init__(self, entity: Actor):

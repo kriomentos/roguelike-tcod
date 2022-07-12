@@ -30,14 +30,14 @@ troll = Actor(
     fighter = Fighter(hp = 20, defense = 2, power = 5),
     inventory = Inventory(capacity = 0),
 )
-mimic_table = Actor(
-    char = "+",
-    color = color.anb_brown,
-    name = "Table",
-    ai_cls = MimicHostileEnemy,
-    fighter = Fighter(hp = 15, defense = 2, power = 4),
-    inventory = Inventory(capacity = 0),
-)
+# mimic_table = Actor(
+#     char = "+",
+#     color = color.anb_brown,
+#     name = "Table",
+#     ai_cls = MimicHostileEnemy,
+#     fighter = Fighter(hp = 15, defense = 2, power = 4),
+#     inventory = Inventory(capacity = 0),
+# )
 # NON AI DESTROYABLE ACTORS
 table = Actor(
     char = "+",

@@ -191,7 +191,7 @@ class PushAction(ActionWithDirection):
             return
 
         # push the target in the direction we try to move
-        target.move(self.dx, self.dy)
+        target.move(self.dx + 1, self.dy + 1)
 
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
