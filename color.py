@@ -38,5 +38,5 @@ bar_text = white
 bar_filled = anb_green
 bar_empty = anb_red
 
-menu_title = anb_deep_blue
+menu_title = anb_yellow
 menu_text = anb_white
