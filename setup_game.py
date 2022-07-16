@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 import copy
+import lzma
+import pickle
+import traceback
 from typing import Optional
 
 import tcod
@@ -15,7 +18,7 @@ from procgen import generate_dungeon
 background_image = tcod.image.load("menu_background.png")[:, :, :3]
 
 def new_game() -> Engine:
-    '''return a brand new game session as Engine instance'''
+    # return a brand new game session as Engine instance
     map_width = 80
     map_height = 44
 
@@ -43,6 +46,13 @@ def new_game() -> Engine:
         "Hello and welcome choomer, to yet another dungeon!", color.welcome_text
     )
 
+    return engine
+
+def load_game(filename: str) -> Engine:
+    # load Engine instance from file
+    with open(filename, "rb") as f:
+        engine = pickle.loads(lzma.decompress(f.read()))
+    assert isinstance(engine, Engine)
     return engine
 
 class MainMenu(input_handlers.BaseEventHandler):
@@ -86,7 +96,13 @@ class MainMenu(input_handlers.BaseEventHandler):
         if event.sym in (tcod.event.K_q, tcod.event.K_ESCAPE):
             raise SystemExit()
         elif event.sym == tcod.event.K_c:
-            pass
+            try:
+                return input_handlers.MainGameEventHandler(load_game("save_game.sav"))
+            except FileNotFoundError:
+                return input_handlers.PopupMessage(self, "No saved file to load")
+            except Exception as exc:
+                traceback.print_exc()
+                return input_handlers.PopupMessage(self, f"Failed to load save:\n{exc}")
         elif event.sym == tcod.event.K_n:
             return input_handlers.MainGameEventHandler(new_game())
 
