@@ -37,3 +37,6 @@ status_effect_applied = anb_deep_blue
 bar_text = white
 bar_filled = anb_green
 bar_empty = anb_red
+
+menu_title = anb_deep_blue
+menu_text = anb_white
