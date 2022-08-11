@@ -25,9 +25,12 @@ class GameMap:
         self.visible = np.full(
             (width, height), fill_value = False, order = "F"
         ) # tiles the player can see currently
+
         self.explored = np.full(
             (width, height), fill_value = False, order = "F"
         ) # tiles the player has seen already
+
+        self.downstairs_location = (0, 0)
 
     @property
     def gamemap(self) -> GameMap:
@@ -89,7 +92,7 @@ class GameMap:
         )
 
         # display whole map without FOV function
-        console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["dark"]
+        console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["light"]
 
         for entity in entities_for_rendering:
             # don't apply FOV to entites
@@ -99,3 +102,42 @@ class GameMap:
             #     console.print(
             #         x = entity.x, y = entity.y, string = entity.char, fg = entity.color
             #     )
+
+class GameWorld:
+    """Holds settings for GameMap and generates new maps when dwelling deeper down"""
+
+    def __init__(
+        self,
+        *,
+        engine: Engine,
+        map_width: int,
+        map_height: int,
+        initial_open: float,
+        max_monsters: int,
+        max_items: int,
+        current_floor: int = 0
+    ):
+        self.engine = engine
+
+        self.map_width = map_width
+        self.map_height = map_height
+        self.initial_open = initial_open
+
+        self.max_monsters = max_monsters
+        self.max_items = max_items
+
+        self.current_floor = current_floor
+
+    def generate_floor(self) -> None:
+        from procgen import generate_dungeon
+
+        self.current_floor += 1
+
+        self.engine.game_map = generate_dungeon(
+            map_width = self.map_width,
+            map_height = self.map_height,
+            initial_open = self.initial_open,
+            max_monsters = self.max_monsters,
+            max_items = self.max_items,
+            engine = self.engine,
+        )

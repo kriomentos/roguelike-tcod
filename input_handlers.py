@@ -123,6 +123,7 @@ class PopupMessage(BaseEventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[BaseEventHandler]:
         # any key returns to parent handler
         return self.parent
+
 class EventHandler(BaseEventHandler):
     def __init__(self, engine: Engine):
         self.engine = engine
@@ -168,8 +169,13 @@ class MainGameEventHandler(EventHandler):
         action: Optional[Action] = None
 
         key = event.sym
+        modifier = event.mod
 
         player = self.engine.player
+
+        if key == tcod.event.K_PERIOD and modifier and tcod.event.Modifier.SHIFT:
+            return actions.TakeStairsAction(player)
+
         # perform move action in a given direction
         # if modifier key is held change the behavior
         if key in MOVE_KEYS:
@@ -177,12 +183,13 @@ class MainGameEventHandler(EventHandler):
 
             # if the shift is held, perform other action
             # that is push the enity in front of the player
-            if event.mod and tcod.event.Modifier.SHIFT:
+            if modifier and tcod.event.Modifier.SHIFT:
                 action = PushAction(player, dx, dy)
             # or just perform bump, which will resolve into move or attack
             # depending on if there is a target blocking path
             else:
                 action = BumpAction(player, dx, dy)
+
         # pass the turn doing nothing, it advances other AI entites turns
         elif key in WAIT_KEYS:
             action = WaitAction(player)

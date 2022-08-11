@@ -13,7 +13,7 @@ import color
 from engine import Engine
 import entity_factories
 import input_handlers
-from procgen import generate_dungeon
+from game_map import GameWorld
 
 background_image = tcod.image.load("menu_background.png")[:, :, :3]
 
@@ -24,22 +24,23 @@ def new_game() -> Engine:
 
     init_open = 0.5
 
-    max_monsters = 5
-    max_items = 3
+    max_monsters = 6
+    max_items = 4
 
     player = copy.deepcopy(entity_factories.player)
 
     engine = Engine(player = player)
 
-    engine.game_map = generate_dungeon(
+    engine.game_world = GameWorld(
+        engine = engine,
         map_width = map_width,
         map_height = map_height,
         initial_open = init_open,
         max_monsters = max_monsters,
         max_items = max_items,
-        engine = engine,
     )
 
+    engine.game_world.generate_floor()
     engine.update_fov()
 
     engine.message_log.add_message(

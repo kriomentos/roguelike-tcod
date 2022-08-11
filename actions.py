@@ -82,6 +82,17 @@ class WaitAction(Action):
     def perform(self) -> None:
         pass
 
+class TakeStairsAction(Action):
+    def perform(self) -> None:
+        """Takes the stairs, if they exist at entity location"""
+        if (self.entity.x, self.entity.y) == self.engine.game_map.downstairs_location:
+            self.engine.game_world.generate_floor()
+            self.engine.message_log.add_message(
+                "You descend down the staircase", color.descend
+            )
+        else:
+            raise exceptions.Impossible("There are no stairs here")
+
 class ActionWithDirection(Action):
     def __init__(self, entity: Actor, dx: int, dy: int):
         super().__init__(entity)
@@ -96,7 +107,7 @@ class ActionWithDirection(Action):
 
     @property
     def blocking_entity(self) -> Optional[Entity]:
-        """Return the blocking entity at this actions destination.."""
+        """Return the blocking entity at this actions destination."""
         return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
 
     @property

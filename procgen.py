@@ -23,12 +23,14 @@ def place_entities(dungeon: GameMap, maximum_monsters: int, maximum_items: int):
     number_of_monsters = randint(1, maximum_monsters)
     number_of_items = randint(1, maximum_items)
 
+    # select random postion for enemy using numpy.where
+    # we look only at positions that are floors,
+    # this way we avoid placing the enemies in walls,
+    # and we don't need more complicated checks
+    x, y = np.where(dungeon.tiles["walkable"])
+
     for i in range(number_of_monsters):
-        # select random postion for enemy using numpy.where
-        # we look only at positions that are floors,
-        # this way we avoid placing the enemies in walls,
-        # and we don't need more complicated checks
-        x, y = np.where(dungeon.tiles["walkable"])
+
         # we generate random integer from tiles we found as viable
         # it's used later to select given index in the game_map array
         j = np.random.randint(len(x))
@@ -45,7 +47,6 @@ def place_entities(dungeon: GameMap, maximum_monsters: int, maximum_items: int):
                 print("Placed troll at: ", x[j], y[j])
 
     for i in range(number_of_items):
-        x, y = np.where(dungeon.tiles["walkable"])
         j = np.random.randint(len(y))
 
         if not any(entity.x == x[j] and entity.y == y[j] for entity in dungeon.entities):
@@ -65,6 +66,12 @@ def place_entities(dungeon: GameMap, maximum_monsters: int, maximum_items: int):
             else:
                 entity_factories.lightning_scroll.spawn(dungeon, x[j], y[j])
                 print("Placed lighting scroll at: ", x[j], y[j])
+
+    j = np.random.randint(len(x))
+
+    dungeon.tiles[x[j], y[j]] = tile_types.down_stairs
+    dungeon.downstairs_location = (x[j], y[j])
+
 # in future it wll take all gamemap objects (not Actors!)
 # and turn some into mimics, or not
 def make_mimic(dungeon: GameMap):
@@ -125,9 +132,10 @@ def generate_dungeon(
 
     place_entities(dungeon, max_monsters, max_items)
 
-    entity_factories.confusion_scroll.spawn(dungeon, 45, 20)
     player.place(40, 20, dungeon)
+
     entity_factories.table.spawn(dungeon, 40, 21)
+
     # create mimics in place of objects for now it's hardcoded
     make_mimic(dungeon)
 
