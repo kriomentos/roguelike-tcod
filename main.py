@@ -41,6 +41,7 @@ def main() -> None:
                     for event in tcod.event.wait():
                         context.convert_event(event)
                         handler = handler.handle_events(event)
+
                 except Exception:
                     traceback.print_exc() # print error to stderr
                     # then print it in message log
@@ -48,10 +49,13 @@ def main() -> None:
                         handler.engine.message_log.add_message(
                             traceback.format_exc(), color.error
                         )
+
         except exceptions.QuitWithoutSaving:
             raise
+
         except SystemExit: # Save and quit
             save_game(handler, "save_game.sav")
+
         except BaseException: # save on any other unexpected exception
             save_game(handler, "save_game.sav")
 

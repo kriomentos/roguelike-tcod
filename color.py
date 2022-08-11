@@ -1,6 +1,10 @@
 white = (0xff, 0xff, 0xff)
 black = (0x0, 0x0, 0x0)
 
+dark_grey = (0x32, 0x32, 0x32)
+grey = (0x64, 0x64, 0x64)
+light_grey = (0x96, 0x96, 0x96)
+
 # ANB16 palette, created by ANoob (https://lospec.com/palette-list/anb16)
 anb_black = (0x0a, 0x08, 0x0d)
 anb_grey = (0x69, 0x75, 0x94)
@@ -33,6 +37,7 @@ welcome_text = anb_blue
 health_recovered = anb_light_green
 needs_target = anb_light_blue
 status_effect_applied = anb_deep_blue
+descend = anb_purple
 
 bar_text = white
 bar_filled = anb_green

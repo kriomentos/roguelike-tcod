@@ -23,8 +23,7 @@ def render_bar(
     console: Console, current_value: int, maximum_value: int, total_width: int
 ) -> None:
     # it ends up as 0 for current_value < 3, which makes it be empty
-    # while player is still alive :)
-    # i can't into basic maths
+
     bar_width = int(float(current_value) / maximum_value * total_width)
 
     # console.draw_rect(
