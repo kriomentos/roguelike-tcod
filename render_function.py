@@ -1,4 +1,5 @@
 from __future__ import annotations
+import string
 
 from typing import Tuple, TYPE_CHECKING
 
@@ -20,41 +21,37 @@ def get_name_at_location(x: int, y: int, game_map: GameMap) -> str:
     return names.capitalize()
 
 def render_bar(
-    console: Console, current_value: int, maximum_value: int, total_width: int
+    console: Console,
+    current_value: int,
+    maximum_value: int,
+    total_width: int,
+    fill_color: tuple,
+    empty_color: tuple,
+    position: int,
+    bar_name: string,
 ) -> None:
     # it ends up as 0 for current_value < 3, which makes it be empty
-
     bar_width = int(float(current_value) / maximum_value * total_width)
 
-    # console.draw_rect(
-    #     x = 84,
-    #     y = 2,
-    #     width = 1,
-    #     height = total_width,
-    #     ch = 1,
-    #     bg = color.bar_filled
-    # )
-
-    console.draw_rect(x = 0, y = 44, width = total_width, height = 1, ch = 1, bg = color.bar_empty)
+    console.draw_rect(
+        x = 0,
+        y = position,
+        width = total_width,
+        height = 1,
+        ch = 1,
+        bg = empty_color
+    )
 
     if bar_width > 0:
         console.draw_rect(
-            x = 0, y = 44, width = bar_width, height = 1, ch = 1, bg = color.bar_filled
+            x = 0, y = position, width = bar_width, height = 1, ch = 1, bg = fill_color
         )
 
-    # if bar_width >= 0:
-    #     console.draw_rect(
-    #         x = 84,
-    #         y = 2,
-    #         width = 1,
-    #         height = total_width - bar_width,
-    #         ch = 1,
-    #         bg = color.bar_empty
-    #     )
-
     console.print(
-        x = 1, y = 44,
-        string = f"HP: {current_value}/{maximum_value}", fg = color.black
+        x = 1,
+        y = position,
+        string = f"{bar_name}: {current_value}/{maximum_value}",
+        fg = color.black
     )
 
 def render_dungeon_level(
@@ -67,8 +64,9 @@ def render_dungeon_level(
 def render_names_at_mouse_location(
     console: Console, x: int, y: int, engine: Engine
 ) -> None:
+    # grabs current moust position over grid
     mouse_x, mouse_y = engine.mouse_location
-
+    # gets information about given coordinate hovered
     name_at_mouse_location = get_name_at_location(
         x = mouse_x, y = mouse_y, game_map = engine.game_map
     )
