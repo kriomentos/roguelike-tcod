@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import lzma
 import pickle
+import color
 
 from typing import TYPE_CHECKING
 
@@ -53,6 +54,21 @@ class Engine:
             current_value = self.player.fighter.hp,
             maximum_value = self.player.fighter.max_hp,
             total_width = 20,
+            fill_color = color.anb_green,
+            empty_color = color.anb_red,
+            position = 44,
+            bar_name = "HP"
+        )
+
+        render_function.render_bar(
+            console = console,
+            current_value = self.player.level.current_xp,
+            maximum_value = self.player.level.experience_to_next_level,
+            total_width = 20,
+            fill_color = color.anb_purple,
+            empty_color = color.grey,
+            position = 45,
+            bar_name = "XP"
         )
 
         render_function.render_dungeon_level(

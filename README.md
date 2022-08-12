@@ -50,7 +50,7 @@ Player character is represented as `@` character
 
 Movement using arrow keys (`Home`, `End` and `Page Up`/`Down` for diagonals), Numpad or Vi.
 
-Skip turns using `,` `Num5` `Del` or `S`, pickup items `G`, use items from inventory `I`, drop them from inventory `D`
+Skip turns using `,` `Num5` `Del` or `S`, pickup items `G`, use items from inventory `I`, drop them from inventory `F`, descend down the stairs `>`, open character sheet pop-up `C`, look around the map `/`, open message log history `V`
 
 To push entity insted of attacking use move keys while holding `Shift`
 

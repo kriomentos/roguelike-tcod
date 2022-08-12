@@ -47,14 +47,14 @@ MOVE_KEYS = {
     tcod.event.K_b: (-1, 1),
     tcod.event.K_n: (1, 1),
     # qwe ad zxc
-    tcod.event.K_w: (0, -1),
-    tcod.event.K_x: (0, 1),
-    tcod.event.K_a: (-1, 0),
-    tcod.event.K_d: (1, 0),
-    tcod.event.K_q: (-1, -1),
-    tcod.event.K_e: (1, -1),
-    tcod.event.K_z: (-1, 1),
-    tcod.event.K_c: (1, 1),
+    # tcod.event.K_w: (0, -1),
+    # tcod.event.K_x: (0, 1),
+    # tcod.event.K_a: (-1, 0),
+    # tcod.event.K_d: (1, 0),
+    # tcod.event.K_q: (-1, -1),
+    # tcod.event.K_e: (1, -1),
+    # tcod.event.K_z: (-1, 1),
+    # tcod.event.K_c: (1, 1),
 }
 
 WAIT_KEYS = {
@@ -138,6 +138,8 @@ class EventHandler(BaseEventHandler):
             if not self.engine.player.is_alive:
                 # player was killed sometime during or after the action
                 return GameOverEventHandler(self.engine)
+            elif self.engine.player.level.requires_level_up:
+                return LevelUpEventHandler(self.engine)
             return MainGameEventHandler(self.engine)
         return self
 
@@ -209,6 +211,11 @@ class MainGameEventHandler(EventHandler):
         # open inventory to select item to drop
         elif key == tcod.event.K_f:
             return InventoryDropHandler(self.engine)
+        # open character sheet pop-up
+        elif key == tcod.event.K_c:
+            return CharacterScreenEventHandler(self.engine)
+        # lets user "look around" to gain information on the entities in fov
+        # without having to interact with them
         elif key == tcod.event.K_SLASH:
             return LookHandler(self.engine)
 
@@ -303,6 +310,122 @@ class AskUserEventHandler(EventHandler):
         # called on action exit or cancel
         # returns to main handler
         return MainGameEventHandler(self.engine)
+
+class CharacterScreenEventHandler(AskUserEventHandler):
+    TITLE = "Character sheet"
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+
+        if self.engine.player.x <= 30:
+            x = 40
+        else:
+            x = 0
+
+        y = 0
+
+        width = len(self.TITLE) + 4
+
+        console.draw_frame(
+            x = x,
+            y = y,
+            width = width,
+            height = 7,
+            title = self.TITLE,
+            clear = True,
+            fg = (color.white),
+            bg = (color.black),
+        )
+        # current level, xp and amount to next level
+        console.print(
+            x = x + 1,
+            y = y + 1,
+            string = f"Level: {self.engine.player.level.current_level}"
+        )
+        console.print(
+            x = x + 1,
+            y = y + 2,
+            string = f"Current experience: {self.engine.player.level.current_xp}"
+        )
+        console.print(
+            x = x + 1,
+            y = y + 3,
+            string = f"To next level: {self.engine.player.level.experience_to_next_level}"
+        )
+        # power and defense
+        console.print(
+            x = x + 1,
+            y = y + 4,
+            string = f"Strength: {self.engine.player.fighter.power}"
+        )
+        console.print(
+            x = x + 1,
+            y = y + 5,
+            string = f"Defence: {self.engine.player.fighter.defense}"
+        )
+
+class LevelUpEventHandler(AskUserEventHandler):
+    TITLE = "Level up"
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+
+        if self.engine.player.x <= 30:
+            x = 40
+        else:
+            x = 0
+
+        console.draw_frame(
+            x = x,
+            y = 0,
+            width = 35,
+            height = 8,
+            title = self.TITLE,
+            clear = True,
+            fg = (color.white),
+            bg = (color.black),
+        )
+
+        console.print(x = x + 1, y = 1, string = "You gathered more experience")
+        console.print(x = x + 1, y = 2, string = "One of your attributes increased")
+
+        console.print(
+            x = x + 1,
+            y = 4,
+            string = f"a) Constitution (+20 HP, from {self.engine.player.fighter.max_hp})",
+        )
+        console.print(
+            x = x + 1,
+            y = 5,
+            string = f"b) Strength (+1 attack, from {self.engine.player.fighter.power}",
+        )
+        console.print(
+            x = x + 1,
+            y = 6,
+            string = f"c) Defense (+1 defense, from {self.engine.player.fighter.defense}",
+        )
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionHandler]:
+        player = self.engine.player
+        key = event.sym
+        index = key - tcod.event.K_a
+
+        if 0 <= index <= 2:
+            if index == 0:
+                player.level.increase_max_hp()
+            elif index == 1:
+                player.level.increase_power()
+            else:
+                player.level.increase_defense()
+        else:
+            self.engine.message_log.add_message("Invalid entry", color.inavlid)
+
+            return None
+
+        return super().ev_keydown(event)
+    # blocks user from clicking mouse to exit menu
+    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[ActionHandler]:
+        return None
 
 class InventoryEventHandler(AskUserEventHandler):
     # this handler lets user select item

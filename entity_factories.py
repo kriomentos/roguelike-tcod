@@ -2,6 +2,7 @@ from components import consumable
 from components.ai import Dummy, HostileEnemy, MimicHostileEnemy, TickingEntity
 from components.fighter import Fighter, Ticking
 from components.inventory import Inventory
+from components.level import Level
 from entity import Actor, Item
 import color
 
@@ -12,7 +13,9 @@ player = Actor(
     ai_cls = HostileEnemy, # type of AI to use, player doesn't need it but it must be specified for all Actors
     fighter = Fighter(hp = 50, defense = 3, power = 5), # base statisics for Actor
     inventory = Inventory(capacity = 26), # attach Inventory to actor with set size, size determiens how many items actor can carry
+    level = Level(level_up_base = 200),
 )
+
 # AI HOSTILE ACTORS
 orc = Actor(
     char = "o",
@@ -21,6 +24,7 @@ orc = Actor(
     ai_cls = HostileEnemy,
     fighter = Fighter(hp = 10, defense = 0, power = 4),
     inventory = Inventory(capacity = 0),
+    level = Level(xp_given = 30),
 )
 troll = Actor(
     char = "T",
@@ -29,6 +33,7 @@ troll = Actor(
     ai_cls = HostileEnemy,
     fighter = Fighter(hp = 20, defense = 2, power = 5),
     inventory = Inventory(capacity = 0),
+    level = Level(xp_given = 90),
 )
 # mimic_table = Actor(
 #     char = "+",
@@ -38,6 +43,7 @@ troll = Actor(
 #     fighter = Fighter(hp = 15, defense = 2, power = 4),
 #     inventory = Inventory(capacity = 0),
 # )
+
 # NON AI DESTROYABLE ACTORS
 table = Actor(
     char = "+",
@@ -46,7 +52,9 @@ table = Actor(
     ai_cls = Dummy,
     fighter = Fighter(hp = 20, defense = 0, power = 0),
     inventory = Inventory(capacity = 0),
+    level = Level(xp_given = 70),
 )
+
 # ITEMS
 health_potion = Item(
     char = "!",
@@ -85,4 +93,5 @@ gas_cloud = Actor(
     ai_cls = TickingEntity,
     fighter = Ticking(hp = 3, power = 3, radius = 3),
     inventory = Inventory(capacity = 0),
+    level = Level(xp_given = 0)
 )
