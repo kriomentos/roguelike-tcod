@@ -1,6 +1,7 @@
-from components import consumable
 from components.ai import Dummy, HostileEnemy, MimicHostileEnemy, TickingEntity
 from components.fighter import Fighter, Ticking
+from components.equipment import Equipment
+from components import consumable, equippable
 from components.inventory import Inventory
 from components.level import Level
 from entity import Actor, Item
@@ -11,7 +12,8 @@ player = Actor(
     color = color.anb_white, # color of string representation format RGB(R, G, B)
     name = "Player", # name displayed when taking actions/interacting
     ai_cls = HostileEnemy, # type of AI to use, player doesn't need it but it must be specified for all Actors
-    fighter = Fighter(hp = 50, defense = 3, power = 5), # base statisics for Actor
+    equipment = Equipment(),
+    fighter = Fighter(hp = 50, base_defense = 1, base_power = 2), # base statisics for Actor
     inventory = Inventory(capacity = 26), # attach Inventory to actor with set size, size determiens how many items actor can carry
     level = Level(level_up_base = 200),
 )
@@ -22,7 +24,8 @@ orc = Actor(
     color = color.anb_light_green, # (63, 127, 63),
     name = "Orc",
     ai_cls = HostileEnemy,
-    fighter = Fighter(hp = 10, defense = 0, power = 4),
+    equipment = Equipment(),
+    fighter = Fighter(hp = 10, base_defense = 0, base_power = 4),
     inventory = Inventory(capacity = 0),
     level = Level(xp_given = 30),
 )
@@ -31,7 +34,8 @@ troll = Actor(
     color = color.anb_green, # (0, 127, 0),
     name = "Troll",
     ai_cls = HostileEnemy,
-    fighter = Fighter(hp = 20, defense = 2, power = 5),
+    equipment = Equipment(),
+    fighter = Fighter(hp = 20, base_defense = 2, base_power = 5),
     inventory = Inventory(capacity = 0),
     level = Level(xp_given = 90),
 )
@@ -50,7 +54,8 @@ table = Actor(
     color = color.anb_brown,
     name = "Table",
     ai_cls = Dummy,
-    fighter = Fighter(hp = 20, defense = 0, power = 0),
+    equipment = Equipment(),
+    fighter = Fighter(hp = 20, base_defense = 0, base_power = 0),
     inventory = Inventory(capacity = 0),
     level = Level(xp_given = 70),
 )
@@ -86,12 +91,37 @@ gascloud_scroll = Item(
     name = "Gas cloud scroll",
     consumable = consumable.GasDamageConsumable(damage = 12, radius = 3, turns_active = 3),
 )
-gas_cloud = Actor(
-    char = "8",
-    color = color.anb_green,
-    name = "",
-    ai_cls = TickingEntity,
-    fighter = Ticking(hp = 3, power = 3, radius = 3),
-    inventory = Inventory(capacity = 0),
-    level = Level(xp_given = 0)
+# gas_cloud = Actor(
+#     char = "8",
+#     color = color.anb_green,
+#     name = "",
+#     ai_cls = TickingEntity,
+#     fighter = Ticking(hp = 3, power = 3, radius = 3),
+#     inventory = Inventory(capacity = 0),
+#     level = Level(xp_given = 0)
+# )
+
+dagger = Item(
+    char = "/",
+    color = color.anb_brown,
+    name = "Dagger",
+    equippable = equippable.Dagger()
+)
+sword = Item(
+    char = "/",
+    color = color.anb_light_brown,
+    name = "Sword",
+    equippable = equippable.Sword()
+)
+leather_armor = Item(
+    char = "[",
+    color = color.anb_grey,
+    name = "Leather armor",
+    equippable = equippable.LeatherArmor()
+)
+chain_mail = Item(
+    char = "[",
+    color = color.anb_white,
+    name = "Chain mail",
+    equippable = equippable.ChainMail()
 )

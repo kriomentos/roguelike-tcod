@@ -34,6 +34,7 @@ def place_entities(dungeon: GameMap, maximum_monsters: int, maximum_items: int):
         # we generate random integer from tiles we found as viable
         # it's used later to select given index in the game_map array
         j = np.random.randint(len(x))
+        i = np.random.randint(len(y))
 
         # check if the selected spot doesn't contain any entity already
         # if it does not then place one of the monsters
@@ -51,7 +52,13 @@ def place_entities(dungeon: GameMap, maximum_monsters: int, maximum_items: int):
 
         if not any(entity.x == x[j] and entity.y == y[j] for entity in dungeon.entities):
             item_chance = random()
-            if item_chance < 0.7:
+            if item_chance < 1.0:
+                entity_factories.sword.spawn(dungeon, x[j], y[j])
+                print("Placed sword at: ", x[j], y[j])
+
+                entity_factories.chain_mail.spawn(dungeon, x[i], y[i])
+                print("Placed chain mail at: ", x[j], y[i])
+            elif item_chance < 0.7:
                 entity_factories.health_potion.spawn(dungeon, x[j], y[j])
                 print("Placed potion at: ", x[j], y[j])
             elif item_chance < 0.8:
