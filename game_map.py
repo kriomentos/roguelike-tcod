@@ -113,8 +113,6 @@ class GameWorld:
         map_width: int,
         map_height: int,
         initial_open: float,
-        max_monsters: int,
-        max_items: int,
         current_floor: int = 0
     ):
         self.engine = engine
@@ -122,9 +120,6 @@ class GameWorld:
         self.map_width = map_width
         self.map_height = map_height
         self.initial_open = initial_open
-
-        self.max_monsters = max_monsters
-        self.max_items = max_items
 
         self.current_floor = current_floor
 
@@ -137,7 +132,5 @@ class GameWorld:
             map_width = self.map_width,
             map_height = self.map_height,
             initial_open = self.initial_open,
-            max_monsters = self.max_monsters,
-            max_items = self.max_items,
             engine = self.engine,
         )

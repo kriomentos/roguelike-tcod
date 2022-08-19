@@ -24,9 +24,6 @@ def new_game() -> Engine:
 
     init_open = 0.5
 
-    max_monsters = 6
-    max_items = 4
-
     player = copy.deepcopy(entity_factories.player)
 
     engine = Engine(player = player)
@@ -36,8 +33,6 @@ def new_game() -> Engine:
         map_width = map_width,
         map_height = map_height,
         initial_open = init_open,
-        max_monsters = max_monsters,
-        max_items = max_items,
     )
 
     engine.game_world.generate_floor()
@@ -46,6 +41,18 @@ def new_game() -> Engine:
     engine.message_log.add_message(
         "Hello and welcome choomer, to yet another dungeon!", color.welcome_text
     )
+
+    dagger = copy.deepcopy(entity_factories.dagger)
+    leather_armor = copy.deepcopy(entity_factories.leather_armor)
+
+    dagger.parent = player.inventory
+    leather_armor.parent = player.inventory
+
+    player.inventory.items.append(dagger)
+    player.equipment.toggle_equip(dagger, add_message = False)
+
+    player.inventory.items.append(leather_armor)
+    player.equipment.toggle_equip(leather_armor, add_message = False)
 
     return engine
 
