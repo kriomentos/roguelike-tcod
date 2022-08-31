@@ -1,5 +1,4 @@
 import tcod
-import copy
 import traceback
 
 import color
@@ -57,6 +56,7 @@ def main() -> None:
             save_game(handler, "save_game.sav")
 
         except BaseException: # save on any other unexpected exception
+            traceback.print_exc()
             save_game(handler, "save_game.sav")
 
 if __name__ == "__main__":
