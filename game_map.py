@@ -84,8 +84,8 @@ class GameMap:
 
         game_view_x = int(min(max(self.engine.player.x - self.engine.game_world.viewport_width / 2, 0), self.engine.game_world.map_width - self.engine.game_world.viewport_width))
         game_view_y = int(min(max(self.engine.player.y - self.engine.game_world.viewport_height / 2, 0), self.engine.game_world.map_height - self.engine.game_world.viewport_height))
-        e_x = int(min(max(self.engine.player.x + self.engine.game_world.viewport_width / 2, 0), self.engine.game_world.map_width - self.engine.game_world.viewport_width))
-        e_y = int(min(max(self.engine.player.y + self.engine.game_world.viewport_height / 2, 0), self.engine.game_world.map_height - self.engine.game_world.viewport_height))
+        e_x = int(max(self.engine.player.x + self.engine.game_world.viewport_width / 2, self.engine.game_world.viewport_width))
+        e_y = int(max(self.engine.player.y + self.engine.game_world.viewport_height / 2, self.engine.game_world.viewport_height))
 
         print(
             f'\n=======\n'
