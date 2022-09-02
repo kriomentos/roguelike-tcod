@@ -185,11 +185,11 @@ def generate_dungeon(
 
     place_entities(dungeon, engine.game_world.current_floor)
 
-    player.place(40, 20, dungeon)
+    player.place(20, 10, dungeon)
 
-    entity_factories.table.spawn(dungeon, 40, 21)
+    # entity_factories.table.spawn(dungeon, 40, 21)
 
     # create mimics in place of objects for now it's hardcoded
-    make_mimic(dungeon)
+    # make_mimic(dungeon)
 
     return dungeon

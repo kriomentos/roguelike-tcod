@@ -133,8 +133,8 @@ class MimicHostileEnemy(BaseAI):
                 self.entity.char = "M"
                 self.entity.color = color.anb_red
                 self.entity.name = "Mimic"
-                self.entity.fighter.defense = 2
-                self.entity.fighter.power = 4
+                self.entity.fighter.base_defense = 2
+                self.entity.fighter.base_power = 4
                 # self.entity.ai = HostileEnemy
                 self.engine.message_log.add_message(
                     f"The {self.entity.name} reveals it's disguise"

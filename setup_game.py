@@ -19,8 +19,10 @@ background_image = tcod.image.load("menu_background.png")[:, :, :3]
 
 def new_game() -> Engine:
     # return a brand new game session as Engine instance
-    map_width = 80
-    map_height = 44
+    map_width = 160
+    map_height = 88
+    viewport_width = 10
+    viewport_height = 10
 
     init_open = 0.5
 
@@ -30,6 +32,8 @@ def new_game() -> Engine:
 
     engine.game_world = GameWorld(
         engine = engine,
+        viewport_width = viewport_width,
+        viewport_height = viewport_height,
         map_width = map_width,
         map_height = map_height,
         initial_open = init_open,

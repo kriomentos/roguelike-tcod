@@ -324,7 +324,7 @@ class CharacterScreenEventHandler(AskUserEventHandler):
 
         y = 0
 
-        width = len(self.TITLE) + 4
+        width = len(self.TITLE) + 8
 
         console.draw_frame(
             x = x,

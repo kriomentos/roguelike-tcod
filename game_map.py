@@ -1,4 +1,5 @@
 from __future__ import annotations
+from re import S
 from typing import Iterable, Iterator, Optional, NamedTuple, Tuple, TYPE_CHECKING
 import numpy as np  # type: ignore
 from tcod.console import Console
@@ -31,12 +32,6 @@ class GameMap:
         ) # tiles the player has seen already
 
         self.downstairs_location = (0, 0)
-
-        self.camera_xy = (0, 0)
-
-    @property
-    def camera(self) -> Camera:
-        return Camera(*self.camera_xy)
 
     @property
     def gamemap(self) -> GameMap:
@@ -82,48 +77,37 @@ class GameMap:
         # Return True if x and y are inside of the bounds of this map.
         return 0 <= x < self.width and 0 <= y < self.height
 
-    def get_viewport(self):
-        x = self.engine.player.x
-        y = self.engine.player.y
-        width = self.engine.game_world.viewport_width
-        height = self.engine.game_world.viewport_height
-        half_width = int(width / 2)
-        half_height = int(height / 2)
-        origin_x = x - half_width
-        origin_y = y - half_height
-        # print(f'player: ({x}, {y}), modifier: {half_width}, {half_height}, origin: ({origin_x}, {origin_y})')
-        if origin_x < 0:
-            origin_x = 0
-        if origin_y < 0:
-            origin_y = 0
-
-        end_x = origin_x + width
-        end_y = origin_y + height
-        # print(f'End: ({end_x},{end_y})')
-        if end_x > self.width:
-            x_diff = end_x - self.width
-            origin_x -= x_diff
-            end_x -= x_diff
-
-        if end_y > self.height:
-            y_diff = end_y - self.height
-            origin_y -= y_diff
-            end_y -= y_diff
-        return ((origin_x, origin_y, end_x - 1, end_y - 1))
-
     def render(self, console: Console) -> None:
-        o_x, o_y, e_x, e_y = self.get_viewport()
-        s_x = slice(o_x, e_x + 1)
-        s_y = slice(o_y, e_y + 1)
-        viewport_tiles = self.tiles[s_x, s_y]  # [o_x:e_x+1,o_y:e_y + 1]
-        viewport_visible = self.visible[s_x, s_y]
-        viewport_explored = self.explored[s_x, s_y]
+        # o_x, o_y, e_x, e_y = self.get_viewport()
+        # game_view_x = slice(o_x, e_x + 1)
+        # game_view_y = slice(o_y, e_y + 1)
 
-        console.tiles_rgb[0:self.engine.game_world.viewport_width, 0:self.engine.game_world.viewport_height] = np.select(
-            condlist=[viewport_visible, viewport_explored],
-            choicelist=[viewport_tiles["light"], viewport_tiles["dark"]],
-            default=tile_types.SHROUD
+        game_view_x = int(min(max(self.engine.player.x - self.engine.game_world.viewport_width / 2, 0), self.engine.game_world.map_width - self.engine.game_world.viewport_width))
+        game_view_y = int(min(max(self.engine.player.y - self.engine.game_world.viewport_height / 2, 0), self.engine.game_world.map_height - self.engine.game_world.viewport_height))
+        e_x = int(min(max(self.engine.player.x + self.engine.game_world.viewport_width / 2, 0), self.engine.game_world.map_width - self.engine.game_world.viewport_width))
+        e_y = int(min(max(self.engine.player.y + self.engine.game_world.viewport_height / 2, 0), self.engine.game_world.map_height - self.engine.game_world.viewport_height))
+
+        print(
+            f'\n=======\n'
+            f'camera x: {game_view_x} camera y: {game_view_y}\n'
+            f'camer e_x: {e_x} camer e_y: {e_y}\n'
+            f'player x: {self.engine.player.x} player y: {self.engine.player.y}\n'
+            f'viewport w: {self.engine.game_world.viewport_width} viewport h: {self.engine.game_world.viewport_height}\n'
+            f'map w: {self.engine.game_world.map_width} map h: {self.engine.game_world.map_height}'
         )
+        # game_view_x:self.engine.game_world.viewport_width, game_view_y:self.engine.game_world.viewport_height used for all works
+        # but creates static camera that doesnt follow player
+        viewport_tiles = self.tiles[game_view_x:e_x, game_view_y:e_y]  # [o_x:e_x+1,o_y:e_y + 1]
+        viewport_visible = self.visible[game_view_x:e_x, game_view_y:e_y]
+        viewport_explored = self.explored[game_view_x:e_x, game_view_y:e_y]
+
+        console.rgb[game_view_x:e_x, game_view_y:e_y] = np.select(
+            (viewport_visible, viewport_explored),
+            (viewport_tiles["light"], viewport_tiles["dark"]),
+            tile_types.SHROUD
+        )
+
+        self.engine.update_fov()
 
         # prints the whole map, its called from within Engine when we render every bit to console
         # print based on condition whether tiles are visible or were explored already
@@ -134,22 +118,22 @@ class GameMap:
         #     default = tile_types.SHROUD,
         # )
 
-        # # sorted list of entities to render on gamemap, based on order value
-        # entities_for_rendering = sorted(
-        #     self.entities, key = lambda x: x.render_order.value
-        # )
+        # sorted list of entities to render on gamemap, based on order value
+        entities_for_rendering = sorted(
+            self.entities, key = lambda x: x.render_order.value
+        )
 
         # # display whole map without FOV function
         # console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["light"]
 
-        # for entity in entities_for_rendering:
+        for entity in entities_for_rendering:
         #     # don't apply FOV to entites
         #     console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
         #     # display entity only if in FOV
-        #     # if self.visible[entity.x, entity.y]:
-        #     #     console.print(
-        #     #         x = entity.x, y = entity.y, string = entity.char, fg = entity.color
-        #     #     )
+            if self.visible[entity.x, entity.y]:
+                console.print(
+                    x = entity.x, y = entity.y, string = entity.char, fg = entity.color
+                )
 
 class GameWorld:
     """Holds settings for GameMap and generates new maps when dwelling deeper down"""
