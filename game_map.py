@@ -33,6 +33,9 @@ class GameMap:
 
         self.downstairs_location = (0, 0)
 
+        self.view_start_x = 0
+        self.view_start_y = 0
+
     @property
     def gamemap(self) -> GameMap:
         return self
@@ -78,30 +81,31 @@ class GameMap:
         return 0 <= x < self.width and 0 <= y < self.height
 
     def render(self, console: Console) -> None:
-        # o_x, o_y, e_x, e_y = self.get_viewport()
-        # game_view_x = slice(o_x, e_x + 1)
-        # game_view_y = slice(o_y, e_y + 1)
+        # o_x, o_y, view_end_x, view_end_y = self.get_viewport()
+        # view_start_x = slice(o_x, view_end_x + 1)
+        # view_start_y = slice(o_y, view_end_y + 1)
 
-        game_view_x = int(min(max(self.engine.player.x - self.engine.game_world.viewport_width / 2, 0), self.engine.game_world.map_width - self.engine.game_world.viewport_width))
-        game_view_y = int(min(max(self.engine.player.y - self.engine.game_world.viewport_height / 2, 0), self.engine.game_world.map_height - self.engine.game_world.viewport_height))
-        e_x = int(max(self.engine.player.x + self.engine.game_world.viewport_width / 2, self.engine.game_world.viewport_width))
-        e_y = int(max(self.engine.player.y + self.engine.game_world.viewport_height / 2, self.engine.game_world.viewport_height))
+        self.view_start_x = min(max(self.engine.player.x - int(self.engine.game_world.viewport_width / 2), 0), self.engine.game_world.map_width - self.engine.game_world.viewport_width)
+        self.view_start_y = min(max(self.engine.player.y - int(self.engine.game_world.viewport_height / 2), 0), self.engine.game_world.map_height - self.engine.game_world.viewport_height)
+        # view_end_x = min(max(self.engine.player.x + int(self.engine.game_world.viewport_width / 2), self.engine.game_world.viewport_width), self.engine.game_world.map_width)
+        # view_end_y = min(max(self.engine.player.y + int(self.engine.game_world.viewport_height / 2), self.engine.game_world.viewport_height), self.engine.game_world.map_height)
+
+        view_end_x = max(self.engine.player.x + int(self.engine.game_world.viewport_width / 2), self.engine.game_world.viewport_width)
+        view_end_y = max(self.engine.player.y + int(self.engine.game_world.viewport_height / 2), self.engine.game_world.viewport_height)
 
         print(
             f'\n=======\n'
-            f'camera x: {game_view_x} camera y: {game_view_y}\n'
-            f'camer e_x: {e_x} camer e_y: {e_y}\n'
-            f'player x: {self.engine.player.x} player y: {self.engine.player.y}\n'
-            f'viewport w: {self.engine.game_world.viewport_width} viewport h: {self.engine.game_world.viewport_height}\n'
-            f'map w: {self.engine.game_world.map_width} map h: {self.engine.game_world.map_height}'
+            f'camera x: {self.view_start_x} camera y: {self.view_start_y}\n'
+            f'camera view_end_x: {view_end_x} camera view_end_y: {view_end_y}\n'
+            f'player x: {self.engine.player.x} player y: {self.engine.player.y}'
         )
-        # game_view_x:self.engine.game_world.viewport_width, game_view_y:self.engine.game_world.viewport_height used for all works
+        # view_start_x:self.engine.game_world.viewport_width, view_start_y:self.engine.game_world.viewport_height used for all works
         # but creates static camera that doesnt follow player
-        viewport_tiles = self.tiles[game_view_x:e_x, game_view_y:e_y]  # [o_x:e_x+1,o_y:e_y + 1]
-        viewport_visible = self.visible[game_view_x:e_x, game_view_y:e_y]
-        viewport_explored = self.explored[game_view_x:e_x, game_view_y:e_y]
+        viewport_tiles = self.tiles[self.view_start_x:view_end_x, self.view_start_y:view_end_y]  # [o_x:view_end_x+1,o_y:view_end_y + 1]
+        viewport_visible = self.visible[self.view_start_x:view_end_x, self.view_start_y:view_end_y]
+        viewport_explored = self.explored[self.view_start_x:view_end_x, self.view_start_y:view_end_y]
 
-        console.rgb[game_view_x:e_x, game_view_y:e_y] = np.select(
+        console.rgb[0:self.engine.game_world.viewport_width, 0:self.engine.game_world.viewport_height] = np.select(
             (viewport_visible, viewport_explored),
             (viewport_tiles["light"], viewport_tiles["dark"]),
             tile_types.SHROUD
@@ -130,9 +134,9 @@ class GameMap:
         #     # don't apply FOV to entites
         #     console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
         #     # display entity only if in FOV
-            if self.visible[entity.x, entity.y]:
+            if self.visible[entity.x, entity.y]: #self.visible
                 console.print(
-                    x = entity.x, y = entity.y, string = entity.char, fg = entity.color
+                    x = entity.x - self.view_start_x, y = entity.y - self.view_start_y, string = entity.char, fg = entity.color
                 )
 
 class GameWorld:

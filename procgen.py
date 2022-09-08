@@ -176,8 +176,7 @@ def generate_dungeon(
             dungeon.tiles[rand_w, rand_h] = tile_types.floor
             open_count -= 1
 
-    # we go through
-    # the map and simulate cellular automata rules using convolve values
+    # we go through the map and simulate cellular automata rules using convolve values
     # we do two passes with alternate ruleset to achieve both open spaces and tight corridors
     for x in range(1):
         cellular_automata(dungeon, 3, 4, wall_count)
@@ -185,7 +184,12 @@ def generate_dungeon(
 
     place_entities(dungeon, engine.game_world.current_floor)
 
-    player.place(20, 10, dungeon)
+    x, y = np.where(dungeon.tiles["walkable"])
+    j = np.random.randint(len(x))
+    player.place(x[j], y[j] , dungeon)
+    entity_factories.lightning_scroll.spawn(dungeon, x[j], y[j])
+    entity_factories.fireball_scroll.spawn(dungeon, x[j], y[j])
+    entity_factories.confusion_scroll.spawn(dungeon, x[j], y[j])
 
     # entity_factories.table.spawn(dungeon, 40, 21)
 
