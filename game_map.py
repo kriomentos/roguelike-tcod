@@ -1,6 +1,5 @@
 from __future__ import annotations
-from re import S
-from typing import Iterable, Iterator, Optional, NamedTuple, Tuple, TYPE_CHECKING
+from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 import numpy as np  # type: ignore
 from tcod.console import Console
 

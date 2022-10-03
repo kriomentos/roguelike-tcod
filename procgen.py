@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from random import choices, randrange, randint, random
-from typing import Dict, Iterator, Tuple, List, TYPE_CHECKING
+from random import choices, randrange, randint
+from typing import Dict, Tuple, List, TYPE_CHECKING
 from scipy import signal
 
 import numpy as np
@@ -46,7 +46,7 @@ enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
     7: [(entity_factories.troll, 45)],
 }
 
-# helper kernel for convolve2d, basically 3x3 array [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
+# helper kernel for convolve2d, basically 2d array [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
 kernel = np.ones((3, 3), dtype = "int")
 kernel[1, 1] = 0
 
