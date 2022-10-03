@@ -1,5 +1,6 @@
 from random import randrange
 from scipy import signal
+from scipy.ndimage import label, generate_binary_structure
 import numpy as np
 
 EMPTY = -1
@@ -14,21 +15,22 @@ TILE_MAPPING = {
     TREE: '^'
 }
 
-kernel = np.ones((3, 3), dtype="int")
-kernel[1, 1] = 0
-
+# helper kernel for convolve2d, basically 2d array
 # kernel = [
 #     [0, 1, 0],
 #     [1, 0, 1],
 #     [0, 1, 0]
 # ]
+kernel = np.ones((3, 3), dtype="int")
+kernel[1, 1] = 0
 
 class caveGen:
-    def __init__(self, rows, cols, initial_open):
+    def __init__(self, rows, cols, initial_open, number_of_iterations):
         self.__rows = rows
         self.__cols = cols
         self.__map = np.full((rows, cols), fill_value = WALL, order="F")
         self.__map_new = self.__map.copy()
+        self.__number_of_iterations = number_of_iterations
         self.__pre_genenerate_map(initial_open)
 
     @property
@@ -38,7 +40,7 @@ class caveGen:
         return self.__rows * self.__cols
 
     def print_grid(self):
-        print("_ "*self.__rows + '\n\n' + 'Grid map\n' + '_ '*self.__rows, end='\n\n\n')
+        print("_ " * self.__rows + '\n\n' + 'Grid map\n' + '_ ' * self.__rows, end = '\n\n\n')
 
         # quite old way of printing out grids
         # for r in range(self.__rows):
@@ -49,7 +51,7 @@ class caveGen:
         # much better and 'new' approach thanks to Uncle
         print('\n'.join(
             (self.__get_row_as_string(row) for row in self.__map)
-        ))
+        ), end = '\n\n')
 
         f = open("grid_output.txt", "w")
         f.write('\n\n')
@@ -61,35 +63,17 @@ class caveGen:
     def __get_row_as_string(self, row):
         return ' '.join((TILE_MAPPING[cell] for cell in row))
 
-    def gen_map(self):
-        self.__map_new = signal.convolve2d(self.__map, kernel, mode = "same")
+    def gen_map(self, min, max):
+        self.__map_new = signal.convolve2d(self.__map, kernel, mode = "same", boundary = 'wrap')
 
         for r in range(1, self.__rows - 1):
-            for c in range(1, self.__cols - 1): 
-                # if self.__map_new[r, c] == 3:
-                #     self.__map[r, c] = FLOOR
-                # elif self.__map_new[r, c] < 1:
-                #     self.__map[r, c] = FLOOR
-                # elif self.__map_new[r, c] > 5:
-                #     self.__map[r, c] = WALL
-
-                if self.__map_new[r, c] > 4:
+            for c in range(1, self.__cols - 1):
+                if self.__map_new[r, c] > max:
                     self.__map[r, c] = FLOOR
-                elif self.__map_new[r, c] < 3:
+                elif self.__map_new[r, c] < min:
                     self.__map[r, c] = WALL
 
         return self.__map
-
-    # go around selected cell[r, c] and count any walls around it
-    # def __adj_wall_count(self, sr, sc):
-    #     count = 0
-
-    #     for r in (-1, 0, 1):
-    #         for c in (-1, 0, 1):
-    #             if self.__map[(sr + r)][(sc + c)] != FLOOR and not(r == 0 and c == 0):
-    #                 count += 1
-
-    #     return count
 
     def __pre_genenerate_map(self, initial_open):
 
@@ -108,7 +92,22 @@ class caveGen:
 
             if self.__map[rand_r, rand_c] == WALL:
                 self.__map[rand_r, rand_c] = FLOOR
-                open_count -= 1    
+                open_count -= 1
+
+        # run cellular automata given number of times, it rans two sets of rules that I personally
+        # selected as "looking good" with the code I wrote for it
+        # it tends to create central "hub" like big space with corridors out of it and smaller pockets near edges
+        # overall it makes more open caves, running just 4, 5 makes tighter caves
+        # but also more closed off little pockets
+        for _ in range(self.__number_of_iterations):
+            # self.gen_map(3, 4)
+            self.gen_map(4, 5)
+
+    def label_array(self):
+        s = generate_binary_structure(2,2)
+        labeled_array, num_features = label(self.__map, structure = s)
+        print(f'Num of features in map: {num_features}')
+        print(labeled_array)
 
 def validate_input(prompt):
     while True:
@@ -127,7 +126,10 @@ if __name__ == '__main__':
     length = validate_input("Enter the # of rows: ")
     width = validate_input("Enter the # of columns: ")
     initial = float(input("Enter percentage of open spaces (Best results for pre gen are 0.4-0.5): "))
-    cave = caveGen(length, width, initial)
-    for _ in range(2):
-        cave.gen_map()
+
+    # higher number of iterations >2 make for more open space caves with big rooms and wide hallways
+    # smaller ones <=2 make tighter and smaller cave
+    num_of_iterations = int(input("Enter number of iterations for cellular automata: "))
+    cave = caveGen(length, width, initial, num_of_iterations)
     cave.print_grid()
+    cave.label_array()
