@@ -1,4 +1,4 @@
-from random import randrange
+from random import randrange, seed
 from scipy import signal
 from scipy.ndimage import label, generate_binary_structure
 import numpy as np
@@ -23,6 +23,8 @@ TILE_MAPPING = {
 # ]
 kernel = np.ones((3, 3), dtype="int")
 kernel[1, 1] = 0
+
+seed(1337)
 
 class caveGen:
     def __init__(self, rows, cols, initial_open, number_of_iterations):
