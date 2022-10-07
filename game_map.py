@@ -1,8 +1,10 @@
 from __future__ import annotations
 from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 import numpy as np  # type: ignore
-from tcod.console import Console
+import lzma
+import pickle
 
+from tcod.console import Console
 from entity import Actor, Item
 import tile_types
 
@@ -31,6 +33,7 @@ class GameMap:
         ) # tiles the player has seen already
 
         self.downstairs_location = (0, 0)
+        self.upstairs_location = (0, 0)
 
         self.view_start_x = 0
         self.view_start_y = 0
@@ -80,10 +83,6 @@ class GameMap:
         return 0 <= x < self.width and 0 <= y < self.height
 
     def render(self, console: Console) -> None:
-        # o_x, o_y, view_end_x, view_end_y = self.get_viewport()
-        # view_start_x = slice(o_x, view_end_x + 1)
-        # view_start_y = slice(o_y, view_end_y + 1)
-
         self.view_start_x = min(max(self.engine.player.x - int(self.engine.game_world.viewport_width / 2), 0), self.engine.game_world.map_width - self.engine.game_world.viewport_width)
         self.view_start_y = min(max(self.engine.player.y - int(self.engine.game_world.viewport_height / 2), 0), self.engine.game_world.map_height - self.engine.game_world.viewport_height)
         # view_end_x = min(max(self.engine.player.x + int(self.engine.game_world.viewport_width / 2), self.engine.game_world.viewport_width), self.engine.game_world.map_width)
@@ -92,12 +91,13 @@ class GameMap:
         view_end_x = max(self.engine.player.x + int(self.engine.game_world.viewport_width / 2), self.engine.game_world.viewport_width)
         view_end_y = max(self.engine.player.y + int(self.engine.game_world.viewport_height / 2), self.engine.game_world.viewport_height)
 
-        print(
-            f'\n=======\n'
-            f'camera x: {self.view_start_x} camera y: {self.view_start_y}\n'
-            f'camera view_end_x: {view_end_x} camera view_end_y: {view_end_y}\n'
-            f'player x: {self.engine.player.x} player y: {self.engine.player.y}'
-        )
+        # print(
+        #     f'\n=======\n'
+        #     f'camera x: {self.view_start_x} camera y: {self.view_start_y}\n'
+        #     f'camera view_end_x: {view_end_x} camera view_end_y: {view_end_y}\n'
+        #     f'player x: {self.engine.player.x} player y: {self.engine.player.y}'
+        # )
+
         # view_start_x:self.engine.game_world.viewport_width, view_start_y:self.engine.game_world.viewport_height used for all works
         # but creates static camera that doesnt follow player
         viewport_tiles = self.tiles[self.view_start_x:view_end_x, self.view_start_y:view_end_y]  # [o_x:view_end_x+1,o_y:view_end_y + 1]
@@ -126,13 +126,13 @@ class GameMap:
             self.entities, key = lambda x: x.render_order.value
         )
 
-        # # display whole map without FOV function
-        # console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["light"]
+        # display whole map without FOV function
+        console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["light"]
 
         for entity in entities_for_rendering:
-        #     # don't apply FOV to entites
+        #   don't apply FOV to entites
         #     console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
-        #     # display entity only if in FOV
+        #   display entity only if in FOV
             if self.visible[entity.x, entity.y]: #self.visible
                 console.print(
                     x = entity.x - self.view_start_x, y = entity.y - self.view_start_y, string = entity.char, fg = entity.color
@@ -150,7 +150,8 @@ class GameWorld:
         map_width: int,
         map_height: int,
         initial_open: float,
-        current_floor: int = 0
+        current_floor: int = 0,
+        maps_list: dict = {},
     ):
         self.engine = engine
 
@@ -162,11 +163,10 @@ class GameWorld:
         self.initial_open = initial_open
 
         self.current_floor = current_floor
+        self.maps_list = maps_list
 
     def generate_floor(self) -> None:
         from procgen import generate_dungeon
-
-        self.current_floor += 1
 
         self.engine.game_map = generate_dungeon(
             map_width = self.map_width,
@@ -174,3 +174,40 @@ class GameWorld:
             initial_open = self.initial_open,
             engine = self.engine,
         )
+
+    def go_downstairs(self) -> None:
+        self.current_floor += 1
+
+        if self.current_floor in self.maps_list:
+            print("Floor in dict")
+            self.engine.game_map.entities.remove(self.engine.player)
+
+            goto_floor = pickle.loads(lzma.decompress(self.maps_list[self.current_floor]))
+
+            self.engine.game_map = goto_floor
+            self.engine.player.place(goto_floor.downstairs_location[0], goto_floor.downstairs_location[1], goto_floor)
+        else:
+            print("Floor not in dict")
+            self.engine.game_map.entities.remove(self.engine.player)
+
+            self.maps_list[self.current_floor - 1] = lzma.compress(pickle.dumps(self.engine.game_map))
+
+            self.generate_floor()
+
+    def go_upstairs(self) -> None:
+        self.current_floor -= 1
+        print(f'flr #: {self.current_floor}\n\n')
+
+        if self.current_floor in self.maps_list:
+            self.maps_list[self.current_floor + 1] = lzma.compress(pickle.dumps(self.engine.game_map))
+
+            goto_floor = pickle.loads(lzma.decompress(self.maps_list[self.current_floor]))
+
+            self.engine.game_map = goto_floor
+            self.engine.player.place(goto_floor.downstairs_location[0], goto_floor.downstairs_location[1], goto_floor)
+        else:
+            print(
+                f'flr #: {self.current_floor}\n'
+                f'dict: {self.maps_list.keys()}'
+            )
+            raise NotImplementedError()

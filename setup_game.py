@@ -21,8 +21,8 @@ def new_game() -> Engine:
     # return a brand new game session as Engine instance
     map_width = 50
     map_height = 40
-    viewport_width = 30
-    viewport_height = 20
+    viewport_width = 50
+    viewport_height = 40
 
     init_open = 0.5
 

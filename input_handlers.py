@@ -175,6 +175,8 @@ class MainGameEventHandler(EventHandler):
 
         player = self.engine.player
 
+        # if shift and period(>) is held traverse the stairs
+        # for now only downwards but will also handle upwards
         if key == tcod.event.K_PERIOD and modifier and tcod.event.Modifier.SHIFT:
             return actions.TakeStairsAction(player)
 

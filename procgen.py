@@ -124,8 +124,12 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
 
     j = np.random.randint(len(x))
 
+    # insert stairs going down the level
     dungeon.tiles[x[j], y[j]] = tile_types.down_stairs
     dungeon.downstairs_location = (x[j], y[j])
+    # insert stairs going up level
+    dungeon.tiles[x[j + 1], y[j + 1]] = tile_types.up_stairs
+    dungeon.upstairs_location = (x[j + 1], y[j + 1])
 
 # in future it wll take all gamemap objects (not Actors!)
 # and turn some into mimics, or not
@@ -186,10 +190,7 @@ def generate_dungeon(
 
     x, y = np.where(dungeon.tiles["walkable"])
     j = np.random.randint(len(x))
-    player.place(x[j], y[j] , dungeon)
-    entity_factories.lightning_scroll.spawn(dungeon, x[j], y[j])
-    entity_factories.fireball_scroll.spawn(dungeon, x[j], y[j])
-    entity_factories.confusion_scroll.spawn(dungeon, x[j], y[j])
+    player.place(dungeon.downstairs_location[0] - 1, dungeon.downstairs_location[1], dungeon)
 
     # entity_factories.table.spawn(dungeon, 40, 21)
 
