@@ -25,11 +25,11 @@ class GameMap:
         self.tiles = np.full((width, height), fill_value = tile_types.wall, order='F') # numpy filled with wall tiles in fortran order
 
         self.visible = np.full(
-            (width, height), fill_value = False, order = "F"
+            (width, height), fill_value = False, order = 'F'
         ) # tiles the player can see currently
 
         self.explored = np.full(
-            (width, height), fill_value = False, order = "F"
+            (width, height), fill_value = False, order = 'F'
         ) # tiles the player has seen already
 
         self.downstairs_location = (0, 0)
@@ -106,7 +106,7 @@ class GameMap:
 
         console.rgb[0:self.engine.game_world.viewport_width, 0:self.engine.game_world.viewport_height] = np.select(
             (viewport_visible, viewport_explored),
-            (viewport_tiles["light"], viewport_tiles["dark"]),
+            (viewport_tiles['light'], viewport_tiles['dark']),
             tile_types.SHROUD
         )
 
@@ -117,7 +117,7 @@ class GameMap:
         # if not, default to SHROUDed tile, which is just empty black square
         # console.tiles_rgb[0 : self.width, 0 : self.height] = np.select(
         #     (self.visible, self.explored),
-        #     (self.tiles["light"], self.tiles["dark"]),
+        #     (self.tiles['light'], self.tiles['dark']),
         #     default = tile_types.SHROUD,
         # )
 
@@ -127,7 +127,7 @@ class GameMap:
         )
 
         # display whole map without FOV function
-        console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["light"]
+        # console.tiles_rgb[0:self.width, 0:self.height] = self.tiles['light']
 
         for entity in entities_for_rendering:
         #   don't apply FOV to entites
@@ -139,7 +139,7 @@ class GameMap:
                 )
 
 class GameWorld:
-    """Holds settings for GameMap and generates new maps when dwelling deeper down"""
+    '''Holds settings for GameMap and generates new maps when dwelling deeper down'''
 
     def __init__(
         self,
@@ -179,35 +179,56 @@ class GameWorld:
         self.current_floor += 1
 
         if self.current_floor in self.maps_list:
-            print("Floor in dict")
-            self.engine.game_map.entities.remove(self.engine.player)
+            print(
+                f'Floor in dict\n'
+                f'Iterator: {self.current_floor}\n'
+            )
+            # self.engine.game_map.entities.remove(self.engine.player)
 
-            goto_floor = pickle.loads(lzma.decompress(self.maps_list[self.current_floor]))
+            # downstairs_floor = pickle.loads(lzma.decompress(self.maps_list.get(self.current_floor)))
 
-            self.engine.game_map = goto_floor
-            self.engine.player.place(goto_floor.downstairs_location[0], goto_floor.downstairs_location[1], goto_floor)
+            # self.engine.game_map = downstairs_floor
+            # self.engine.player.place(
+            #     downstairs_floor.upstairs_location[0],
+            #     downstairs_floor.upstairs_location[1],
+            #     downstairs_floor
+            # )
         else:
-            print("Floor not in dict")
-            self.engine.game_map.entities.remove(self.engine.player)
+            print(
+                f'Floor not in dict\n'
+                f'Iterator: {self.current_floor}\n'
+                # f'dict: {self.maps_list.keys()}\n'
+            )
+            # self.engine.game_map.entities.remove(self.engine.player)
 
-            self.maps_list[self.current_floor - 1] = lzma.compress(pickle.dumps(self.engine.game_map))
+            # self.maps_list[self.current_floor - 1] = lzma.compress(pickle.dumps(self.engine.game_map))
+
+            # print(f'list after addition: {self.maps_list.keys()}')
 
             self.generate_floor()
 
     def go_upstairs(self) -> None:
         self.current_floor -= 1
-        print(f'flr #: {self.current_floor}\n\n')
 
         if self.current_floor in self.maps_list:
-            self.maps_list[self.current_floor + 1] = lzma.compress(pickle.dumps(self.engine.game_map))
+            print(
+                f'Floor in dict\n'
+                f'Iterator: {self.current_floor}\n'
+            )
+            # self.engine.game_map.entities.remove(self.engine.player)
 
-            goto_floor = pickle.loads(lzma.decompress(self.maps_list[self.current_floor]))
+            # upstairs_floor = pickle.loads(lzma.decompress(self.maps_list[self.current_floor]))
 
-            self.engine.game_map = goto_floor
-            self.engine.player.place(goto_floor.downstairs_location[0], goto_floor.downstairs_location[1], goto_floor)
+            # self.engine.game_map = upstairs_floor
+            # self.engine.player.place(
+            #     upstairs_floor.downstairs_location[0],
+            #     upstairs_floor.downstairs_location[1],
+            #     upstairs_floor
+            # )
         else:
             print(
-                f'flr #: {self.current_floor}\n'
-                f'dict: {self.maps_list.keys()}'
+                f'Floor not in dict or unexpected case'
+                f'Iterator: {self.current_floor}\n'
+                # f'dict: {self.maps_list.keys()}'
             )
             raise NotImplementedError()
