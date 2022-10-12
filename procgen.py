@@ -33,17 +33,28 @@ max_monsters_per_floor = [
 # higher weight means higher chance of spawning
 # dict key is the floor number where they appear
 item_chances: Dict[int, List[Tuple[Entity, int]]] = {
-    0: [(entity_factories.health_potion, 35)],
+    0: [(entity_factories.health_potion, 35),
+        (entity_factories.power_ring, 5),
+        (entity_factories.defense_ring, 5)],
     2: [(entity_factories.confusion_scroll, 10)],
-    4: [(entity_factories.lightning_scroll, 25)],
-    6: [(entity_factories.fireball_scroll, 25)],
+    4: [(entity_factories.lightning_scroll, 25),
+        (entity_factories.sword, 10),
+        (entity_factories.power_ring, 5),
+        (entity_factories.defense_ring, 5)],
+    6: [(entity_factories.fireball_scroll, 25),
+        (entity_factories.chain_mail, 10),
+        (entity_factories.omni_ring, 5)],
+    9: [(entity_factories.health_potion, 20),
+        (entity_factories.chain_mail, 10),
+        (entity_factories.confusion_scroll, 20)]
 }
 
 enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
     0: [(entity_factories.orc, 80)],
     3: [(entity_factories.troll, 15)],
     5: [(entity_factories.troll, 30)],
-    7: [(entity_factories.troll, 45)],
+    7: [(entity_factories.orc, 25),
+        (entity_factories.troll, 45)],
 }
 
 # helper kernel for convolve2d, basically 2d array [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
