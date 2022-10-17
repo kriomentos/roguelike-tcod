@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from components.level import Level
     from game_map import GameMap
 
-T = TypeVar("T", bound = "Entity")
+T = TypeVar('T', bound = 'Entity')
 
 class Entity:
     # Generic object for entities
@@ -27,9 +27,9 @@ class Entity:
         parent: Optional[GameMap] = None,
         x: int = 0, # integers for position in Fortran grid
         y: int = 0,
-        char: str = "?", # string character for visual representation
+        char: str = '?', # string character for visual representation
         color: Tuple[int, int, int] = (255, 255, 255), # RGB value for provided char
-        name: str = "<Unnamed>", # name to be displayed when inspecting/interacting with entity
+        name: str = '<Unnamed>', # name to be displayed when inspecting/interacting with entity
         blocks_movement: bool = False, # does the enitty block player movement
         render_order: RenderOrder = RenderOrder.CORPSE
     ):
@@ -63,7 +63,7 @@ class Entity:
         self.x = x
         self.y = y
         if gamemap:
-            if hasattr(self, "parent"): # possibly uninitialized
+            if hasattr(self, 'parent'): # possibly uninitialized
                 if self.parent is self.gamemap:
                     self.gamemap.entities.remove(self)
             self.parent = gamemap
@@ -83,9 +83,9 @@ class Actor(Entity):
         *,
         x: int = 0,
         y: int = 0,
-        char: str = "?",
+        char: str = '?',
         color: Tuple[int, int, int] = (255, 255, 255),
-        name: str = "<Unnamed>",
+        name: str = '<Unnamed>',
         ai_cls: Type[BaseAI],
         equipment: Equipment,
         fighter: Fighter,
@@ -126,9 +126,9 @@ class Item(Entity):
         *,
         x: int = 0,
         y: int = 0,
-        char: str = "?",
+        char: str = '?',
         color: Tuple[int, int, int] = (255, 255, 255),
-        name: str = "<Unnamed>",
+        name: str = '<Unnamed>',
         consumable: Optional[Consumable] = None,
         equippable: Optional[Equippable] = None,
     ):

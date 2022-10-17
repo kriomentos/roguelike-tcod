@@ -14,7 +14,7 @@ TILE_MAPPING = {
     TREE: '^'
 }
 
-kernel = np.ones((3, 3), dtype="int")
+kernel = np.ones((3, 3), dtype='int')
 kernel[1, 1] = 0
 
 # kernel = [
@@ -27,7 +27,7 @@ class caveGen:
     def __init__(self, rows, cols, initial_open):
         self.__rows = rows
         self.__cols = cols
-        self.__map = np.full((rows, cols), fill_value = WALL, order="F")
+        self.__map = np.full((rows, cols), fill_value = WALL, order='F')
         self.__map_new = self.__map.copy()
         self.__pre_genenerate_map(initial_open)
 
@@ -38,7 +38,7 @@ class caveGen:
         return self.__rows * self.__cols
 
     def print_grid(self):
-        print("_ "*self.__rows + '\n\n' + 'Grid map\n' + '_ '*self.__rows, end='\n\n\n')
+        print('_ '*self.__rows + '\n\n' + 'Grid map\n' + '_ '*self.__rows, end='\n\n\n')
 
         # quite old way of printing out grids
         # for r in range(self.__rows):
@@ -51,7 +51,7 @@ class caveGen:
             (self.__get_row_as_string(row) for row in self.__map)
         ))
 
-        f = open("grid_output.txt", "w")
+        f = open('grid_output.txt', 'w')
         f.write('\n\n')
         f.write('\n'.join(
             (self.__get_row_as_string(row) for row in self.__map)
@@ -62,10 +62,10 @@ class caveGen:
         return ' '.join((TILE_MAPPING[cell] for cell in row))
 
     def gen_map(self):
-        self.__map_new = signal.convolve2d(self.__map, kernel, mode = "same")
+        self.__map_new = signal.convolve2d(self.__map, kernel, mode = 'same')
 
         for r in range(1, self.__rows - 1):
-            for c in range(1, self.__cols - 1): 
+            for c in range(1, self.__cols - 1):
                 # if self.__map_new[r, c] == 3:
                 #     self.__map[r, c] = FLOOR
                 # elif self.__map_new[r, c] < 1:
@@ -98,7 +98,7 @@ class caveGen:
         #     row = [WALL for _ in range(0, self.__cols)]
         #     self.__map.append(row)
 
-        # numbers of spots to "open"
+        # numbers of spots to 'open'
         open_count = int(self.__area * initial_open)
 
         # randomly select cell and turn it into FLOOR until we run out of open spots
@@ -108,25 +108,25 @@ class caveGen:
 
             if self.__map[rand_r, rand_c] == WALL:
                 self.__map[rand_r, rand_c] = FLOOR
-                open_count -= 1    
+                open_count -= 1
 
 def validate_input(prompt):
     while True:
         try:
             value = int(input(prompt)) # assert value is integer
         except ValueError:
-            print("Input must be number, try again")
+            print('Input must be number, try again')
             continue
 
         if value > 5:
             return value
         else:
-            print("Input must be positive and bigger than 5, try again")
+            print('Input must be positive and bigger than 5, try again')
 
 if __name__ == '__main__':
-    length = validate_input("Enter the # of rows: ")
-    width = validate_input("Enter the # of columns: ")
-    initial = float(input("Enter percentage of open spaces (Best results for pre gen are 0.4-0.5): "))
+    length = validate_input('Enter the # of rows: ')
+    width = validate_input('Enter the # of columns: ')
+    initial = float(input('Enter percentage of open spaces (Best results for pre gen are 0.4-0.5): '))
     cave = caveGen(length, width, initial)
     for _ in range(2):
         cave.gen_map()

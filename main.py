@@ -10,14 +10,14 @@ def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
     # if current event handler has active Engine then save it
     if isinstance(handler, input_handlers.EventHandler):
         handler.engine.save_as(filename)
-        print("Game saved")
+        print('Game saved')
 
 def main() -> None:
     screen_width = 80
-    screen_height = 50
+    screen_height = 44
 
     tileset = tcod.tileset.load_tilesheet(
-        "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
+        'dejavu10x10_gs_tc.png', 32, 8, tcod.tileset.CHARMAP_TCOD
     )
 
     handler: input_handlers.BaseEventHandler = setup_game.MainMenu()
@@ -26,10 +26,10 @@ def main() -> None:
         screen_width,
         screen_height,
         tileset = tileset,
-        title = "Roguelike",
+        title = 'Roguelike',
         vsync = True,
     ) as context:
-        root_console = tcod.Console(screen_width, screen_height, order = "F")
+        root_console = tcod.Console(screen_width, screen_height, order = 'F')
         try:
             while True:
                 root_console.clear()
@@ -53,11 +53,11 @@ def main() -> None:
             raise
 
         except SystemExit: # Save and quit
-            save_game(handler, "save_game.sav")
+            save_game(handler, 'save_game.sav')
 
         except BaseException: # save on any other unexpected exception
             traceback.print_exc()
-            save_game(handler, "save_game.sav")
+            save_game(handler, 'save_game.sav')
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

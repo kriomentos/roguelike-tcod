@@ -185,12 +185,12 @@ class MainGameEventHandler(EventHandler):
 
             # if the shift is held, perform other action
             # that is push the enity in front of the player
-            if modifier and tcod.event.Modifier.SHIFT:
-                action = PushAction(player, dx, dy)
+            # if modifier and tcod.event.Modifier.SHIFT:
+                # action = PushAction(player, dx, dy)
             # or just perform bump, which will resolve into move or attack
             # depending on if there is a target blocking path
-            else:
-                action = BumpAction(player, dx, dy)
+            # else:
+            action = BumpAction(player, dx, dy)
 
         # pass the turn doing nothing, it advances other AI entites turns
         elif key in WAIT_KEYS:

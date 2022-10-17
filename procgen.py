@@ -47,7 +47,7 @@ enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
 }
 
 # helper kernel for convolve2d, basically 3x3 array [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
-kernel = np.ones((3, 3), dtype = "int")
+kernel = np.ones((3, 3), dtype = 'int')
 kernel[1, 1] = 0
 
 def get_max_value_for_floor(
@@ -101,7 +101,7 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
     # we look only at positions that are floors,
     # this way we avoid placing the enemies in walls,
     # and we don't need more complicated checks
-    x, y = np.where(dungeon.tiles["walkable"])
+    x, y = np.where(dungeon.tiles['walkable'])
 
     monsters: List[Entity] = get_entities_at_random(
         enemy_chances, number_of_monsters, floor_number
@@ -120,7 +120,7 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
         # 80% chance for orc 20% for troll
         if not any(entity.x == x[j] and entity.y == y[j] for entity in dungeon.entities):
             entity.spawn(dungeon, x[j], y[j])
-            print(f"Placed {entity.name} at: ", x[j], y[j])
+            print(f'Placed {entity.name} at: ', x[j], y[j])
 
     j = np.random.randint(len(x))
 
@@ -138,11 +138,11 @@ def make_mimic(dungeon: GameMap):
 def cellular_automata(dungeon: GameMap, min: int, max: int, count: GameMap):
     # on each pass we recalculate amount of neighbours, which gives much smoother output
     # more passes equals smoother map and less artifacts
-    count = signal.convolve2d(dungeon.tiles['value'], kernel, mode = "same", boundary = 'wrap')
+    count = signal.convolve2d(dungeon.tiles['value'], kernel, mode = 'same', boundary = 'wrap')
     for i in range(1, dungeon.width - 1):
         for j in range(1, dungeon.height - 1):
             # if in the cell neighbourhood is at least MAX floors
-            # then it "dies" and turns into floor
+            # then it 'dies' and turns into floor
             if count[i, j] > max:
                 dungeon.tiles[i, j] = tile_types.floor
             # same rule applies to floor cells, if they have less than MIN floors
@@ -164,7 +164,7 @@ def generate_dungeon(
     # helper map to hold convolve calculation
     wall_count = GameMap(engine, map_width, map_height)
 
-    # number of fields to "open" or replace/carve out with floors
+    # number of fields to 'open' or replace/carve out with floors
     open_count = (dungeon.area * initial_open)
 
     # randomly selected tile gets replaced with floor/carved out

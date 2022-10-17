@@ -14,7 +14,7 @@ class Message:
     def full_text(self) -> str:
 
         if self.count > 1:
-            return f"{self.plain_text} (x{self.count})"
+            return f'{self.plain_text} (x{self.count})'
         return self.plain_text
 
 class MessageLog:

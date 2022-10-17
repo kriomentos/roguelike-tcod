@@ -55,12 +55,12 @@ class Equipment(BaseComponent):
 
     def unequip_message(self, item_name: str) -> None:
         self.parent.gamemap.engine.message_log.add_message(
-            f"You remove the {item_name}"
+            f'You remove the {item_name}'
         )
 
     def equip_message(self, item_name: str) -> None:
         self.parent.gamemap.engine.message_log.add_message(
-            f"You equip the {item_name}"
+            f'You equip the {item_name}'
         )
 
     def equip_to_slot(self, slot: str, item: Item, add_message: bool) -> None:
@@ -90,9 +90,9 @@ class Equipment(BaseComponent):
             equippable_item.equippable
             and equippable_item.equippable.equipment_type == EquipmentType.WEAPON
         ):
-            slot = "weapon"
+            slot = 'weapon'
         else:
-            slot = "armor"
+            slot = 'armor'
 
         if getattr(self, slot) == equippable_item:
             self.unequip_from_slot(slot, add_message)

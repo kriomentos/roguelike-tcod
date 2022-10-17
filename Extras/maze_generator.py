@@ -126,13 +126,13 @@ def validate_input(prompt):
         try:
             value = int(input(prompt)) # assert value is integer
         except ValueError:
-            print("Input must be number, try again")
+            print('Input must be number, try again')
             continue
 
         if value > 2:
             return value
         else:
-            print("Input must be positive and bigger than 5, try again")
+            print('Input must be positive and bigger than 5, try again')
 
 # def run():
 #     maze = Maze(100, 100)
@@ -140,8 +140,8 @@ def validate_input(prompt):
 
 if __name__ == '__main__':
     # cProfile.run('run()')
-    width = validate_input("Enter the # of rows: ")
-    height = validate_input("Enter the # of columns: ")
+    width = validate_input('Enter the # of rows: ')
+    height = validate_input('Enter the # of columns: ')
     maze = Maze(width, height)
     maze.gen_map()
     maze.print_grid()

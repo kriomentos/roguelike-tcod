@@ -19,7 +19,7 @@ class BaseAI(Action):
 
     def get_path_to(self, dest_x: int, dest_y: int) -> List[Tuple[int, int]]:
         # calculates path to traget position or returns empty list if no valid path
-        cost = np.array(self.entity.gamemap.tiles["walkable"], dtype = np.int8)
+        cost = np.array(self.entity.gamemap.tiles['walkable'], dtype = np.int8)
 
         for entity in self.entity.gamemap.entities:
             if entity.blocks_movement and cost[entity.x, entity.y]:
@@ -87,7 +87,7 @@ class ConfusedEnemy(BaseAI):
         # return to previous ai when the effect ends
         if self.turns_remaining <= 0:
             self.engine.message_log.add_message(
-                f"The {self.entity.name} is no longer confused"
+                f'The {self.entity.name} is no longer confused'
             )
             self.entity.ai = self.previous_ai
         else:
@@ -130,14 +130,14 @@ class MimicHostileEnemy(BaseAI):
         # which is super scuffed and hacked way of handling :)
         if not self.message:
             if self.entity.fighter.hp < self.entity.fighter.max_hp or self.entity.x != self.origin_x or self.entity.y != self.origin_y:
-                self.entity.char = "M"
+                self.entity.char = 'M'
                 self.entity.color = color.anb_red
-                self.entity.name = "Mimic"
+                self.entity.name = 'Mimic'
                 self.entity.fighter.base_defense = 2
                 self.entity.fighter.base_power = 4
                 # self.entity.ai = HostileEnemy
                 self.engine.message_log.add_message(
-                    f"The {self.entity.name} reveals it's disguise"
+                    f'The {self.entity.name} reveals it\'s disguise'
                 )
                 self.message = True
 
@@ -174,14 +174,14 @@ class TickingEntity(BaseAI):
 
     def perform(self) -> None:
         target_xy = self.entity.x, self.entity.y
-        print(f"Target xy: {target_xy}")
+        print(f'Target xy: {target_xy}')
         if self.entity.fighter.hp <= 0:
             self.entity.ai = None
         else:
             for actor in set(self.engine.game_map.actors) - {self.entity}:
                 if actor.distance(*target_xy) <= 3:
                     self.engine.message_log.add_message(
-                        f"The {actor.name} coughs in toxic gas, taking {self.entity.fighter.power} damage"
+                        f'The {actor.name} coughs in toxic gas, taking {self.entity.fighter.power} damage'
                     )
                     actor.fighter.take_damage(self.entity.fighter.power)
             self.entity.fighter.hp -= 1

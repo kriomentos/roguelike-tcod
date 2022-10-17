@@ -15,14 +15,14 @@ import entity_factories
 import input_handlers
 from game_map import GameWorld
 
-background_image = tcod.image.load("menu_background.png")[:, :, :3]
+background_image = tcod.image.load('menu_background.png')[:, :, :3]
 
 def new_game() -> Engine:
     # return a brand new game session as Engine instance
     map_width = 160
     map_height = 88
-    viewport_width = 10
-    viewport_height = 10
+    viewport_width = 40
+    viewport_height = 22
 
     init_open = 0.5
 
@@ -43,7 +43,7 @@ def new_game() -> Engine:
     engine.update_fov()
 
     engine.message_log.add_message(
-        "Hello and welcome choomer, to yet another dungeon!", color.welcome_text
+        'Hello and welcome choomer, to yet another dungeon!', color.welcome_text
     )
 
     dagger = copy.deepcopy(entity_factories.dagger)
@@ -62,7 +62,7 @@ def new_game() -> Engine:
 
 def load_game(filename: str) -> Engine:
     # load Engine instance from file
-    with open(filename, "rb") as f:
+    with open(filename, 'rb') as f:
         engine = pickle.loads(lzma.decompress(f.read()))
     assert isinstance(engine, Engine)
     return engine
@@ -76,21 +76,21 @@ class MainMenu(input_handlers.BaseEventHandler):
         console.print(
             console.width // 2,
             console.height // 2 - 4,
-            "SCUFFED ROUGELIKE",
+            'SCUFFED ROUGELIKE',
             fg = color.menu_title,
             alignment = tcod.CENTER,
         )
         console.print(
             console.width // 2,
             console.height -2,
-            "By Kreeo",
+            'By Kreeo',
             fg = color.menu_title,
             alignment = tcod.CENTER,
         )
 
         menu_width = 24
         for i, text in enumerate(
-            ["[N] Play a new game", "[C] Contiune last game", "[Q] Quit"]
+            ['[N] Play a new game', '[C] Contiune last game', '[Q] Quit']
         ):
             console.print(
                 console.width // 2,
@@ -109,12 +109,12 @@ class MainMenu(input_handlers.BaseEventHandler):
             raise SystemExit()
         elif event.sym == tcod.event.K_c:
             try:
-                return input_handlers.MainGameEventHandler(load_game("save_game.sav"))
+                return input_handlers.MainGameEventHandler(load_game('save_game.sav'))
             except FileNotFoundError:
-                return input_handlers.PopupMessage(self, "No saved file to load")
+                return input_handlers.PopupMessage(self, 'No saved file to load')
             except Exception as exc:
                 traceback.print_exc()
-                return input_handlers.PopupMessage(self, f"Failed to load save:\n{exc}")
+                return input_handlers.PopupMessage(self, f'Failed to load save:\n{exc}')
         elif event.sym == tcod.event.K_n:
             return input_handlers.MainGameEventHandler(new_game())
 

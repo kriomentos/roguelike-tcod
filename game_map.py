@@ -24,11 +24,11 @@ class GameMap:
         self.tiles = np.full((width, height), fill_value = tile_types.wall, order='F') # numpy filled with wall tiles in fortran order
 
         self.visible = np.full(
-            (width, height), fill_value = False, order = "F"
+            (width, height), fill_value = False, order = 'F'
         ) # tiles the player can see currently
 
         self.explored = np.full(
-            (width, height), fill_value = False, order = "F"
+            (width, height), fill_value = False, order = 'F'
         ) # tiles the player has seen already
 
         self.downstairs_location = (0, 0)
@@ -82,18 +82,18 @@ class GameMap:
         # game_view_x = slice(o_x, e_x + 1)
         # game_view_y = slice(o_y, e_y + 1)
 
-        game_view_x = int(min(max(self.engine.player.x - self.engine.game_world.viewport_width / 2, 0), self.engine.game_world.map_width - self.engine.game_world.viewport_width))
-        game_view_y = int(min(max(self.engine.player.y - self.engine.game_world.viewport_height / 2, 0), self.engine.game_world.map_height - self.engine.game_world.viewport_height))
-        e_x = int(max(self.engine.player.x + self.engine.game_world.viewport_width / 2, self.engine.game_world.viewport_width))
-        e_y = int(max(self.engine.player.y + self.engine.game_world.viewport_height / 2, self.engine.game_world.viewport_height))
+        # remove map and use screen size to keep it in bounds/*
+        # as that is what probably causes the crash and array bradcast errors
+        game_view_x = min(max(self.engine.player.x - int(self.engine.game_world.viewport_width / 2), 0), self.engine.game_world.map_width - self.engine.game_world.viewport_width)
+        game_view_y = min(max(self.engine.player.y - int(self.engine.game_world.viewport_height / 2), 0), self.engine.game_world.map_height - self.engine.game_world.viewport_height)
+        e_x = min(max(self.engine.player.x + int(self.engine.game_world.viewport_width / 2) + 1, 0), self.engine.game_world.map_width)
+        e_y = min(max(self.engine.player.y + int(self.engine.game_world.viewport_height / 2) + 1, 0), self.engine.game_world.map_height)
 
         print(
             f'\n=======\n'
             f'camera x: {game_view_x} camera y: {game_view_y}\n'
             f'camer e_x: {e_x} camer e_y: {e_y}\n'
             f'player x: {self.engine.player.x} player y: {self.engine.player.y}\n'
-            f'viewport w: {self.engine.game_world.viewport_width} viewport h: {self.engine.game_world.viewport_height}\n'
-            f'map w: {self.engine.game_world.map_width} map h: {self.engine.game_world.map_height}'
         )
         # game_view_x:self.engine.game_world.viewport_width, game_view_y:self.engine.game_world.viewport_height used for all works
         # but creates static camera that doesnt follow player
@@ -101,9 +101,10 @@ class GameMap:
         viewport_visible = self.visible[game_view_x:e_x, game_view_y:e_y]
         viewport_explored = self.explored[game_view_x:e_x, game_view_y:e_y]
 
+        # 0:self.engine.game_world.viewport_width, 0:self.engine.game_world.viewport_height
         console.rgb[game_view_x:e_x, game_view_y:e_y] = np.select(
             (viewport_visible, viewport_explored),
-            (viewport_tiles["light"], viewport_tiles["dark"]),
+            (viewport_tiles['light'], viewport_tiles['dark']),
             tile_types.SHROUD
         )
 
@@ -114,7 +115,7 @@ class GameMap:
         # if not, default to SHROUDed tile, which is just empty black square
         # console.tiles_rgb[0 : self.width, 0 : self.height] = np.select(
         #     (self.visible, self.explored),
-        #     (self.tiles["light"], self.tiles["dark"]),
+        #     (self.tiles['light'], self.tiles['dark']),
         #     default = tile_types.SHROUD,
         # )
 
@@ -124,7 +125,7 @@ class GameMap:
         )
 
         # # display whole map without FOV function
-        # console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["light"]
+        # console.tiles_rgb[0:self.width, 0:self.height] = self.tiles['light']
 
         for entity in entities_for_rendering:
         #     # don't apply FOV to entites
@@ -136,7 +137,7 @@ class GameMap:
                 )
 
 class GameWorld:
-    """Holds settings for GameMap and generates new maps when dwelling deeper down"""
+    '''Holds settings for GameMap and generates new maps when dwelling deeper down'''
 
     def __init__(
         self,

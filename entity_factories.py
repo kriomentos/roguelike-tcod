@@ -8,9 +8,9 @@ from entity import Actor, Item
 import color
 
 player = Actor(
-    char = "@", # string for visual representation on game map. Most ASCII symbols
+    char = '@', # string for visual representation on game map. Most ASCII symbols
     color = color.anb_white, # color of string representation format RGB(R, G, B)
-    name = "Player", # name displayed when taking actions/interacting
+    name = 'Player', # name displayed when taking actions/interacting
     ai_cls = HostileEnemy, # type of AI to use, player doesn't need it but it must be specified for all Actors
     equipment = Equipment(),
     fighter = Fighter(hp = 50, base_defense = 1, base_power = 2), # base statisics for Actor
@@ -20,9 +20,9 @@ player = Actor(
 
 # AI HOSTILE ACTORS
 orc = Actor(
-    char = "o",
+    char = 'o',
     color = color.anb_light_green, # (63, 127, 63),
-    name = "Orc",
+    name = 'Orc',
     ai_cls = HostileEnemy,
     equipment = Equipment(),
     fighter = Fighter(hp = 10, base_defense = 0, base_power = 4),
@@ -30,9 +30,9 @@ orc = Actor(
     level = Level(xp_given = 30),
 )
 troll = Actor(
-    char = "T",
+    char = 'T',
     color = color.anb_green, # (0, 127, 0),
-    name = "Troll",
+    name = 'Troll',
     ai_cls = HostileEnemy,
     equipment = Equipment(),
     fighter = Fighter(hp = 20, base_defense = 2, base_power = 5),
@@ -40,9 +40,9 @@ troll = Actor(
     level = Level(xp_given = 90),
 )
 # mimic_table = Actor(
-#     char = "+",
+#     char = '+',
 #     color = color.anb_brown,
-#     name = "Table",
+#     name = 'Table',
 #     ai_cls = MimicHostileEnemy,
 #     fighter = Fighter(hp = 15, defense = 2, power = 4),
 #     inventory = Inventory(capacity = 0),
@@ -50,9 +50,9 @@ troll = Actor(
 
 # NON AI DESTROYABLE ACTORS
 table = Actor(
-    char = "+",
+    char = '+',
     color = color.anb_brown,
-    name = "Table",
+    name = 'Table',
     ai_cls = Dummy,
     equipment = Equipment(),
     fighter = Fighter(hp = 20, base_defense = 0, base_power = 0),
@@ -62,39 +62,39 @@ table = Actor(
 
 # ITEMS
 health_potion = Item(
-    char = "!",
+    char = '!',
     color = color.anb_light_brown,
-    name = "Health potion",
+    name = 'Health potion',
     consumable = consumable.HealingConsumable(amount = 4),
 )
 lightning_scroll = Item(
-    char = "~",
+    char = '~',
     color = color.anb_light_blue,
-    name = "Lightning scroll",
+    name = 'Lightning scroll',
     consumable = consumable.LightningDamageConsumable(damage = 15, maximum_range = 5),
 )
 confusion_scroll = Item(
-    char = "~",
+    char = '~',
     color = color.anb_purple,
-    name = "Confusion scroll",
+    name = 'Confusion scroll',
     consumable = consumable.ConfusionConsumable(number_of_turns = 10),
 )
 fireball_scroll = Item(
-    char = "~",
+    char = '~',
     color = color.anb_red,
-    name = "Fireball scroll",
+    name = 'Fireball scroll',
     consumable = consumable.FireballDamageConsumable(damage = 12, radius = 3),
 )
 gascloud_scroll = Item(
-    char = "~",
+    char = '~',
     color = color.anb_green,
-    name = "Gas cloud scroll",
+    name = 'Gas cloud scroll',
     consumable = consumable.GasDamageConsumable(damage = 12, radius = 3, turns_active = 3),
 )
 # gas_cloud = Actor(
-#     char = "8",
+#     char = '8',
 #     color = color.anb_green,
-#     name = "",
+#     name = '',
 #     ai_cls = TickingEntity,
 #     fighter = Ticking(hp = 3, power = 3, radius = 3),
 #     inventory = Inventory(capacity = 0),
@@ -102,26 +102,26 @@ gascloud_scroll = Item(
 # )
 
 dagger = Item(
-    char = "/",
+    char = '/',
     color = color.anb_brown,
-    name = "Dagger",
+    name = 'Dagger',
     equippable = equippable.Dagger()
 )
 sword = Item(
-    char = "/",
+    char = '/',
     color = color.anb_light_brown,
-    name = "Sword",
+    name = 'Sword',
     equippable = equippable.Sword()
 )
 leather_armor = Item(
-    char = "[",
+    char = '[',
     color = color.anb_grey,
-    name = "Leather armor",
+    name = 'Leather armor',
     equippable = equippable.LeatherArmor()
 )
 chain_mail = Item(
-    char = "[",
+    char = '[',
     color = color.anb_white,
-    name = "Chain mail",
+    name = 'Chain mail',
     equippable = equippable.ChainMail()
 )

@@ -45,12 +45,12 @@ class HealingConsumable(Consumable):
 
         if amount_recovered > 0:
             self.engine.message_log.add_message(
-                f"You consume the {self.parent.name}, and recover {amount_recovered} HP",
+                f'You consume the {self.parent.name}, and recover {amount_recovered} HP',
                 color.health_recovered
             )
             self.consume()
         else:
-            raise Impossible(f"Your health is already full!")
+            raise Impossible(f'Your health is already full!')
 
 class LightningDamageConsumable(Consumable):
     def __init__(self, damage: int, maximum_range: int):
@@ -74,12 +74,12 @@ class LightningDamageConsumable(Consumable):
 
         if target:
             self.engine.message_log.add_message(
-                f"Lightning bolt strikes the {target.name} with a loud crack, for {self.damage} damage"
+                f'Lightning bolt strikes the {target.name} with a loud crack, for {self.damage} damage'
             )
             target.fighter.take_damage(self.damage)
             self.consume()
         else:
-            raise Impossible("No enemy is close enough to strike")
+            raise Impossible('No enemy is close enough to strike')
 
 class ConfusionConsumable(Consumable):
     def __init__(self, number_of_turns: int):
@@ -87,7 +87,7 @@ class ConfusionConsumable(Consumable):
 
     def get_action(self, consumer: Actor) -> SingleRangedAttackHandler:
         self.engine.message_log.add_message(
-            "Select a target location", color.needs_target
+            'Select a target location', color.needs_target
         )
         return SingleRangedAttackHandler(
             self.engine,
@@ -99,14 +99,14 @@ class ConfusionConsumable(Consumable):
         target = action.target_actor
 
         if not self.engine.game_map.visible[action.target_xy]:
-            raise Impossible("You cannot target an area that you cannot see")
+            raise Impossible('You cannot target an area that you cannot see')
         if not target:
-            raise Impossible("You must select an enemy to target")
+            raise Impossible('You must select an enemy to target')
         if target is consumer:
-            raise Impossible("You cannot confuse yourself")
+            raise Impossible('You cannot confuse yourself')
 
         self.engine.message_log.add_message(
-            f"The eyes of {target.name} look vacant, as it starts to stumble around",
+            f'The eyes of {target.name} look vacant, as it starts to stumble around',
             color.status_effect_applied
         )
         target.ai = components.ai.ConfusedEnemy(
@@ -121,7 +121,7 @@ class FireballDamageConsumable(Consumable):
 
     def get_action(self, consumer: Actor) -> AreaRangedAttackHandler:
         self.engine.message_log.add_message(
-            "Select a target location", color.needs_target
+            'Select a target location', color.needs_target
         )
         return AreaRangedAttackHandler(
             self.engine,
@@ -133,19 +133,19 @@ class FireballDamageConsumable(Consumable):
         target_xy = action.target_xy
 
         if not self.engine.game_map.visible[target_xy]:
-            raise Impossible("You cannot target an area that you cannot see")
+            raise Impossible('You cannot target an area that you cannot see')
 
         targets_hit = False
         for actor in self.engine.game_map.actors:
             if actor.distance(*target_xy) <= self.radius:
                 self.engine.message_log.add_message(
-                    f"The {actor.name} is engulfed in a fiery explosion, taking {self.damage} damage"
+                    f'The {actor.name} is engulfed in a fiery explosion, taking {self.damage} damage'
                 )
                 actor.fighter.take_damage(self.damage)
                 targets_hit = True
 
         if not targets_hit:
-            raise Impossible("There are no targets in radius")
+            raise Impossible('There are no targets in radius')
         self.consume()
 
 class GasDamageConsumable(Consumable):
@@ -156,7 +156,7 @@ class GasDamageConsumable(Consumable):
 
     def get_action(self, consumer: Actor) -> Optional[actions.Action]:
         self.engine.message_log.add_message(
-            "Select a target location", color.needs_target
+            'Select a target location', color.needs_target
         )
         self.engine.event_handler = AreaRangedAttackHandler(
             self.engine,
@@ -169,11 +169,11 @@ class GasDamageConsumable(Consumable):
         target_xy = action.target_xy
 
         if not self.engine.game_map.visible[target_xy]:
-            raise Impossible("You cannot target an area that you cannot see")
+            raise Impossible('You cannot target an area that you cannot see')
 
         for actor in self.engine.game_map.actors:
             if actor.distance(*target_xy) <= self.radius:
                 self.engine.message_log.add_message(
-                    f"The {actor.name} is engulfed in a fiery explosion, taking {self.damage} damage"
+                    f'The {actor.name} is engulfed in a fiery explosion, taking {self.damage} damage'
                 )
                 actor.fighter.take_damage(self.damage)
