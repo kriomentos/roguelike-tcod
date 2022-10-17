@@ -99,9 +99,14 @@ class TakeStairsAction(Action):
     def perform(self) -> None:
         '''Takes the stairs, if they exist at entity location'''
         if (self.entity.x, self.entity.y) == self.engine.game_map.downstairs_location:
-            self.engine.game_world.generate_floor()
+            self.engine.game_world.go_downstairs()
             self.engine.message_log.add_message(
                 'You descend down the staircase', color.descend
+            )
+        elif (self.entity.x, self.entity.y) == self.engine.game_map.upstairs_location:
+            self.engine.game_world.go_upstairs()
+            self.engine.message_log.add_message(
+                "You ascend up the staircase", color.descend
             )
         else:
             raise exceptions.Impossible('There are no stairs here')

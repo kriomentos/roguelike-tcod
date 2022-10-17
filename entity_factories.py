@@ -1,3 +1,4 @@
+from random import randint
 from components.ai import Dummy, HostileEnemy, MimicHostileEnemy, TickingEntity
 from components.fighter import Fighter, Ticking
 from components.equipment import Equipment
@@ -7,6 +8,7 @@ from components.level import Level
 from entity import Actor, Item
 import color
 
+'PLAYER AND NON HOSTILE ACTORS'
 player = Actor(
     char = '@', # string for visual representation on game map. Most ASCII symbols
     color = color.anb_white, # color of string representation format RGB(R, G, B)
@@ -18,7 +20,7 @@ player = Actor(
     level = Level(level_up_base = 200),
 )
 
-# AI HOSTILE ACTORS
+'AI HOSTILE ACTORS'
 orc = Actor(
     char = 'o',
     color = color.anb_light_green, # (63, 127, 63),
@@ -60,12 +62,12 @@ table = Actor(
     level = Level(xp_given = 70),
 )
 
-# ITEMS
+'ITEMS'
 health_potion = Item(
     char = '!',
     color = color.anb_light_brown,
     name = 'Health potion',
-    consumable = consumable.HealingConsumable(amount = 4),
+    consumable = consumable.HealingConsumable(amount = randint(4, 10)),
 )
 lightning_scroll = Item(
     char = '~',
@@ -101,6 +103,7 @@ gascloud_scroll = Item(
 #     level = Level(xp_given = 0)
 # )
 
+'EQUIPPABLES'
 dagger = Item(
     char = '/',
     color = color.anb_brown,
@@ -124,4 +127,22 @@ chain_mail = Item(
     color = color.anb_white,
     name = 'Chain mail',
     equippable = equippable.ChainMail()
+)
+power_ring = Item(
+    char = "Q",
+    color = color.anb_white,
+    name = "Ring of The Gorilla",
+    equippable = equippable.PowerRing()
+)
+defense_ring = Item(
+    char = "Q",
+    color = color.anb_white,
+    name = "Ring of The Wall",
+    equippable = equippable.DefenseRing()
+)
+omni_ring = Item(
+    char = "Q",
+    color = color.anb_white,
+    name = "Ring of Omni",
+    equippable = equippable.OmniRing()
 )

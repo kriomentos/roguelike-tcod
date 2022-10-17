@@ -1,4 +1,5 @@
 from __future__ import annotations
+from lib2to3.pgen2.token import OP
 
 from typing import Optional, TYPE_CHECKING
 
@@ -18,10 +19,12 @@ class Equipment(BaseComponent):
     def __init__(
         self,
         weapon: Optional[Item] = None,
-        armor: Optional[Item] = None
+        armor: Optional[Item] = None,
+        ring: Optional[Item] = None,
     ):
         self.weapon = weapon
         self.armor = armor
+        self.ring = ring
 
     # calculate bonus added to character base stats based on items bonuses
     # for now it's only power and defense
@@ -36,6 +39,9 @@ class Equipment(BaseComponent):
         if self.armor is not None and self.armor.equippable is not None:
             bonus += self.armor.equippable.power_bonus
 
+        if self.ring is not None and self.ring.equippable is not None:
+            bonus += self.ring.equippable.power_bonus
+
         return bonus
 
     @property
@@ -48,10 +54,13 @@ class Equipment(BaseComponent):
         if self.armor is not None and self.armor.equippable is not None:
             bonus += self.armor.equippable.defense_bonus
 
+        if self.ring is not None and self.ring.equippable is not None:
+            bonus += self.ring.equippable.defense_bonus
+
         return bonus
 
     def item_is_equipped(self, item: Item) -> bool:
-        return self.weapon == item or self.armor == item
+        return self.weapon == item or self.armor == item or self.ring == item
 
     def unequip_message(self, item_name: str) -> None:
         self.parent.gamemap.engine.message_log.add_message(
@@ -90,7 +99,12 @@ class Equipment(BaseComponent):
             equippable_item.equippable
             and equippable_item.equippable.equipment_type == EquipmentType.WEAPON
         ):
-            slot = 'weapon'
+            slot = "weapon"
+        elif(
+            equippable_item.equippable
+            and equippable_item.equippable.equipment_type == EquipmentType.RING
+        ):
+            slot = "ring"
         else:
             slot = 'armor'
 

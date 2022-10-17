@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from random import choices, randrange, randint, random
-from typing import Dict, Iterator, Tuple, List, TYPE_CHECKING
+from random import choices, randrange, randint
+from typing import Dict, Tuple, List, TYPE_CHECKING
 from scipy import signal
 
 import numpy as np
@@ -33,20 +33,31 @@ max_monsters_per_floor = [
 # higher weight means higher chance of spawning
 # dict key is the floor number where they appear
 item_chances: Dict[int, List[Tuple[Entity, int]]] = {
-    0: [(entity_factories.health_potion, 35)],
+    0: [(entity_factories.health_potion, 35),
+        (entity_factories.power_ring, 5),
+        (entity_factories.defense_ring, 5)],
     2: [(entity_factories.confusion_scroll, 10)],
-    4: [(entity_factories.lightning_scroll, 25)],
-    6: [(entity_factories.fireball_scroll, 25)],
+    4: [(entity_factories.lightning_scroll, 25),
+        (entity_factories.sword, 10),
+        (entity_factories.power_ring, 5),
+        (entity_factories.defense_ring, 5)],
+    6: [(entity_factories.fireball_scroll, 25),
+        (entity_factories.chain_mail, 10),
+        (entity_factories.omni_ring, 5)],
+    9: [(entity_factories.health_potion, 20),
+        (entity_factories.chain_mail, 10),
+        (entity_factories.confusion_scroll, 20)]
 }
 
 enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
     0: [(entity_factories.orc, 80)],
     3: [(entity_factories.troll, 15)],
     5: [(entity_factories.troll, 30)],
-    7: [(entity_factories.troll, 45)],
+    7: [(entity_factories.orc, 25),
+        (entity_factories.troll, 45)],
 }
 
-# helper kernel for convolve2d, basically 3x3 array [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
+# helper kernel for convolve2d, basically 2d array [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
 kernel = np.ones((3, 3), dtype = 'int')
 kernel[1, 1] = 0
 
@@ -124,8 +135,12 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
 
     j = np.random.randint(len(x))
 
+    # insert stairs going down the level
     dungeon.tiles[x[j], y[j]] = tile_types.down_stairs
     dungeon.downstairs_location = (x[j], y[j])
+    # insert stairs going up level
+    dungeon.tiles[x[j + 1], y[j + 1]] = tile_types.up_stairs
+    dungeon.upstairs_location = (x[j + 1], y[j + 1])
 
 # in future it wll take all gamemap objects (not Actors!)
 # and turn some into mimics, or not
@@ -176,8 +191,7 @@ def generate_dungeon(
             dungeon.tiles[rand_w, rand_h] = tile_types.floor
             open_count -= 1
 
-    # we go through
-    # the map and simulate cellular automata rules using convolve values
+    # we go through the map and simulate cellular automata rules using convolve values
     # we do two passes with alternate ruleset to achieve both open spaces and tight corridors
     for x in range(1):
         cellular_automata(dungeon, 3, 4, wall_count)
@@ -185,7 +199,9 @@ def generate_dungeon(
 
     place_entities(dungeon, engine.game_world.current_floor)
 
-    player.place(20, 10, dungeon)
+    x, y = np.where(dungeon.tiles["walkable"])
+    j = np.random.randint(len(x))
+    player.place(dungeon.downstairs_location[0] - 1, dungeon.downstairs_location[1], dungeon)
 
     # entity_factories.table.spawn(dungeon, 40, 21)
 

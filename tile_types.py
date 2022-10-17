@@ -58,3 +58,10 @@ down_stairs = new_tile(
     dark = (ord('>'), (color.light_grey), (color.dark_grey)),
     light = (ord('>'), (color.white), (color.grey))
 )
+up_stairs = new_tile(
+    value = 2,
+    walkable = True,
+    transparent = True,
+    dark = (ord('<'), (color.light_grey), (color.dark_grey)),
+    light = (ord('<'), (color.white), (color.grey))
+)

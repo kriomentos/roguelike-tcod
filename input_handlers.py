@@ -175,6 +175,8 @@ class MainGameEventHandler(EventHandler):
 
         player = self.engine.player
 
+        # if shift and period(>) is held traverse the stairs
+        # for now only downwards but will also handle upwards
         if key == tcod.event.K_PERIOD and modifier and tcod.event.Modifier.SHIFT:
             return actions.TakeStairsAction(player)
 
@@ -531,6 +533,8 @@ class SelectIndexHandler(AskUserEventHandler):
         # highlights tile under cursor
         super().on_render(console)
         x, y = self.engine.mouse_location
+        # x = x - self.engine.game_map.view_start_x
+        # y = y - self.engine.game_map.view_start_y
         console.tiles_rgb["bg"][x, y] = color.anb_white
         console.tiles_rgb["fg"][x, y] = color.anb_black
 
