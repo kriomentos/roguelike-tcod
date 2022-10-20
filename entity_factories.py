@@ -1,5 +1,5 @@
 from random import randint
-from components.ai import Dummy, HostileEnemy, MimicHostileEnemy, TickingEntity
+from components.ai import Dummy, GreedyEnemy, HostileEnemy, MimicHostileEnemy, TickingEntity
 from components.fighter import Fighter, Ticking
 from components.equipment import Equipment
 from components import consumable, equippable
@@ -40,6 +40,16 @@ troll = Actor(
     fighter = Fighter(hp = 20, base_defense = 2, base_power = 5),
     inventory = Inventory(capacity = 0),
     level = Level(xp_given = 90),
+)
+goblin = Actor(
+    char = 'g',
+    color = color.anb_green, # (0, 127, 0),
+    name = 'Goblin',
+    ai_cls = GreedyEnemy,
+    equipment = Equipment(),
+    fighter = Fighter(hp = 20, base_defense = 2, base_power = 5),
+    inventory = Inventory(capacity = 2),
+    level = Level(xp_given = 40),
 )
 # mimic_table = Actor(
 #     char = '+',
@@ -93,6 +103,12 @@ gascloud_scroll = Item(
     name = 'Gas cloud scroll',
     consumable = consumable.GasDamageConsumable(damage = 12, radius = 3, turns_active = 3),
 )
+bow = Item(
+    char = ')',
+    color = color.anb_green,
+    name = 'Bow',
+    consumable = consumable.Bow(damage = 4, ammunition = 5),
+)
 # gas_cloud = Actor(
 #     char = '8',
 #     color = color.anb_green,
@@ -129,20 +145,20 @@ chain_mail = Item(
     equippable = equippable.ChainMail()
 )
 power_ring = Item(
-    char = "Q",
+    char = '*',
     color = color.anb_white,
-    name = "Ring of The Gorilla",
+    name = 'Ring of The Gorilla',
     equippable = equippable.PowerRing()
 )
 defense_ring = Item(
-    char = "Q",
+    char = '*',
     color = color.anb_white,
-    name = "Ring of The Wall",
+    name = 'Ring of The Wall',
     equippable = equippable.DefenseRing()
 )
 omni_ring = Item(
-    char = "Q",
+    char = '*',
     color = color.anb_white,
-    name = "Ring of Omni",
+    name = 'Ring of Omni',
     equippable = equippable.OmniRing()
 )

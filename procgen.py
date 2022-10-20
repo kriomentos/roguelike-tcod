@@ -31,11 +31,12 @@ max_monsters_per_floor = [
 
 # dictionaires of weighted entites for spawning
 # higher weight means higher chance of spawning
-# dict key is the floor number where they appear
+# dict key is the floor number where they start appearing
 item_chances: Dict[int, List[Tuple[Entity, int]]] = {
     0: [(entity_factories.health_potion, 35),
         (entity_factories.power_ring, 5),
-        (entity_factories.defense_ring, 5)],
+        (entity_factories.defense_ring, 5),
+        (entity_factories.goblin, 50)],
     2: [(entity_factories.confusion_scroll, 10)],
     4: [(entity_factories.lightning_scroll, 25),
         (entity_factories.sword, 10),
@@ -201,8 +202,8 @@ def generate_dungeon(
 
     x, y = np.where(dungeon.tiles["walkable"])
     j = np.random.randint(len(x))
-    player.place(dungeon.downstairs_location[0] - 1, dungeon.downstairs_location[1], dungeon)
-
+    player.place(x[j], y[j], dungeon)
+    entity_factories.bow.spawn(dungeon, x[j], y[j])
     # entity_factories.table.spawn(dungeon, 40, 21)
 
     # create mimics in place of objects for now it's hardcoded

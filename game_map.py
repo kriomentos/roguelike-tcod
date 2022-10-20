@@ -17,7 +17,8 @@ class GameMap:
         engine: Engine,
         width: int,
         height: int,
-        entities: Iterable[Entity] = ()
+        entities: Iterable[Entity] = (),
+        visibility = False
     ):
         self.engine = engine
         self.width, self.height = width, height
@@ -31,6 +32,8 @@ class GameMap:
         self.explored = np.full(
             (width, height), fill_value = False, order = 'F'
         ) # tiles the player has seen already
+
+        self.visibility = visibility
 
         self.downstairs_location = (0, 0)
         self.upstairs_location = (0, 0)
@@ -104,39 +107,37 @@ class GameMap:
         viewport_visible = self.visible[self.view_start_x:view_end_x, self.view_start_y:view_end_y]
         viewport_explored = self.explored[self.view_start_x:view_end_x, self.view_start_y:view_end_y]
 
-        console.rgb[0:self.engine.game_world.viewport_width, 0:self.engine.game_world.viewport_height] = np.select(
-            (viewport_visible, viewport_explored),
-            (viewport_tiles['light'], viewport_tiles['dark']),
-            tile_types.SHROUD
-        )
-
-        self.engine.update_fov()
-
         # prints the whole map, its called from within Engine when we render every bit to console
         # print based on condition whether tiles are visible or were explored already
         # if not, default to SHROUDed tile, which is just empty black square
-        # console.tiles_rgb[0 : self.width, 0 : self.height] = np.select(
-        #     (self.visible, self.explored),
-        #     (self.tiles['light'], self.tiles['dark']),
-        #     default = tile_types.SHROUD,
-        # )
+        # can be toggled to show every tile or only ones seen by player
+        if self.visibility == True:
+            # display whole map without FOV function
+            console.tiles_rgb[0 : self.width, 0 : self.height] = self.tiles['light']
+        else:
+            console.rgb[0:self.engine.game_world.viewport_width, 0:self.engine.game_world.viewport_height] = np.select(
+                (viewport_visible, viewport_explored),
+                (viewport_tiles['light'], viewport_tiles['dark']),
+                tile_types.SHROUD
+            )
+
+        self.engine.update_fov()
 
         # sorted list of entities to render on gamemap, based on order value
         entities_for_rendering = sorted(
             self.entities, key = lambda x: x.render_order.value
         )
 
-        # display whole map without FOV function
-        # console.tiles_rgb[0:self.width, 0:self.height] = self.tiles['light']
-
         for entity in entities_for_rendering:
-        #   don't apply FOV to entites
-        #     console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
-        #   display entity only if in FOV
-            if self.visible[entity.x, entity.y]: #self.visible
-                console.print(
-                    x = entity.x - self.view_start_x, y = entity.y - self.view_start_y, string = entity.char, fg = entity.color
-                )
+            # don't apply FOV to entites
+            if self.visibility:
+                console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
+            else:
+                # display entity only if in FOV
+                if self.visible[entity.x, entity.y]:
+                    console.print(
+                        x = entity.x - self.view_start_x, y = entity.y - self.view_start_y, string = entity.char, fg = entity.color
+                    )
 
 class GameWorld:
     '''Holds settings for GameMap and generates new maps when dwelling deeper down'''

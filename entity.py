@@ -62,15 +62,13 @@ class Entity:
         # palce entity at new location, handles moving across gamemaps
         self.x = x
         self.y = y
-        self.parent = gamemap
-        gamemap.entities.add(self)
-        # if gamemap:
-        #     if hasattr(self, "parent"): # possibly uninitialized
-        #         if self.parent is self.gamemap:
-        #             pass
-        #             # self.gamemap.entities.remove(self)
-        #     self.parent = gamemap
-        #     gamemap.entities.add(self)
+        # gamemap.entities.add(self)
+        if gamemap:
+            if hasattr(self, "parent"): # possibly uninitialized
+                if self.parent is self.gamemap:
+                    self.gamemap.entities.remove(self)
+            self.parent = gamemap
+            gamemap.entities.add(self)
 
     def distance(self, x: int, y: int) -> float:
         # returns distance between this entity and givens x and y

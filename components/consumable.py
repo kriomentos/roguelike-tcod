@@ -177,3 +177,41 @@ class GasDamageConsumable(Consumable):
                     f'The {actor.name} is engulfed in a fiery explosion, taking {self.damage} damage'
                 )
                 actor.fighter.take_damage(self.damage)
+
+class Bow(Consumable):
+    def __init__(self, damage: int, ammunition: int) -> None:
+        self.damage = damage
+        self.ammunition = ammunition
+
+    def get_action(self, consumer: Actor) -> SingleRangedAttackHandler:
+        self.engine.message_log.add_message(
+            'Select a target to shoot', color.needs_target
+        )
+        return SingleRangedAttackHandler(
+            self.engine,
+            callback = lambda xy: actions.ItemAction(consumer, self.parent, xy)
+        )
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer = action.entity
+        target = action.target_actor
+
+        if not self.engine.game_map.visible[action.target_xy]:
+            raise Impossible('You cannot target an area that you cannot see')
+        if not target:
+            raise Impossible('You must select an enemy to target')
+        if target is consumer:
+            raise Impossible('You cannot shoot yourself')
+
+        self.engine.message_log.add_message(
+            f'The arrow hit {target.name} for {self.damage} damage'
+        )
+        target.fighter.take_damage(self.damage)
+
+        self.ammunition -= 1
+
+        if self.ammunition <= 0:
+            self.engine.message_log.add_message(
+                f'The bow breaks up in your hands, it\'s no longer of any use'
+            )
+            self.consume()

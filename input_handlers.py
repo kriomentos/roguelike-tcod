@@ -187,8 +187,8 @@ class MainGameEventHandler(EventHandler):
 
             # if the shift is held, perform other action
             # that is push the enity in front of the player
-            # if modifier and tcod.event.Modifier.SHIFT:
-                # action = PushAction(player, dx, dy)
+            if key and modifier and tcod.event.Modifier.SHIFT:
+                action = PushAction(player, dx, dy)
             # or just perform bump, which will resolve into move or attack
             # depending on if there is a target blocking path
             # else:
@@ -220,6 +220,9 @@ class MainGameEventHandler(EventHandler):
         # without having to interact with them
         elif key == tcod.event.K_SLASH:
             return LookHandler(self.engine)
+        elif key == tcod.event.K_z:
+            self.engine.game_map.visibility = not self.engine.game_map.visibility
+            print(f'vis: {self.engine.game_map.visibility}')
 
         return action
 
