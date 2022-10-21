@@ -48,7 +48,10 @@ class PickupAction(Action):
                 item.parent = self.entity.inventory
                 inventory.items.append(item)
 
-                self.engine.message_log.add_message(f'You picked up {item.name}')
+                # display pickup message only for player
+                if self.entity is self.engine.player:
+                    self.engine.message_log.add_message(f'You picked up {item.name}')
+
                 return
 
         raise exceptions.Impossible('There is nothing to pick up')
@@ -102,11 +105,6 @@ class TakeStairsAction(Action):
             self.engine.game_world.go_downstairs()
             self.engine.message_log.add_message(
                 'You descend down the staircase', color.descend
-            )
-        elif (self.entity.x, self.entity.y) == self.engine.game_map.upstairs_location:
-            self.engine.game_world.go_upstairs()
-            self.engine.message_log.add_message(
-                "You ascend up the staircase", color.descend
             )
         else:
             raise exceptions.Impossible('There are no stairs here')

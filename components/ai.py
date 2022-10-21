@@ -81,25 +81,46 @@ class GreedyEnemy(BaseAI):
         self.path:  List[Tuple[int, int]] = []
 
     def perform(self) -> None:
-        target = next(self.engine.game_map.items, None)
+        target = self.engine.game_map.items[0]
 
-        if target:
+        # selects target from the items list, selects the first item in list
+        # if there is one the goblin with path towards it and bump into things (in theory)
+        # which should make him attack entities he stumbles into while going to pick item
+        # when he is ontop of the item he picks it up
+        if target is not None:
             dx = target.x - self.entity.x
             dy = target.y - self.entity.y
 
             distance = max(abs(dx), abs(dy))
 
-        if self.engine.game_map.visible[self.entity.x, self.entity.y]:
-            if distance <= 1:
-                return PickupAction(self).perform()
+            if self.engine.game_map.visible[self.entity.x, self.entity.y]:
+                if distance <= 0:
+                    return PickupAction(self.entity).perform()
 
-            self.path = self.get_path_to(target.x, target.y)
+                self.path = self.get_path_to(target.x, target.y)
 
-        if self.path:
-            dest_x, dest_y = self.path.pop(0)
-            return BumpAction(
-                self.entity, dest_x - self.entity.x, dest_y - self.entity.y
-            ).perform()
+            if self.path:
+                dest_x, dest_y = self.path.pop(0)
+                return BumpAction(
+                    self.entity, dest_x - self.entity.x, dest_y - self.entity.y
+                ).perform()
+        # if there is no target to path to goblin will wander around randomly
+        # also can bump into entites attacking them
+        else:
+            direction_x, direction_y = random.choice(
+                [
+                    (-1, -1), # northwest
+                    (0, -1), # north
+                    (1, -1), # northeast
+                    (-1, 0), # west
+                    (1, 0), # east
+                    (-1, 1), # southwest
+                    (0, 1), # south
+                    (1, 1), # southeast
+                ]
+            )
+
+            return BumpAction(self.entity, direction_x, direction_y).perform()
 
         return WaitAction(self.entity).perform()
 

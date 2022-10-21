@@ -143,8 +143,9 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
         if not any(entity.x == x[j] and entity.y == y[j] for entity in dungeon.entities):
             entity.spawn(dungeon, x[j], y[j])
             if entity is entity_factories.goblin:
-                potion = deepcopy(entity_factories.health_potion)
-                entity.inventory.items.append(potion)
+                entity_factories.health_potion.spawn(dungeon, x[j] - 1, y[j])
+                entity_factories.health_potion.spawn(dungeon, x[j] - 2, y[j])
+                entity_factories.health_potion.spawn(dungeon, x[j] - 3, y[j])
             print(f'Placed {entity.name} at: ', x[j], y[j])
 
     j = nprng.integers(len(x))
@@ -153,8 +154,8 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
     dungeon.tiles[x[j], y[j]] = tile_types.down_stairs
     dungeon.downstairs_location = (x[j], y[j])
     # insert stairs going up level
-    dungeon.tiles[x[j + 1], y[j + 1]] = tile_types.up_stairs
-    dungeon.upstairs_location = (x[j + 1], y[j + 1])
+    # dungeon.tiles[x[j + 1], y[j + 1]] = tile_types.up_stairs
+    # dungeon.upstairs_location = (x[j + 1], y[j + 1])
 
 # in future it wll take all gamemap objects (not Actors!)
 # and turn some into mimics, or not

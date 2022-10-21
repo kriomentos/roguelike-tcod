@@ -47,7 +47,7 @@ goblin = Actor(
     name = 'Goblin',
     ai_cls = GreedyEnemy,
     equipment = Equipment(),
-    fighter = Fighter(hp = 20, base_defense = 2, base_power = 5),
+    fighter = Fighter(hp = 15, base_defense = 1, base_power = 4),
     inventory = Inventory(capacity = 2),
     level = Level(xp_given = 40),
 )
