@@ -1,6 +1,7 @@
 from __future__ import annotations
+from copy import deepcopy
 
-from random import choices, randrange, randint
+from random import choices, randrange, randint, seed
 from typing import Dict, Tuple, List, TYPE_CHECKING
 from scipy import signal
 
@@ -15,6 +16,15 @@ import entity_factories
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
+
+int_seed = 0
+base_seed = 'ragnis'
+for ch in base_seed:
+    int_seed <<= 8 + ord(ch)
+
+seed(int_seed)
+
+nprng = np.random.default_rng(int_seed)
 
 # tuples that contain information (floor number, maximum amount of entity type)
 # used for generating amount of said entities based on current floor level
@@ -125,16 +135,19 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
     for entity in monsters + items:
         # we generate random integer from tiles we found as viable
         # it's used later to select given index in the game_map array
-        j = np.random.randint(len(x))
+        j = nprng.integers(len(x))
 
         # check if the selected spot doesn't contain any entity already
         # if it does not then place one of the monsters
         # 80% chance for orc 20% for troll
         if not any(entity.x == x[j] and entity.y == y[j] for entity in dungeon.entities):
             entity.spawn(dungeon, x[j], y[j])
+            if entity is entity_factories.goblin:
+                potion = deepcopy(entity_factories.health_potion)
+                entity.inventory.items.append(potion)
             print(f'Placed {entity.name} at: ', x[j], y[j])
 
-    j = np.random.randint(len(x))
+    j = nprng.integers(len(x))
 
     # insert stairs going down the level
     dungeon.tiles[x[j], y[j]] = tile_types.down_stairs
@@ -201,12 +214,7 @@ def generate_dungeon(
     place_entities(dungeon, engine.game_world.current_floor)
 
     x, y = np.where(dungeon.tiles["walkable"])
-    j = np.random.randint(len(x))
+    j = nprng.integers(len(x))
     player.place(x[j], y[j], dungeon)
-    entity_factories.bow.spawn(dungeon, x[j], y[j])
-    # entity_factories.table.spawn(dungeon, 40, 21)
-
-    # create mimics in place of objects for now it's hardcoded
-    # make_mimic(dungeon)
 
     return dungeon

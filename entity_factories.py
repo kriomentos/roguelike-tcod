@@ -1,6 +1,6 @@
 from random import randint
-from components.ai import Dummy, GreedyEnemy, HostileEnemy, MimicHostileEnemy, TickingEntity
-from components.fighter import Fighter, Ticking
+from components.ai import Dummy, GreedyEnemy, HostileEnemy
+from components.fighter import Fighter
 from components.equipment import Equipment
 from components import consumable, equippable
 from components.inventory import Inventory
@@ -61,16 +61,16 @@ goblin = Actor(
 # )
 
 # NON AI DESTROYABLE ACTORS
-table = Actor(
-    char = '+',
-    color = color.anb_brown,
-    name = 'Table',
-    ai_cls = Dummy,
-    equipment = Equipment(),
-    fighter = Fighter(hp = 20, base_defense = 0, base_power = 0),
-    inventory = Inventory(capacity = 0),
-    level = Level(xp_given = 70),
-)
+# table = Actor(
+#     char = '+',
+#     color = color.anb_brown,
+#     name = 'Table',
+#     ai_cls = Dummy,
+#     equipment = Equipment(),
+#     fighter = Fighter(hp = 20, base_defense = 0, base_power = 0),
+#     inventory = Inventory(capacity = 0),
+#     level = Level(xp_given = 70),
+# )
 
 'ITEMS'
 health_potion = Item(
@@ -97,12 +97,12 @@ fireball_scroll = Item(
     name = 'Fireball scroll',
     consumable = consumable.FireballDamageConsumable(damage = 12, radius = 3),
 )
-gascloud_scroll = Item(
-    char = '~',
-    color = color.anb_green,
-    name = 'Gas cloud scroll',
-    consumable = consumable.GasDamageConsumable(damage = 12, radius = 3, turns_active = 3),
-)
+# gascloud_scroll = Item(
+#     char = '~',
+#     color = color.anb_green,
+#     name = 'Gas cloud scroll',
+#     consumable = consumable.GasDamageConsumable(damage = 12, radius = 3, turns_active = 3),
+# )
 bow = Item(
     char = ')',
     color = color.anb_green,

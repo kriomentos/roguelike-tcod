@@ -61,6 +61,8 @@ class Fighter(BaseComponent):
         else:
             death_massage = f'{self.parent.name} is dead'
             death_massage_color = color.enemy_die
+            for item in self.parent.inventory.items:
+                self.parent.inventory.drop(item)
 
         self.parent.char = '%'
         self.parent.color = color.anb_red
