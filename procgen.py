@@ -143,9 +143,8 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
         if not any(entity.x == x[j] and entity.y == y[j] for entity in dungeon.entities):
             entity.spawn(dungeon, x[j], y[j])
             if entity is entity_factories.goblin:
-                entity_factories.health_potion.spawn(dungeon, x[j] - 1, y[j])
-                entity_factories.health_potion.spawn(dungeon, x[j] - 2, y[j])
-                entity_factories.health_potion.spawn(dungeon, x[j] - 3, y[j])
+                entity_factories.sword.spawn(dungeon, x[j] - 2, y[j])
+                entity_factories.health_potion.spawn(dungeon, x[j] - 1, y[j] - 2)
             print(f'Placed {entity.name} at: ', x[j], y[j])
 
     j = nprng.integers(len(x))

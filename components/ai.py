@@ -7,6 +7,7 @@ import numpy as np
 import tcod
 import color
 from actions import Action, BumpAction, MeleeAction, MovementAction, PickupAction, WaitAction
+from components import inventory
 
 if TYPE_CHECKING:
     from entity import Actor
@@ -81,23 +82,23 @@ class GreedyEnemy(BaseAI):
         self.path:  List[Tuple[int, int]] = []
 
     def perform(self) -> None:
-        target = self.engine.game_map.items[0]
+        target = next(self.engine.game_map.items, None)
 
         # selects target from the items list, selects the first item in list
         # if there is one the goblin with path towards it and bump into things (in theory)
         # which should make him attack entities he stumbles into while going to pick item
         # when he is ontop of the item he picks it up
-        if target is not None:
+        if target is not None and len(self.entity.inventory.items) < self.entity.inventory.capacity:
             dx = target.x - self.entity.x
             dy = target.y - self.entity.y
 
             distance = max(abs(dx), abs(dy))
 
-            if self.engine.game_map.visible[self.entity.x, self.entity.y]:
-                if distance <= 0:
-                    return PickupAction(self.entity).perform()
+            # if self.engine.game_map.visible[self.entity.x, self.entity.y]:
+            if distance <= 0:
+                return PickupAction(self.entity).perform()
 
-                self.path = self.get_path_to(target.x, target.y)
+            self.path = self.get_path_to(target.x, target.y)
 
             if self.path:
                 dest_x, dest_y = self.path.pop(0)
