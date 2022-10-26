@@ -167,6 +167,41 @@ class MeleeAction(ActionWithDirection):
                 f'{attack_desc} but does no damage.', attack_color
             ) # or not if the enemy power is too lowe
 
+class RangedAction(Action):
+    def __init__(self, entity: Actor, dx: int, dy: int):
+        super().__init__(entity)
+
+        self.dx = dx
+        self.dy = dy
+
+    @property
+    def target_actor(self) -> Optional[Actor]:
+        return self.engine.game_map.get_actor_at_location(self.dx, self.dy)
+
+    def perform(self) -> None:
+        target = self.target_actor
+
+        if not target:
+            raise exceptions.Impossible('No target')
+
+        damage = self.entity.fighter.power - target.fighter.defense
+        attack_desc = f'{self.entity.name.capitalize()} attacks {target.name}'
+
+        if self.entity is self.engine.player:
+            attack_color = color.player_atk
+        else:
+            attack_color = color.enemy_atk
+
+        if damage > 0:
+            self.engine.message_log.add_message(
+                f'{attack_desc} for {damage} hit points.', attack_color
+            )
+            target.fighter.hp -= damage
+        else:
+            self.engine.message_log.add_message(
+                f'{attack_desc} but does no damage.', attack_color
+            )
+
 class MovementAction(ActionWithDirection):
     # perform the movement action in given direction
     def perform(self) -> None:

@@ -1,5 +1,5 @@
 from random import randint
-from components.ai import Dummy, GreedyEnemy, HostileEnemy
+from components.ai import Dummy, GreedyEnemy, SimpleHostileEnemy
 from components.fighter import Fighter
 from components.equipment import Equipment
 from components import consumable, equippable
@@ -13,7 +13,7 @@ player = Actor(
     char = '@', # string for visual representation on game map. Most ASCII symbols
     color = color.anb_white, # color of string representation format RGB(R, G, B)
     name = 'Player', # name displayed when taking actions/interacting
-    ai_cls = HostileEnemy, # type of AI to use, player doesn't need it but it must be specified for all Actors
+    ai_cls = SimpleHostileEnemy, # type of AI to use, player doesn't need it but it must be specified for all Actors
     equipment = Equipment(),
     fighter = Fighter(hp = 50, base_defense = 1, base_power = 2), # base statisics for Actor
     inventory = Inventory(capacity = 26), # attach Inventory to actor with set size, size determiens how many items actor can carry
@@ -25,7 +25,7 @@ orc = Actor(
     char = 'o',
     color = color.anb_light_green, # (63, 127, 63),
     name = 'Orc',
-    ai_cls = HostileEnemy,
+    ai_cls = SimpleHostileEnemy,
     equipment = Equipment(),
     fighter = Fighter(hp = 10, base_defense = 0, base_power = 4),
     inventory = Inventory(capacity = 0),
@@ -35,7 +35,7 @@ troll = Actor(
     char = 'T',
     color = color.anb_green, # (0, 127, 0),
     name = 'Troll',
-    ai_cls = HostileEnemy,
+    ai_cls = SimpleHostileEnemy,
     equipment = Equipment(),
     fighter = Fighter(hp = 20, base_defense = 2, base_power = 5),
     inventory = Inventory(capacity = 0),
@@ -73,6 +73,12 @@ goblin = Actor(
 # )
 
 'ITEMS'
+big_health_potion = Item(
+    char = '!',
+    color = color.anb_light_brown,
+    name = 'Health flask',
+    consumable = consumable.MultiUseHealingConsumable(amount = randint(4, 10), uses = 3),
+)
 health_potion = Item(
     char = '!',
     color = color.anb_light_brown,
@@ -107,8 +113,9 @@ bow = Item(
     char = ')',
     color = color.anb_green,
     name = 'Bow',
-    consumable = consumable.Bow(damage = 4, ammunition = 5),
+    consumable = consumable.MultiUseRangedConsumable(damage = 4, ammunition = 5),
 )
+
 # gas_cloud = Actor(
 #     char = '8',
 #     color = color.anb_green,

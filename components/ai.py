@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple, TYPE_CHECKING
 import numpy as np
 import tcod
 import color
-from actions import Action, BumpAction, MeleeAction, MovementAction, PickupAction, WaitAction
+from actions import Action, BumpAction, MeleeAction, MovementAction, PickupAction, RangedAction, WaitAction
 from components import inventory
 
 if TYPE_CHECKING:
@@ -50,7 +50,7 @@ class Dummy(BaseAI):
     def perform(self) -> None:
         return
 
-class HostileEnemy(BaseAI):
+class SimpleHostileEnemy(BaseAI):
     def __init__(self, entity: Actor):
         super().__init__(entity)
         self.path:  List[Tuple[int, int]] = []
@@ -88,13 +88,16 @@ class GreedyEnemy(BaseAI):
         # if there is one the goblin with path towards it and bump into things (in theory)
         # which should make him attack entities he stumbles into while going to pick item
         # when he is ontop of the item he picks it up
+        # currently each goblin enemy is omnipotent and always knows location of each item on given floor
         if target is not None and len(self.entity.inventory.items) < self.entity.inventory.capacity:
             dx = target.x - self.entity.x
             dy = target.y - self.entity.y
 
             distance = max(abs(dx), abs(dy))
 
-            # if self.engine.game_map.visible[self.entity.x, self.entity.y]:
+            # path towards item only if it's in actors field of view
+            # hopefully :v
+            # if self.engine.game_map.visible[target.x, target.y]:
             if distance <= 0:
                 return PickupAction(self.entity).perform()
 
@@ -105,7 +108,8 @@ class GreedyEnemy(BaseAI):
                 return BumpAction(
                     self.entity, dest_x - self.entity.x, dest_y - self.entity.y
                 ).perform()
-        # if there is no target to path to goblin will wander around randomly
+
+        # if there is no target to path to, goblin will wander around randomly
         # also can bump into entites attacking them
         else:
             direction_x, direction_y = random.choice(

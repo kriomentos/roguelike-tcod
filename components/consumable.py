@@ -52,6 +52,30 @@ class HealingConsumable(Consumable):
         else:
             raise Impossible(f'Your health is already full!')
 
+class MultiUseHealingConsumable(HealingConsumable):
+    def __init__(self, amount: int, uses: int):
+        self.amount = amount
+        self.uses = uses
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer = action.entity
+        amount_recovered = consumer.fighter.heal(self.amount)
+        if self.uses > 0:
+            if amount_recovered > 0:
+                self.engine.message_log.add_message(
+                    f'You consume the {self.parent.name}, and recover {amount_recovered} HP',
+                    color.health_recovered
+                )
+
+                self.uses -= 1
+            else:
+                raise Impossible(f'Your health is already full!')
+        else:
+            self.engine.message_log.add_message(
+                f'The flask is empty, it will be of no use now.'
+            )
+            self.consume()
+
 class LightningDamageConsumable(Consumable):
     def __init__(self, damage: int, maximum_range: int):
         self.damage = damage
@@ -186,7 +210,7 @@ class FireballDamageConsumable(Consumable):
 #             )
 #             self.consume()
 
-class Bow(Consumable):
+class MultiUseRangedConsumable(Consumable):
     def __init__(self, damage: int, ammunition: int) -> None:
         self.damage = damage
         self.ammunition = ammunition
@@ -212,7 +236,7 @@ class Bow(Consumable):
             raise Impossible('You cannot shoot yourself')
 
         self.engine.message_log.add_message(
-            f'The arrow hit {target.name} for {self.damage} damage'
+            f'The projectile hit {target.name} for {self.damage} damage'
         )
         target.fighter.take_damage(self.damage)
 
@@ -220,6 +244,6 @@ class Bow(Consumable):
 
         if self.ammunition <= 0:
             self.engine.message_log.add_message(
-                f'The bow breaks up in your hands, it\'s no longer of any use'
+                f'The {self.parent.name} crumbles up in your hands, it\'s no longer of any use'
             )
             self.consume()
