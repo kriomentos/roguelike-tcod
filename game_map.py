@@ -8,6 +8,8 @@ from tcod.console import Console
 from entity import Actor, Item
 import tile_types
 
+import os.path
+
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
@@ -166,6 +168,17 @@ class GameWorld:
         self.current_floor = current_floor
         self.maps_list = maps_list
 
+    def load_map(filename: str) -> Engine:
+        with open(filename, 'rb') as f:
+            engine = pickle.loads(lzma.decompress(f.read()))
+        assert isinstance(engine, Engine)
+        return engine
+
+    def save_map(self, filename: str) -> None:
+        save_data = lzma.compress(pickle.dumps(self.engine))
+        with open(os.path.join('C:/Users/Konrad/Documents/Repo/Python-bits/saves', filename), 'wb') as f:
+            f.write(save_data)
+
     def generate_floor(self) -> None:
         from procgen import generate_dungeon
 
@@ -188,25 +201,20 @@ class GameWorld:
 
             # downstairs_floor = pickle.loads(lzma.decompress(self.maps_list.get(self.current_floor)))
 
-            # self.engine.game_map = downstairs_floor
-            # self.engine.player.place(
-            #     downstairs_floor.upstairs_location[0],
-            #     downstairs_floor.upstairs_location[1],
-            #     downstairs_floor
-            # )
         else:
             print(
                 f'Floor not in dict\n'
                 f'Iterator: {self.current_floor}\n'
                 # f'dict: {self.maps_list.keys()}\n'
             )
-            # self.engine.game_map.entities.remove(self.engine.player)
 
             # self.maps_list[self.current_floor - 1] = lzma.compress(pickle.dumps(self.engine.game_map))
 
             # print(f'list after addition: {self.maps_list.keys()}')
-
+            map_name = 'level_' + str(self.current_floor) + '.sav'
+            print(f'lvl: {map_name}')
             self.generate_floor()
+            self.save_map(map_name)
 
     def go_upstairs(self) -> None:
         self.current_floor -= 1
@@ -216,7 +224,6 @@ class GameWorld:
                 f'Floor in dict\n'
                 f'Iterator: {self.current_floor}\n'
             )
-            # self.engine.game_map.entities.remove(self.engine.player)
 
             # upstairs_floor = pickle.loads(lzma.decompress(self.maps_list[self.current_floor]))
 

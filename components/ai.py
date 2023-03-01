@@ -1,5 +1,6 @@
 from __future__ import annotations
 from abc import abstractmethod
+from dis import dis
 import random
 from typing import List, Optional, Tuple, TYPE_CHECKING
 
@@ -100,14 +101,16 @@ class GreedyEnemy(BaseAI):
             # if self.engine.game_map.visible[target.x, target.y]:
             if distance <= 0:
                 return PickupAction(self.entity).perform()
-
-            self.path = self.get_path_to(target.x, target.y)
+            elif 1 < distance < 10:
+                self.path = self.get_path_to(target.x, target.y)
 
             if self.path:
                 dest_x, dest_y = self.path.pop(0)
                 return BumpAction(
                     self.entity, dest_x - self.entity.x, dest_y - self.entity.y
                 ).perform()
+            else:
+                f'sumthin aint right'
 
         # if there is no target to path to, goblin will wander around randomly
         # also can bump into entites attacking them

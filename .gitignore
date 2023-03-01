@@ -7,3 +7,4 @@ env/
 runstats.file
 *.sav
 Tests/
+saves/
