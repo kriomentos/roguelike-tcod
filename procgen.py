@@ -5,6 +5,7 @@ from random import choices, randrange, randint, seed
 from typing import Dict, Tuple, List, TYPE_CHECKING
 from scipy import signal
 
+
 import numpy as np
 import components
 from engine import Engine
@@ -22,7 +23,7 @@ base_seed = 'ragnis'
 for ch in base_seed:
     int_seed <<= 8 + ord(ch)
 
-seed(int_seed)
+seed(np.random.randint)
 
 nprng = np.random.default_rng(int_seed)
 
@@ -164,6 +165,27 @@ def make_mimic(dungeon: GameMap):
         entity = target, message = False, origin_x = target.x, origin_y = target.y
     )
 
+def intersect(rect1, rect2):
+    rect1 = Rect(*rect1)
+    rect2 = Rect(*rect2)
+    return (
+        rect1.x1 <= rect2.x2 and rect1.x2 >= rect2.x1 and
+        rect1.y1 <= rect2.y2 and rect1.y2 >= rect2.y1
+    )
+
+def dig_vertically(map: GameMap, x: int, y1: int, y2: int):
+    # dig a vertical tunnel
+    for y in range(min(y1, y2), max(y1, y2) + 1):
+        if x > 0 and x < map.width - 1 and y > 0 and y < map.height - 1:
+            map.tiles[x, y] = tile_types.floor
+
+def dig_horizontally(map: GameMap, y: int, x1: int, x2: int):
+    # dig a horizontal tunnel
+    for x in range(min(x1, x2), max(x1, x2) + 1):
+        if x < 0 or x >= map.width or y < 0 or y >= map.height:
+            continue
+        map.tiles[x, y] = tile_types.floor
+
 def cellular_automata(dungeon: GameMap, min: int, max: int, count: GameMap):
     # on each pass we recalculate amount of neighbours, which gives much smoother output
     # more passes equals smoother map and less artifacts
@@ -180,6 +202,95 @@ def cellular_automata(dungeon: GameMap, min: int, max: int, count: GameMap):
                 dungeon.tiles[i, j] = tile_types.wall
 
     return dungeon
+
+def generate_rooms(
+    dungeon: GameMap,
+    max_rooms: int,
+    min_size: int,
+    max_size: int,
+    min_distance: int,
+    nprng: np.random.Generator
+) -> List[Tuple[int, int, int, int]]:
+    rooms = []
+    num_rooms = 0
+
+    for i in range(max_rooms):
+        # random width and height
+        w = nprng.integers(min_size, max_size + 1)
+        h = nprng.integers(min_size, max_size + 1)
+        # random position without going out of the boundaries of the map
+        x = nprng.integers(0, dungeon.width - w - 1)
+        y = nprng.integers(0, dungeon.height - h - 1)
+        new_room = Rect(x=x, y=y, w=w, h=h)
+        # check if new room intersects with previous ones
+        failed = False
+        for other_room in rooms:
+            if new_room.distance(other_room) < min_distance:
+                failed = True
+                break
+
+        if not failed:
+            # This means there are no intersections, so this room is valid
+
+            # "paint" it to the map's tiles
+            dungeon.tiles[x:x+w, y:y+h] = tile_types.floor
+
+            # Center coordinates of new room, will be useful later
+            (new_x, new_y) = new_room.center()
+
+            if num_rooms == 0:
+                # This is the first room, where the player starts at
+                player_x, player_y = x+w//2, y+h//2
+                dungeon.engine.player.place(player_x, player_y, dungeon)
+            else:
+                # All rooms after the first:
+                # Connect it to the previous room with a tunnel
+
+                # Center coordinates of previous room
+                (prev_x, prev_y) = rooms[num_rooms - 1].center()
+
+                # Flip a coin (random number that is either 0 or 1)
+                if nprng.integers(0, 2) == 0:
+                    # First move horizontally, then vertically
+                    dig_horizontally(dungeon, prev_x, new_x, prev_y)
+                    dig_vertically(dungeon, prev_y, new_y, new_x)
+                else:
+                    # First move vertically, then horizontally
+                    dig_vertically(dungeon, prev_y, new_y, prev_x)
+                    dig_horizontally(dungeon, prev_x, new_x, new_y)
+
+            # Finally, append the new room to the list
+            rooms.append(new_room)
+            num_rooms += 1
+        # if not any(intersect(new_room, other) for other in rooms):
+        #     # carve out the room area
+        #     dungeon.tiles[x:x+w, y:y+h] = tile_types.floor
+        #     if num_rooms == 0:
+        #         # place the player in the first room
+        #         player_x, player_y = x+w//2, y+h//2
+        #         dungeon.engine.player.place(player_x, player_y, dungeon)
+        #         # dungeon.player_start = (player_x, player_y)
+        #     else:
+        #         # connect this room to the previous one with a tunnel
+        #         prev_x, prev_y, prev_w, prev_h = rooms[num_rooms-1]
+        #         # center coordinates of the previous room
+        #         prev_center_x, prev_center_y = prev_x+prev_w//2, prev_y+prev_h//2
+        #         # center coordinates of the new room
+        #         new_center_x, new_center_y = x+w//2, y+h//2
+        #         # randomize which axis to dig through first
+        #         if nprng.random() < 0.5:
+        #             # move horizontally, then vertically
+        #             dig_horizontally(dungeon, prev_center_x, new_center_x, prev_center_y)
+        #             dig_vertically(dungeon, prev_center_y, new_center_y, new_center_x)
+        #         else:
+        #             # move vertically, then horizontally
+        #             dig_vertically(dungeon, prev_center_y, new_center_y, prev_center_x)
+        #             dig_horizontally(dungeon, prev_center_x, new_center_x, new_center_y)
+        #     # finally, append the new room to the list
+        #     rooms.append(new_room)
+        #     num_rooms += 1
+
+    return rooms
 
 def generate_dungeon(
     map_width: int,
@@ -213,8 +324,10 @@ def generate_dungeon(
 
     place_entities(dungeon, engine.game_world.current_floor)
 
-    x, y = np.where(dungeon.tiles["walkable"])
-    j = nprng.integers(len(x))
-    player.place(x[j], y[j], dungeon)
+    # x, y = np.where(dungeon.tiles["walkable"])
+    # j = nprng.integers(len(x))
+    # player.place(x[j], y[j], dungeon)
+
+    generate_rooms(dungeon, 10, 4, 6, 4,nprng)
 
     return dungeon
