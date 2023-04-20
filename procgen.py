@@ -1,10 +1,10 @@
 from __future__ import annotations
 from copy import deepcopy
+from tcod import los
 
 from random import choices, randrange, randint, seed
-from typing import Dict, Tuple, List, TYPE_CHECKING
+from typing import Dict, Tuple, List, Iterator, TYPE_CHECKING
 from scipy import signal
-
 
 import numpy as np
 import components
@@ -23,7 +23,7 @@ base_seed = 'ragnis'
 for ch in base_seed:
     int_seed <<= 8 + ord(ch)
 
-seed(np.random.randint)
+seed(int_seed)
 
 nprng = np.random.default_rng(int_seed)
 
@@ -165,14 +165,6 @@ def make_mimic(dungeon: GameMap):
         entity = target, message = False, origin_x = target.x, origin_y = target.y
     )
 
-def intersect(rect1, rect2):
-    rect1 = Rect(*rect1)
-    rect2 = Rect(*rect2)
-    return (
-        rect1.x1 <= rect2.x2 and rect1.x2 >= rect2.x1 and
-        rect1.y1 <= rect2.y2 and rect1.y2 >= rect2.y1
-    )
-
 def dig_vertically(map: GameMap, x: int, y1: int, y2: int):
     # dig a vertical tunnel
     for y in range(min(y1, y2), max(y1, y2) + 1):
@@ -182,9 +174,8 @@ def dig_vertically(map: GameMap, x: int, y1: int, y2: int):
 def dig_horizontally(map: GameMap, y: int, x1: int, x2: int):
     # dig a horizontal tunnel
     for x in range(min(x1, x2), max(x1, x2) + 1):
-        if x < 0 or x >= map.width or y < 0 or y >= map.height:
-            continue
-        map.tiles[x, y] = tile_types.floor
+        if x > 0 and x < map.width - 1 and y > 0 and y < map.height - 1:
+            map.tiles[x, y] = tile_types.floor
 
 def cellular_automata(dungeon: GameMap, min: int, max: int, count: GameMap):
     # on each pass we recalculate amount of neighbours, which gives much smoother output
@@ -203,94 +194,97 @@ def cellular_automata(dungeon: GameMap, min: int, max: int, count: GameMap):
 
     return dungeon
 
+class RectangularRoom:
+    def __init__(self, x: int, y: int, width: int, height: int):
+        self.x1 = x
+        self.y1 = y
+        self.x2 = x + width
+        self.y2 = y + height
+
+    @property
+    def center(self) -> Tuple[int, int]:
+        center_x = int((self.x1 + self.x2) / 2)
+        center_y = int((self.y1 + self.y2) / 2)
+
+        return center_x, center_y
+
+    # return inside of the room, not counting the walls
+    @property
+    def inner(self) -> Tuple[slice, slice]:
+        return slice(self.x1 + 1, self.x2), slice(self.y1 + 1, self.y2)
+
+    def intersects(self, other: RectangularRoom) -> bool:
+        return(
+            self.x1 <= other.x2
+            and self.x2 >= other.x1
+            and self.y1 <= other.y2
+            and self.y2 >= other.y1
+        )
+
+def tunnel_between(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
+    # return L shaped tunnel between two points
+    x1, y1 = start
+    x2, y2 = end
+
+    if nprng.random() < 0.5:
+        # go horizontal, then vertical
+        corner_x, corner_y = x2, y1
+    else:
+        # go vertical, then horizontal
+        corner_x, corner_y = x1, y2
+
+    for x, y in los.bresenham((x1, y1), (corner_x, corner_y)).tolist():
+        yield x, y
+    for x, y in los.bresenham((corner_x, corner_y), (x2, y2)).tolist():
+        yield x, y
+
 def generate_rooms(
     dungeon: GameMap,
     max_rooms: int,
-    min_size: int,
-    max_size: int,
-    min_distance: int,
-    nprng: np.random.Generator
+    room_min_size: int,
+    room_max_size: int,
 ) -> List[Tuple[int, int, int, int]]:
-    rooms = []
-    num_rooms = 0
 
-    for i in range(max_rooms):
+    rooms: List[RectangularRoom] = []
+
+    for r in range(max_rooms):
         # random width and height
-        w = nprng.integers(min_size, max_size + 1)
-        h = nprng.integers(min_size, max_size + 1)
-        # random position without going out of the boundaries of the map
+        w = nprng.integers(room_min_size, room_max_size)
+        h = nprng.integers(room_min_size, room_max_size)
+
+        # random position within map bounds
         x = nprng.integers(0, dungeon.width - w - 1)
         y = nprng.integers(0, dungeon.height - h - 1)
-        new_room = Rect(x=x, y=y, w=w, h=h)
-        # check if new room intersects with previous ones
-        failed = False
-        for other_room in rooms:
-            if new_room.distance(other_room) < min_distance:
-                failed = True
-                break
 
-        if not failed:
-            # This means there are no intersections, so this room is valid
+        new_room = RectangularRoom(x, y, w, h)
 
-            # "paint" it to the map's tiles
-            dungeon.tiles[x:x+w, y:y+h] = tile_types.floor
+        # check for intersection with other rooms
+        if any(new_room.intersects(other_room) for other_room in rooms):
+            continue # intersects go next room
+        # if not then room is valid
 
-            # Center coordinates of new room, will be useful later
-            (new_x, new_y) = new_room.center()
+        # dig out the room
+        # top and bottom wall
+        dungeon.tiles[x:x+w, y] = tile_types.wall
+        dungeon.tiles[x:x+w +1, y+h] = tile_types.wall
+        # left and right wall
+        dungeon.tiles[x, y:y+h] = tile_types.wall
+        dungeon.tiles[x+w, y:y+h] = tile_types.wall
+        dungeon.tiles[new_room.inner] = tile_types.floor
 
-            if num_rooms == 0:
-                # This is the first room, where the player starts at
-                player_x, player_y = x+w//2, y+h//2
-                dungeon.engine.player.place(player_x, player_y, dungeon)
-            else:
-                # All rooms after the first:
-                # Connect it to the previous room with a tunnel
+        if len(rooms) == 0:
+            # spawn player in first room
+            (player_x, player_y) = new_room.center
+            dungeon.engine.player.place(player_x, player_y, dungeon)
+        else:
+            # dig out tunnels for the current room and the previous one, we don't do it for first, as it has no room previous to it
+            for x, y in tunnel_between(rooms[-1].center, new_room.center):
+                dungeon.tiles[x, y] = tile_types.floor
 
-                # Center coordinates of previous room
-                (prev_x, prev_y) = rooms[num_rooms - 1].center()
+        # we add the new room to our list of rooms
+        rooms.append(new_room)
 
-                # Flip a coin (random number that is either 0 or 1)
-                if nprng.integers(0, 2) == 0:
-                    # First move horizontally, then vertically
-                    dig_horizontally(dungeon, prev_x, new_x, prev_y)
-                    dig_vertically(dungeon, prev_y, new_y, new_x)
-                else:
-                    # First move vertically, then horizontally
-                    dig_vertically(dungeon, prev_y, new_y, prev_x)
-                    dig_horizontally(dungeon, prev_x, new_x, new_y)
-
-            # Finally, append the new room to the list
-            rooms.append(new_room)
-            num_rooms += 1
-        # if not any(intersect(new_room, other) for other in rooms):
-        #     # carve out the room area
-        #     dungeon.tiles[x:x+w, y:y+h] = tile_types.floor
-        #     if num_rooms == 0:
-        #         # place the player in the first room
-        #         player_x, player_y = x+w//2, y+h//2
-        #         dungeon.engine.player.place(player_x, player_y, dungeon)
-        #         # dungeon.player_start = (player_x, player_y)
-        #     else:
-        #         # connect this room to the previous one with a tunnel
-        #         prev_x, prev_y, prev_w, prev_h = rooms[num_rooms-1]
-        #         # center coordinates of the previous room
-        #         prev_center_x, prev_center_y = prev_x+prev_w//2, prev_y+prev_h//2
-        #         # center coordinates of the new room
-        #         new_center_x, new_center_y = x+w//2, y+h//2
-        #         # randomize which axis to dig through first
-        #         if nprng.random() < 0.5:
-        #             # move horizontally, then vertically
-        #             dig_horizontally(dungeon, prev_center_x, new_center_x, prev_center_y)
-        #             dig_vertically(dungeon, prev_center_y, new_center_y, new_center_x)
-        #         else:
-        #             # move vertically, then horizontally
-        #             dig_vertically(dungeon, prev_center_y, new_center_y, prev_center_x)
-        #             dig_horizontally(dungeon, prev_center_x, new_center_x, new_center_y)
-        #     # finally, append the new room to the list
-        #     rooms.append(new_room)
-        #     num_rooms += 1
-
-    return rooms
+    return dungeon
 
 def generate_dungeon(
     map_width: int,
@@ -322,12 +316,12 @@ def generate_dungeon(
         cellular_automata(dungeon, 3, 4, wall_count)
         cellular_automata(dungeon, 4, 5, wall_count)
 
-    place_entities(dungeon, engine.game_world.current_floor)
-
     # x, y = np.where(dungeon.tiles["walkable"])
     # j = nprng.integers(len(x))
     # player.place(x[j], y[j], dungeon)
 
-    generate_rooms(dungeon, 10, 4, 6, 4,nprng)
+    generate_rooms(dungeon, 6, 4, 6)
+
+    place_entities(dungeon, engine.game_world.current_floor)
 
     return dungeon
