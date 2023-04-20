@@ -1,8 +1,9 @@
 from __future__ import annotations
 from copy import deepcopy
+from tcod import los
 
 from random import choices, randrange, randint, seed
-from typing import Dict, Tuple, List, Any, TYPE_CHECKING
+from typing import Dict, Tuple, List, Iterator, TYPE_CHECKING
 from scipy import signal
 
 import numpy as np
@@ -177,6 +178,98 @@ def cellular_automata(dungeon: GameMap, wall_rule: int, count: GameMap):
 
     return dungeon
 
+class RectangularRoom:
+    def __init__(self, x: int, y: int, width: int, height: int):
+        self.x1 = x
+        self.y1 = y
+        self.x2 = x + width
+        self.y2 = y + height
+
+    @property
+    def center(self) -> Tuple[int, int]:
+        center_x = int((self.x1 + self.x2) / 2)
+        center_y = int((self.y1 + self.y2) / 2)
+
+        return center_x, center_y
+
+    # return inside of the room, not counting the walls
+    @property
+    def inner(self) -> Tuple[slice, slice]:
+        return slice(self.x1 + 1, self.x2), slice(self.y1 + 1, self.y2)
+
+    def intersects(self, other: RectangularRoom) -> bool:
+        return(
+            self.x1 <= other.x2
+            and self.x2 >= other.x1
+            and self.y1 <= other.y2
+            and self.y2 >= other.y1
+        )
+
+def tunnel_between(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
+    # return L shaped tunnel between two points
+    x1, y1 = start
+    x2, y2 = end
+
+    if nprng.random() < 0.5:
+        # go horizontal, then vertical
+        corner_x, corner_y = x2, y1
+    else:
+        # go vertical, then horizontal
+        corner_x, corner_y = x1, y2
+
+    for x, y in los.bresenham((x1, y1), (corner_x, corner_y)).tolist():
+        yield x, y
+    for x, y in los.bresenham((corner_x, corner_y), (x2, y2)).tolist():
+        yield x, y
+
+def generate_rooms(
+    dungeon: GameMap,
+    max_rooms: int,
+    room_min_size: int,
+    room_max_size: int,
+) -> List[Tuple[int, int, int, int]]:
+
+    rooms: List[RectangularRoom] = []
+
+    for r in range(max_rooms):
+        # random width and height
+        w = nprng.integers(room_min_size, room_max_size)
+        h = nprng.integers(room_min_size, room_max_size)
+
+        # random position within map bounds
+        x = nprng.integers(0, dungeon.width - w - 1)
+        y = nprng.integers(0, dungeon.height - h - 1)
+
+        new_room = RectangularRoom(x, y, w, h)
+
+        # check for intersection with other rooms
+        if any(new_room.intersects(other_room) for other_room in rooms):
+            continue # intersects go next room
+        # if not then room is valid
+
+        # dig out the room
+        # top and bottom wall
+        dungeon.tiles[x:x+w, y] = tile_types.wall
+        dungeon.tiles[x:x+w +1, y+h] = tile_types.wall
+        # left and right wall
+        dungeon.tiles[x, y:y+h] = tile_types.wall
+        dungeon.tiles[x+w, y:y+h] = tile_types.wall
+        dungeon.tiles[new_room.inner] = tile_types.floor
+
+        if len(rooms) == 0:
+            # spawn player in first room
+            (player_x, player_y) = new_room.center
+            dungeon.engine.player.place(player_x, player_y, dungeon)
+        else:
+            # dig out tunnels for the current room and the previous one, we don't do it for first, as it has no room previous to it
+            for x, y in tunnel_between(rooms[-1].center, new_room.center):
+                dungeon.tiles[x, y] = tile_types.floor
+
+        # we add the new room to our list of rooms
+        rooms.append(new_room)
+
+    return dungeon
+
 def generate_dungeon(
     map_width: int,
     map_height: int,
@@ -203,10 +296,12 @@ def generate_dungeon(
     dungeon.tiles[[0, -1], :] = tile_types.wall
     dungeon.tiles[:, [0, -1]] = tile_types.wall
 
-    place_entities(dungeon, engine.game_world.current_floor)
+    # x, y = np.where(dungeon.tiles["walkable"])
+    # j = nprng.integers(len(x))
+    # player.place(x[j], y[j], dungeon)
 
-    x, y = np.where(dungeon.tiles["walkable"])
-    j = nprng.integers(len(x))
-    player.place(x[j], y[j], dungeon)
+    generate_rooms(dungeon, 6, 4, 6)
+
+    place_entities(dungeon, engine.game_world.current_floor)
 
     return dungeon
