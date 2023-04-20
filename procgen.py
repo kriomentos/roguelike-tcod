@@ -7,6 +7,7 @@ from typing import Dict, Tuple, List, Iterator, TYPE_CHECKING
 from scipy import signal
 
 import numpy as np
+from numpy.typing import NDArray
 import components
 from engine import Engine
 
@@ -68,10 +69,6 @@ enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
     7: [(entity_factories.orc, 25),
         (entity_factories.troll, 45)],
 }
-
-# helper kernel for convolve2d, basically 2d array [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
-kernel = np.ones((3, 3), dtype = 'int')
-kernel[1, 1] = 0
 
 def get_max_value_for_floor(
     max_value: List[Tuple[int, int]], floor: int
@@ -165,32 +162,19 @@ def make_mimic(dungeon: GameMap):
         entity = target, message = False, origin_x = target.x, origin_y = target.y
     )
 
-def dig_vertically(map: GameMap, x: int, y1: int, y2: int):
-    # dig a vertical tunnel
-    for y in range(min(y1, y2), max(y1, y2) + 1):
-        if x > 0 and x < map.width - 1 and y > 0 and y < map.height - 1:
-            map.tiles[x, y] = tile_types.floor
-
-def dig_horizontally(map: GameMap, y: int, x1: int, x2: int):
-    # dig a horizontal tunnel
-    for x in range(min(x1, x2), max(x1, x2) + 1):
-        if x > 0 and x < map.width - 1 and y > 0 and y < map.height - 1:
-            map.tiles[x, y] = tile_types.floor
-
-def cellular_automata(dungeon: GameMap, min: int, max: int, count: GameMap):
+def cellular_automata(dungeon: GameMap, wall_rule: int, count: GameMap):
     # on each pass we recalculate amount of neighbours, which gives much smoother output
     # more passes equals smoother map and less artifacts
-    count = signal.convolve2d(dungeon.tiles['value'], kernel, mode = 'same', boundary = 'wrap')
+    # we check the number of neighbours including tile itself is less/more than wall_rule
+    # and let it "die" or not
+    count = signal.convolve2d(dungeon.tiles['value'], [[1, 1, 1], [1, 1, 1], [1, 1, 1]], mode = 'same')
+
     for i in range(1, dungeon.width - 1):
         for j in range(1, dungeon.height - 1):
-            # if in the cell neighbourhood is at least MAX floors
-            # then it 'dies' and turns into floor
-            if count[i, j] > max:
-                dungeon.tiles[i, j] = tile_types.floor
-            # same rule applies to floor cells, if they have less than MIN floors
-            # in neighbourhood, turn them into wall
-            elif count[i, j] < min:
+            if count[i, j] < wall_rule:
                 dungeon.tiles[i, j] = tile_types.wall
+            elif count[i, j] > wall_rule:
+                dungeon.tiles[i, j] = tile_types.floor
 
     return dungeon
 
@@ -320,6 +304,7 @@ def generate_dungeon(
     map_width: int,
     map_height: int,
     initial_open: int,
+    convolve_steps: int,
     engine: Engine,
 ) -> GameMap:
     # Generate a new dungeon map.
@@ -328,23 +313,18 @@ def generate_dungeon(
     # helper map to hold convolve calculation
     wall_count = GameMap(engine, map_width, map_height)
 
-    # number of fields to 'open' or replace/carve out with floors
-    open_count = (dungeon.area * initial_open)
-
-    # randomly selected tile gets replaced with floor/carved out
-    while open_count > 0:
-        rand_w = randrange(1, dungeon.width - 1)
-        rand_h = randrange(1, dungeon.height - 1)
-
-        if dungeon.tiles[rand_w, rand_h] == tile_types.wall:
-            dungeon.tiles[rand_w, rand_h] = tile_types.floor
-            open_count -= 1
+    # dang fast way of filling map randomly
+    dungeon.tiles = np.where(nprng.integers(0, 100, (map_height, map_width)).T > initial_open,
+        tile_types.floor, tile_types.wall
+    )
 
     # we go through the map and simulate cellular automata rules using convolve values
-    # we do two passes with alternate ruleset to achieve both open spaces and tight corridors
-    for x in range(1):
-        cellular_automata(dungeon, 3, 4, wall_count)
-        cellular_automata(dungeon, 4, 5, wall_count)
+    for _ in range(convolve_steps):
+        cellular_automata(dungeon, 4, wall_count)
+
+    # ensures surrounding wall
+    dungeon.tiles[[0, -1], :] = tile_types.wall
+    dungeon.tiles[:, [0, -1]] = tile_types.wall
 
     # x, y = np.where(dungeon.tiles["walkable"])
     # j = nprng.integers(len(x))
