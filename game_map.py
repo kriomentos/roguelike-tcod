@@ -178,6 +178,8 @@ class GameWorld:
 
     def save_map(self, filename: str) -> None:
         save_data = lzma.compress(pickle.dumps(self.engine))
+        path_to_save = os.getcwd()
+        print(f'path: {path_to_save}')
         with open(os.path.join('C:/Users/Konrad/Documents/Repo/Python-bits/saves', filename), 'wb') as f:
             f.write(save_data)
 
@@ -194,52 +196,53 @@ class GameWorld:
 
     def go_downstairs(self) -> None:
         self.current_floor += 1
+        self.generate_floor()
 
-        if self.current_floor in self.maps_list:
-            print(
-                f'Floor in dict\n'
-                f'Iterator: {self.current_floor}\n'
-            )
-            # self.engine.game_map.entities.remove(self.engine.player)
+        # if self.current_floor in self.maps_list:
+        #     # print(
+        #     #     f'Floor in dict\n'
+        #     #     f'Iterator: {self.current_floor}\n'
+        #     # )
+        #     # self.engine.game_map.entities.remove(self.engine.player)
 
-            # downstairs_floor = pickle.loads(lzma.decompress(self.maps_list.get(self.current_floor)))
+        #     # downstairs_floor = pickle.loads(lzma.decompress(self.maps_list.get(self.current_floor)))
 
-        else:
-            print(
-                f'Floor not in dict\n'
-                f'Iterator: {self.current_floor}\n'
-                # f'dict: {self.maps_list.keys()}\n'
-            )
+        # else:
+        #     # print(
+        #     #     f'Floor not in dict\n'
+        #     #     f'Iterator: {self.current_floor}\n'
+        #     #     # f'dict: {self.maps_list.keys()}\n'
+        #     # )
 
-            # self.maps_list[self.current_floor - 1] = lzma.compress(pickle.dumps(self.engine.game_map))
+        #     # self.maps_list[self.current_floor - 1] = lzma.compress(pickle.dumps(self.engine.game_map))
 
-            # print(f'list after addition: {self.maps_list.keys()}')
-            map_name = 'level_' + str(self.current_floor) + '.sav'
-            print(f'lvl: {map_name}')
-            self.generate_floor()
-            self.save_map(map_name)
+        #     # print(f'list after addition: {self.maps_list.keys()}')
+        #     map_name = 'level_' + str(self.current_floor) + '.sav'
+        #     print(f'lvl: {map_name}')
+        #     self.generate_floor()
+        #     self.save_map(map_name)
 
-    def go_upstairs(self) -> None:
-        self.current_floor -= 1
+    # def go_upstairs(self) -> None:
+    #     self.current_floor -= 1
 
-        if self.current_floor in self.maps_list:
-            print(
-                f'Floor in dict\n'
-                f'Iterator: {self.current_floor}\n'
-            )
+    #     if self.current_floor in self.maps_list:
+    #         print(
+    #             f'Floor in dict\n'
+    #             f'Iterator: {self.current_floor}\n'
+    #         )
 
-            # upstairs_floor = pickle.loads(lzma.decompress(self.maps_list[self.current_floor]))
+    #         # upstairs_floor = pickle.loads(lzma.decompress(self.maps_list[self.current_floor]))
 
-            # self.engine.game_map = upstairs_floor
-            # self.engine.player.place(
-            #     upstairs_floor.downstairs_location[0],
-            #     upstairs_floor.downstairs_location[1],
-            #     upstairs_floor
-            # )
-        else:
-            print(
-                f'Floor not in dict or unexpected case'
-                f'Iterator: {self.current_floor}\n'
-                # f'dict: {self.maps_list.keys()}'
-            )
-            raise NotImplementedError()
+    #         # self.engine.game_map = upstairs_floor
+    #         # self.engine.player.place(
+    #         #     upstairs_floor.downstairs_location[0],
+    #         #     upstairs_floor.downstairs_location[1],
+    #         #     upstairs_floor
+    #         # )
+    #     else:
+    #         print(
+    #             f'Floor not in dict or unexpected case'
+    #             f'Iterator: {self.current_floor}\n'
+    #             # f'dict: {self.maps_list.keys()}'
+    #         )
+    #         raise NotImplementedError()

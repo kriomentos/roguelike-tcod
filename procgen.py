@@ -1,5 +1,4 @@
 from __future__ import annotations
-from copy import deepcopy
 from tcod import los
 
 from random import choices, randint, seed
@@ -242,7 +241,7 @@ def add_entrances(
 
     if point_x <= 0 or point_x >= dungeon.width or point_y <= 0 or point_y >= dungeon.height:
         print(f'tried to place another one x, y: {point_x, point_y}')
-        add_entrances()
+        add_entrances(room, dungeon)
 
     return (point_x, point_y)
 
