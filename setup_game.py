@@ -24,9 +24,9 @@ def new_game() -> Engine:
     viewport_width = 80
     viewport_height = 40
 
-    init_open = 50
+    init_open = 49
 
-    convolve_steps = 4
+    convolve_steps = 6
 
     player = copy.deepcopy(entity_factories.player)
 

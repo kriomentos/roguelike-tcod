@@ -8,3 +8,7 @@ runstats.file
 *.sav
 Tests/
 saves/
+dist/
+main.exe
+main/
+main.spec

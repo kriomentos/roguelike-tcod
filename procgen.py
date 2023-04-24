@@ -2,12 +2,11 @@ from __future__ import annotations
 from copy import deepcopy
 from tcod import los
 
-from random import choices, randrange, randint, seed
-from typing import Dict, Tuple, List, Iterator, TYPE_CHECKING
+from random import choices, randint, seed
+from typing import Dict, Tuple, List, Set, Iterator, TYPE_CHECKING
 from scipy import signal
 
 import numpy as np
-from numpy.typing import NDArray
 import components
 from engine import Engine
 
@@ -222,6 +221,94 @@ def tunnel_between(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tup
     for x, y in los.bresenham((corner_x, corner_y), (x2, y2)).tolist():
         yield x, y
 
+def add_entrances(
+    room: RectangularRoom,
+    dungeon: GameMap,
+) -> Tuple[int, int]:
+    # place randomly entrances for the rooms
+    direction = nprng.choice(['n', 's', 'e', 'w'])
+    if direction == "n":
+        point_x = nprng.integers(room.x1 + 1, room.x2 - 1)
+        point_y = room.y1
+    elif direction == "s":
+        point_x = nprng.integers(room.x1 + 1, room.x2 - 1)
+        point_y = room.y2
+    elif direction == "e":
+        point_x = room.x1
+        point_y = nprng.integers(room.y1 + 1, room.y2 - 1)
+    elif direction == "w":
+        point_x = room.x2
+        point_y = nprng.integers(room.y1 + 1, room.y2 - 1)
+
+    if point_x <= 0 or point_x >= dungeon.width or point_y <= 0 or point_y >= dungeon.height:
+        print(f'tried to place another one x, y: {point_x, point_y}')
+        add_entrances()
+
+    return (point_x, point_y)
+
+def connect_regions(dungeon: GameMap):
+    # We can identify the different regions of the dungeon by flood-filling the floor tiles
+    regions = get_regions(dungeon.tiles["walkable"])
+
+    # If there is only one region, there is no need to connect anything
+    if len(regions) < 2:
+        return
+
+    # Otherwise, we need to connect the regions
+    # We can do this by finding the closest pair of points between regions and carving a tunnel between them
+    closest_points = get_closest_points_between_regions(regions)
+    # print(f'points: {closest_points}')
+    for pair in closest_points:
+        print(f'pair is a: {pair[0]} and b: {pair[1]}')
+        for x, y in tunnel_between(pair[0], pair[1]):
+            dungeon.tiles[x, y] = tile_types.floor
+
+def get_regions(walkable: np.ndarray) -> List[Set[Tuple[int, int]]]:
+    regions = []
+    visited = set()
+
+    for x in range(walkable.shape[0]):
+        for y in range(walkable.shape[1]):
+            if (x, y) in visited or not walkable[x, y]:
+                continue
+
+            new_region = set()
+            queue = [(x, y)]
+
+            while queue:
+                current = queue.pop(0)
+
+                if current in visited or not walkable[current]:
+                    continue
+
+                new_region.add(current)
+                visited.add(current)
+
+                neighbours = [(current[0] - 1, current[1]),
+                              (current[0] + 1, current[1]),
+                              (current[0], current[1] - 1),
+                              (current[0], current[1] + 1)]
+
+                for neighbour in neighbours:
+                    if neighbour not in visited and walkable[neighbour]:
+                        queue.append(neighbour)
+
+            if new_region:
+                regions.append(new_region)
+
+    return regions
+
+def get_closest_points_between_regions(regions: List[Set[Tuple[int, int]]]) -> List[Tuple[Tuple[int, int], Tuple[int, int]]]:
+    points = [(list(region)[0], min(region, key=lambda p: distance_to_region(p, regions))) for region in regions]
+    return [(p1, p2) for p1, p2, _ in sorted([(p1, p2, distance(p1, p2)) for i, (p1, d1) in enumerate(points) for j, (p2, d2) in enumerate(points) if i < j], key=lambda t: t[2])]
+    # return [(p1, p2) for i, (p1, d1) in enumerate(points) for j, (p2, d2) in enumerate(points) if i < j and d1 == d2]
+
+def distance_to_region(point_1: Tuple[int, int], regions: List[Set[Tuple[int, int], Tuple[int,int]]]) -> float:
+    return min(distance(point_1, q) for region in regions for q in region)
+
+def distance(point_1: Tuple[int, int], point_2: Tuple[int, int]) -> Tuple[Tuple[int, int], Tuple[int, int]]:
+    return np.sqrt((point_1[0] - point_2[0]) ** 2 + (point_1[1] - point_2[1]) ** 2)
+
 def generate_rooms(
     dungeon: GameMap,
     max_rooms: int,
@@ -255,6 +342,9 @@ def generate_rooms(
     dungeon.engine.player.place(player_x, player_y, dungeon)
 
     rooms.append(new_room)
+
+    a, b = add_entrances(new_room, dungeon)
+    dungeon.tiles[a, b] = tile_types.floor
 
     # add new rooms adjacent to previous ones, up to max_rooms
     for r in range(1, max_rooms):
@@ -291,7 +381,11 @@ def generate_rooms(
         # left and right wall
         dungeon.tiles[x, y:y+room_height] = tile_types.wall
         dungeon.tiles[x+room_width, y:y+room_height] = tile_types.wall
+        # inside of the room
         dungeon.tiles[new_room.inner] = tile_types.floor
+
+        a, b = add_entrances(new_room, dungeon)
+        dungeon.tiles[a, b] = tile_types.floor
 
         for x, y in tunnel_between(prev_room.center, new_room.center):
             dungeon.tiles[x, y] = tile_types.floor
@@ -318,19 +412,25 @@ def generate_dungeon(
         tile_types.floor, tile_types.wall
     )
 
-    # we go through the map and simulate cellular automata rules using convolve values
-    for _ in range(convolve_steps):
-        cellular_automata(dungeon, 4, wall_count)
-
     # ensures surrounding wall
     dungeon.tiles[[0, -1], :] = tile_types.wall
     dungeon.tiles[:, [0, -1]] = tile_types.wall
 
-    # x, y = np.where(dungeon.tiles["walkable"])
-    # j = nprng.integers(len(x))
-    # player.place(x[j], y[j], dungeon)
-    for x in range(2):
+    # we go through the map and simulate cellular automata rules using convolve values
+    for _ in range(convolve_steps):
+        cellular_automata(dungeon, 4, wall_count)
+
+    x, y = np.where(dungeon.tiles["walkable"])
+    j = nprng.integers(len(x))
+    player.place(x[j], y[j], dungeon)
+
+    for _ in range(1):
         generate_rooms(dungeon, 10, 4, 10)
+
+    connect_regions(dungeon)
+
+    for _ in range(2):
+        cellular_automata(dungeon, 4, wall_count)
 
     place_entities(dungeon, engine.game_world.current_floor)
 

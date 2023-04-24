@@ -37,6 +37,14 @@ def new_tile(
 # unexplored, unseen tiles
 SHROUD = np.array((ord(' '), (color.white), (color.black)), dtype = graphic_dt)
 
+placeholder = new_tile(
+    value = -100,
+    walkable = True,
+    transparent = True,
+    dark = (ord('='), (color.white), (color.white)),
+    light = (ord('='), (color.white), (color.white)),
+)
+
 floor = new_tile(
     value = 1,
     walkable = True,
