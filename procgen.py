@@ -306,7 +306,7 @@ def distance_to_region(point_1: Tuple[int, int], regions: List[Set[Tuple[int, in
     return min(distance(point_1, q) for region in regions for q in region)
 
 def distance(point_1: Tuple[int, int], point_2: Tuple[int, int]) -> Tuple[Tuple[int, int], Tuple[int, int]]:
-    return np.sqrt((point_1[0] - point_2[0]) ** 2 + (point_1[1] - point_2[1]) ** 2)
+    return (point_1[0] - point_2[0]) ** 2 + (point_1[1] - point_2[1]) ** 2
 
 def generate_rooms(
     dungeon: GameMap,
