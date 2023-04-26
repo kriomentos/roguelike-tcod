@@ -12,3 +12,5 @@ dist/
 main.exe
 main/
 main.spec
+profiling/
+*.prof

@@ -41,8 +41,8 @@ placeholder = new_tile(
     value = -100,
     walkable = True,
     transparent = True,
-    dark = (ord('='), (color.white), (color.white)),
-    light = (ord('='), (color.white), (color.white)),
+    dark = (ord(' '), (color.white), (color.white)),
+    light = (ord(' '), (color.white), (color.white)),
 )
 
 floor = new_tile(

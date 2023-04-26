@@ -1,7 +1,7 @@
 from __future__ import annotations
 from tcod import los
 
-from random import choices, randint, seed
+from random import choices, randint, randrange
 from typing import Dict, Tuple, List, Set, Iterator, TYPE_CHECKING
 from scipy import signal
 
@@ -13,6 +13,8 @@ from game_map import GameMap
 import tile_types
 import entity_factories
 
+from sys import maxsize
+
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
@@ -22,9 +24,10 @@ base_seed = 'ragnis'
 for ch in base_seed:
     int_seed <<= 8 + ord(ch)
 
-seed(int_seed)
+seed = randrange(maxsize)
 
-nprng = np.random.default_rng()
+nprng = np.random.default_rng(seed)
+print(f'Seed: was: {seed}')
 
 # tuples that contain information (floor number, maximum amount of entity type)
 # used for generating amount of said entities based on current floor level
@@ -256,11 +259,48 @@ def connect_regions(dungeon: GameMap):
     # Otherwise, we need to connect the regions
     # We can do this by finding the closest pair of points between regions and carving a tunnel between them
     closest_points = get_closest_points_between_regions(regions)
-    # print(f'points: {closest_points}')
     for pair in closest_points:
         print(f'pair is a: {pair[0]} and b: {pair[1]}')
         for x, y in tunnel_between(pair[0], pair[1]):
-            dungeon.tiles[x, y] = tile_types.floor
+            dungeon.tiles[x, y] = tile_types.placeholder
+        closest_points.pop(0)
+    # center_point = (40, 20)
+    # points = get_center_points(regions)
+    # for _ in points:
+    #     print(f'going from: {points[0]} to: {center_point}')
+    #     for x, y in tunnel_between(points[0], center_point):
+    #         dungeon.tiles[x, y] = tile_types.placeholder
+    #     points.pop(0)
+
+def get_center_points(regions: List[Set[Tuple[int, int]]]) -> List[Tuple[int, int]]:
+    center_points = []
+
+    for region in regions:
+        min_x, max_x, min_y, max_y = None, None, None, None
+
+        for point in region:
+            x, y = point
+
+            if min_x is None or x < min_x:
+                min_x = x
+            if max_x is None or x > max_x:
+                max_x = x
+            if min_y is None or y < min_y:
+                min_y = y
+            if max_y is None or y > max_y:
+                max_y = y
+
+        center_x = (min_x + max_x) // 2
+        center_y = (min_y + max_y) // 2
+        center_point = (center_x, center_y)
+
+        if center_point in region:
+            center_points.append(center_point)
+        else:
+            closest_point = min(region, key=lambda p: np.sqrt((p[0] - center_x) ** 2 + (p[1] - center_y) ** 2))
+            center_points.append(closest_point)
+
+    return center_points
 
 def get_regions(walkable: np.ndarray) -> List[Set[Tuple[int, int]]]:
     regions = []
@@ -328,6 +368,8 @@ def generate_rooms(
     if new_room.x1 < 0 or new_room.x2 > dungeon.width or new_room.y1 < 0 or new_room.y2 > dungeon.height:
         return dungeon
 
+    dungeon.tiles[[0, -1], :] = tile_types.wall
+    dungeon.tiles[:, [0, -1]] = tile_types.wall
     # dig out the room
     # top and bottom wall
     dungeon.tiles[x:x+room_width, y] = tile_types.wall
@@ -428,8 +470,8 @@ def generate_dungeon(
 
     connect_regions(dungeon)
 
-    for _ in range(2):
-        cellular_automata(dungeon, 4, wall_count)
+    # for _ in range(2):
+    #     cellular_automata(dungeon, 4, wall_count)
 
     place_entities(dungeon, engine.game_world.current_floor)
 
