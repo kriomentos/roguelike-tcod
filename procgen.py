@@ -1,33 +1,25 @@
 from __future__ import annotations
-from tcod import los
 
-from random import choices, randint, randrange
-from typing import Dict, Tuple, List, Set, Iterator, TYPE_CHECKING
+from random import choices, randint
+from typing import Dict, Tuple, List, Set, TYPE_CHECKING
 from scipy import signal
 
 import numpy as np
-import components
 from engine import Engine
 
 from game_map import GameMap
 import tile_types
 import entity_factories
 
-from sys import maxsize
+from helpers.default_rng import nprng
+from helpers.diggers import tunnel_between
+
+from generators.cellular_automata import cellular_automata
+from generators.room_generatorv2 import generate_rooms
 
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
-
-int_seed = 0
-base_seed = 'ragnis'
-for ch in base_seed:
-    int_seed <<= 8 + ord(ch)
-
-seed = randrange(maxsize)
-
-nprng = np.random.default_rng(seed)
-print(f'Seed: was: {seed}')
 
 # tuples that contain information (floor number, maximum amount of entity type)
 # used for generating amount of said entities based on current floor level
@@ -155,99 +147,6 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
     # dungeon.tiles[x[j + 1], y[j + 1]] = tile_types.up_stairs
     # dungeon.upstairs_location = (x[j + 1], y[j + 1])
 
-# in future it wll take all gamemap objects (not Actors!)
-# and turn some into mimics, or not
-def make_mimic(dungeon: GameMap):
-    target = dungeon.get_actor_at_location(40, 21)
-    target.ai = components.ai.MimicHostileEnemy(
-        entity = target, message = False, origin_x = target.x, origin_y = target.y
-    )
-
-def cellular_automata(dungeon: GameMap, wall_rule: int, count: GameMap):
-    # on each pass we recalculate amount of neighbours, which gives much smoother output
-    # more passes equals smoother map and less artifacts
-    # we check the number of neighbours including tile itself is less/more than wall_rule
-    # and let it "die" or not
-    count = signal.convolve2d(dungeon.tiles['value'], [[1, 1, 1], [1, 1, 1], [1, 1, 1]], mode = 'same')
-
-    for i in range(1, dungeon.width - 1):
-        for j in range(1, dungeon.height - 1):
-            if count[i, j] < wall_rule:
-                dungeon.tiles[i, j] = tile_types.wall
-            elif count[i, j] > wall_rule:
-                dungeon.tiles[i, j] = tile_types.floor
-
-    return dungeon
-
-class RectangularRoom:
-    def __init__(self, x: int, y: int, width: int, height: int):
-        self.x1 = x
-        self.y1 = y
-        self.x2 = x + width
-        self.y2 = y + height
-
-    @property
-    def center(self) -> Tuple[int, int]:
-        center_x = int((self.x1 + self.x2) / 2)
-        center_y = int((self.y1 + self.y2) / 2)
-
-        return center_x, center_y
-
-    # return inside of the room, not counting the walls
-    @property
-    def inner(self) -> Tuple[slice, slice]:
-        return slice(self.x1 + 1, self.x2), slice(self.y1 + 1, self.y2)
-
-    def intersects(self, other: RectangularRoom) -> bool:
-        return(
-            self.x1 <= other.x2
-            and self.x2 >= other.x1
-            and self.y1 <= other.y2
-            and self.y2 >= other.y1
-        )
-
-def tunnel_between(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
-    # return L shaped tunnel between two points
-    x1, y1 = start
-    x2, y2 = end
-
-    if nprng.random() < 0.5:
-        # go horizontal, then vertical
-        corner_x, corner_y = x2, y1
-    else:
-        # go vertical, then horizontal
-        corner_x, corner_y = x1, y2
-
-    for x, y in los.bresenham((x1, y1), (corner_x, corner_y)).tolist():
-        yield x, y
-    for x, y in los.bresenham((corner_x, corner_y), (x2, y2)).tolist():
-        yield x, y
-
-def add_entrances(
-    room: RectangularRoom,
-    dungeon: GameMap,
-) -> Tuple[int, int]:
-    # place randomly entrances for the rooms
-    direction = nprng.choice(['n', 's', 'e', 'w'])
-    if direction == "n":
-        point_x = nprng.integers(room.x1 + 1, room.x2 - 1)
-        point_y = room.y1
-    elif direction == "s":
-        point_x = nprng.integers(room.x1 + 1, room.x2 - 1)
-        point_y = room.y2
-    elif direction == "e":
-        point_x = room.x1
-        point_y = nprng.integers(room.y1 + 1, room.y2 - 1)
-    elif direction == "w":
-        point_x = room.x2
-        point_y = nprng.integers(room.y1 + 1, room.y2 - 1)
-
-    if point_x <= 0 or point_x >= dungeon.width or point_y <= 0 or point_y >= dungeon.height:
-        print(f'tried to place another one x, y: {point_x, point_y}')
-        add_entrances(room, dungeon)
-
-    return (point_x, point_y)
-
 def connect_regions(dungeon: GameMap):
     # We can identify the different regions of the dungeon by flood-filling the floor tiles
     regions = get_regions(dungeon.tiles["walkable"])
@@ -348,93 +247,6 @@ def distance_to_region(point_1: Tuple[int, int], regions: List[Set[Tuple[int, in
 def distance(point_1: Tuple[int, int], point_2: Tuple[int, int]) -> Tuple[Tuple[int, int], Tuple[int, int]]:
     return (point_1[0] - point_2[0]) ** 2 + (point_1[1] - point_2[1]) ** 2
 
-def generate_rooms(
-    dungeon: GameMap,
-    max_rooms: int,
-    room_min_size: int,
-    room_max_size: int,
-) -> List[Tuple[int, int, int, int]]:
-
-    rooms: List[RectangularRoom] = []
-
-    room_width, room_height = nprng.integers(room_min_size, room_max_size), nprng.integers(room_min_size, room_max_size)
-
-    # random position within map bounds
-    x = nprng.integers(0, dungeon.width - room_width - 1)
-    y = nprng.integers(0, dungeon.height - room_height - 1)
-
-    new_room = RectangularRoom(x, y, room_width, room_height)
-    # make sure the new room doesn't go out of bounds of the GameMap
-    if new_room.x1 < 0 or new_room.x2 > dungeon.width or new_room.y1 < 0 or new_room.y2 > dungeon.height:
-        return dungeon
-
-    dungeon.tiles[[0, -1], :] = tile_types.wall
-    dungeon.tiles[:, [0, -1]] = tile_types.wall
-    # dig out the room
-    # top and bottom wall
-    dungeon.tiles[x:x+room_width, y] = tile_types.wall
-    dungeon.tiles[x:x+room_width +1, y+room_height] = tile_types.wall
-    # left and right wall
-    dungeon.tiles[x, y:y+room_height] = tile_types.wall
-    dungeon.tiles[x+room_width, y:y+room_height] = tile_types.wall
-    dungeon.tiles[new_room.inner] = tile_types.floor
-
-    (player_x, player_y) = new_room.center
-    dungeon.engine.player.place(player_x, player_y, dungeon)
-
-    rooms.append(new_room)
-
-    a, b = add_entrances(new_room, dungeon)
-    dungeon.tiles[a, b] = tile_types.floor
-
-    # add new rooms adjacent to previous ones, up to max_rooms
-    for r in range(1, max_rooms):
-        prev_room = rooms[-1]
-        direction = nprng.choice(["n", "s", "e", "w"])
-        if direction == "n":
-            x = nprng.integers(prev_room.x1, prev_room.x2)
-            y = prev_room.y1 - room_height
-        elif direction == "s":
-            x = nprng.integers(prev_room.x1, prev_room.x2)
-            y = prev_room.y2
-        elif direction == "e":
-            x = prev_room.x2
-            y = nprng.integers(prev_room.y1, prev_room.y2)
-        elif direction == "w":
-            x = prev_room.x1 - room_width
-            y = nprng.integers(prev_room.y1, prev_room.y2)
-
-        # Generate random room width and height
-        room_width = nprng.integers(room_min_size, room_max_size)
-        room_height = nprng.integers(room_min_size, room_max_size)
-
-        new_room = RectangularRoom(x, y, room_width, room_height)
-        # make sure the new room doesn't go out of bounds of the GameMap
-        if new_room.x1 < 0 or new_room.x2 > dungeon.width or new_room.y1 < 0 or new_room.y2 > dungeon.height:
-            continue
-
-        if any(new_room.intersects(other_room) for other_room in rooms):
-            continue
-
-        #top and bottom wall
-        dungeon.tiles[x:x+room_width, y] = tile_types.wall
-        dungeon.tiles[x:x+room_width +1, y+room_height] = tile_types.wall
-        # left and right wall
-        dungeon.tiles[x, y:y+room_height] = tile_types.wall
-        dungeon.tiles[x+room_width, y:y+room_height] = tile_types.wall
-        # inside of the room
-        dungeon.tiles[new_room.inner] = tile_types.floor
-
-        a, b = add_entrances(new_room, dungeon)
-        dungeon.tiles[a, b] = tile_types.floor
-
-        for x, y in tunnel_between(prev_room.center, new_room.center):
-            dungeon.tiles[x, y] = tile_types.floor
-
-        rooms.append(new_room)
-
-    return dungeon
-
 def generate_dungeon(
     map_width: int,
     map_height: int,
@@ -468,7 +280,7 @@ def generate_dungeon(
     for _ in range(1):
         generate_rooms(dungeon, 10, 4, 10)
 
-    connect_regions(dungeon)
+    # connect_regions(dungeon)
 
     # for _ in range(2):
     #     cellular_automata(dungeon, 4, wall_count)
