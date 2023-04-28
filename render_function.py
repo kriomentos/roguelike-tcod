@@ -25,10 +25,10 @@ def render_bar(
     current_value: int,
     maximum_value: int,
     total_width: int,
-    fill_color: tuple,
-    empty_color: tuple,
+    fill_color: tuple[int, int, int],
+    empty_color: tuple[int, int, int],
     position: int,
-    bar_name: string,
+    bar_name: str,
 ) -> None:
     # it ends up as 0 for current_value < 3, which makes it be empty
     bar_width = int(float(current_value) / maximum_value * total_width)

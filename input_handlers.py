@@ -239,6 +239,7 @@ class GameOverEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym == tcod.event.K_ESCAPE:
             self.on_quit()
+        return None
 
 class HistoryViewer(EventHandler):
     # show log history on a larger window with page scrolling

@@ -3,17 +3,13 @@ In it's current stae it doesn't
 requires rewrite of Bresenham line tunnel creator
 generation method, placing entities and passing arguments
 '''
-
-
 from __future__ import annotations
 import random
-from typing import Iterator, List, Tuple, TYPE_CHECKING
+from typing import Iterator, List, Tuple
 from game_map import GameMap
 import tile_types
 import tcod
 
-#if TYPE_CHECKING:
-from entity import Entity
 
 TILE_MAPPING = {
     0: '#',
@@ -78,7 +74,7 @@ def generate_dungeon(
     max_rooms: int,
     room_min_size: int,
     room_max_size: int,
-    map_width: int, 
+    map_width: int,
     map_height: int,
 ) -> GameMap:
 
@@ -114,7 +110,7 @@ def generate_dungeon(
         rooms.append(new_room)
 
         # hacked way of placing player glyph just for graphic representation
-        dungeon.tiles[rooms[0].center] = tile_types.player
+        dungeon.tiles[rooms[0].center] = tile_types.placeholder
 
         # print(rooms.type())
     return dungeon

@@ -1,6 +1,6 @@
 from random import randrange, seed
-from scipy import signal
-from scipy.ndimage import label, generate_binary_structure
+from scipy import signal #type: ignore
+from scipy.ndimage import label, generate_binary_structure # type: ignore
 import numpy as np
 
 EMPTY = -1

@@ -13,6 +13,8 @@ class RectangularRoom:
         self.y1 = y
         self.x2 = x + width
         self.y2 = y + height
+        self.height = height
+        self.width = width
 
     @property
     def center(self) -> Tuple[int, int]:
@@ -34,29 +36,32 @@ class RectangularRoom:
             and self.y2 >= other.y1
         )
 
+def create_room(min_size: int, max_size: int, dungeon: GameMap):
+    room_w, room_h = nprng.integers(min_size, max_size), nprng.integers(min_size, max_size)
+    x, y = nprng.integers(1, dungeon.width - room_w - 1), nprng.integers(1, dungeon.height - room_h - 1)
+
+    room = RectangularRoom(x, y, room_w, room_h)
+
+    return room
+
 def generate_rooms(
     dungeon: GameMap,
     max_rooms: int,
     room_min_size: int,
     room_max_size: int,
-) -> List[Tuple[int, int, int, int]]:
+) -> GameMap:
 
     rooms: List[RectangularRoom] = []
 
-    room_width, room_height = nprng.integers(room_min_size, room_max_size), nprng.integers(room_min_size, room_max_size)
+    new_room = create_room(room_min_size, room_max_size, dungeon)
 
-    # random position within map bounds
-    x = nprng.integers(0, dungeon.width - room_width - 1)
-    y = nprng.integers(0, dungeon.height - room_height - 1)
-
-    new_room = RectangularRoom(x, y, room_width, room_height)
     # make sure the new room doesn't go out of bounds of the GameMap
     if new_room.x1 < 0 or new_room.x2 > dungeon.width or new_room.y1 < 0 or new_room.y2 > dungeon.height:
-        return dungeon
+        new_room = create_room(room_min_size, room_max_size, dungeon)
 
     # surrounding walls
-    dungeon.tiles[[x, new_room.x2], y:new_room.y2 + 1] = tile_types.wall
-    dungeon.tiles[x:new_room.x2 + 1, [y, new_room.y2]] = tile_types.wall
+    dungeon.tiles[[new_room.x1, new_room.x2], new_room.y1:new_room.y2 + 1] = tile_types.wall
+    dungeon.tiles[new_room.x1:new_room.x2 + 1, [new_room.y1, new_room.y2]] = tile_types.wall
     # inside of the room
     dungeon.tiles[new_room.inner] = tile_types.floor
 
@@ -71,7 +76,7 @@ def generate_rooms(
         direction = nprng.choice(["n", "s", "e", "w"])
         if direction == "n":
             x = nprng.integers(prev_room.x1, prev_room.x2)
-            y = prev_room.y1 - room_height
+            y = prev_room.y1 - new_room.height
         elif direction == "s":
             x = nprng.integers(prev_room.x1, prev_room.x2)
             y = prev_room.y2
@@ -79,7 +84,7 @@ def generate_rooms(
             x = prev_room.x2
             y = nprng.integers(prev_room.y1, prev_room.y2)
         elif direction == "w":
-            x = prev_room.x1 - room_width
+            x = prev_room.x1 - new_room.width
             y = nprng.integers(prev_room.y1, prev_room.y2)
 
         # Generate random room width and height
@@ -100,7 +105,7 @@ def generate_rooms(
         # inside of the room
         dungeon.tiles[new_room.inner] = tile_types.floor
 
-        for x, y in drunken_walk(prev_room.center, new_room.center, dungeon):
+        for x, y in tunnel_between(prev_room.center, new_room.center):
             dungeon.tiles[x, y] = tile_types.floor
 
         rooms.append(new_room)

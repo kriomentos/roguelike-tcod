@@ -1,6 +1,6 @@
 from __future__ import annotations
-from typing import Iterable, Iterator, Optional, TYPE_CHECKING
-import numpy as np  # type: ignore
+from typing import Iterable, Iterator, Optional, Union, TYPE_CHECKING
+import numpy as np
 import lzma
 import pickle
 
@@ -15,7 +15,8 @@ if TYPE_CHECKING:
     from entity import Entity
 
 class GameMap:
-    def __init__(self,
+    def __init__(
+        self,
         engine: Engine,
         width: int,
         height: int,
@@ -64,18 +65,15 @@ class GameMap:
         yield from (entity for entity in self.entities if isinstance(entity, Item))
 
     # check list of entities and return one being at [x, y] location
-    def get_blocking_entity_at_location(self, location_x: int, location_y: int) -> Optional[Entity]:
+    def get_blocking_entity_at_location(self, location_x: int, location_y: int):
         for entity in self.entities:
-            if (
-                entity.blocks_movement
-                and entity.x == location_x
-                and entity.y == location_y
-            ):
+            if (entity.blocks_movement and entity.x == location_x and entity.y == location_y):
                 return entity
 
         return None
 
-    def get_actor_at_location(self, x: int, y: int) -> Optional[Actor]:
+
+    def get_actor_at_location(self, x: int, y: int):
         for actor in self.actors:
             if actor.x == x and actor.y == y:
                 return actor
@@ -152,7 +150,7 @@ class GameWorld:
         viewport_height,
         map_width: int,
         map_height: int,
-        initial_open: float,
+        initial_open: int,
         convolve_steps: int,
         current_floor: int = 0,
         maps_list: dict = {},
@@ -170,7 +168,7 @@ class GameWorld:
         self.current_floor = current_floor
         self.maps_list = maps_list
 
-    def load_map(filename: str) -> Engine:
+    def load_map(self, filename: str) -> Engine:
         with open(filename, 'rb') as f:
             engine = pickle.loads(lzma.decompress(f.read()))
         assert isinstance(engine, Engine)
