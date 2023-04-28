@@ -9,6 +9,6 @@ for ch in base_seed:
 
 seed = randrange(maxsize)
 
-nprng = random.default_rng(int_seed)
+nprng = random.default_rng(seed)
 
 print(f'Seed: was: {seed}')

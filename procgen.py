@@ -10,7 +10,7 @@ from game_map import GameMap
 import tile_types
 import entity_factories
 
-from helpers.default_rng import nprng
+from helpers.rng import nprng
 from helpers.region_connection import connect_regions
 
 from generators.cellular_automata import cellular_automata

@@ -4,8 +4,8 @@ from typing import List, Tuple
 from game_map import GameMap
 import tile_types
 
-from helpers.default_rng import nprng
-from helpers.diggers import tunnel_between
+from helpers.rng import nprng
+from helpers.diggers import tunnel_between, drunken_walk
 
 class RectangularRoom:
     def __init__(self, x: int, y: int, width: int, height: int):
@@ -100,7 +100,7 @@ def generate_rooms(
         # inside of the room
         dungeon.tiles[new_room.inner] = tile_types.floor
 
-        for x, y in tunnel_between(prev_room.center, new_room.center):
+        for x, y in drunken_walk(prev_room.center, new_room.center, dungeon):
             dungeon.tiles[x, y] = tile_types.floor
 
         rooms.append(new_room)
