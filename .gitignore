@@ -13,4 +13,5 @@ main.exe
 main/
 main.spec
 profiling/
+.venv
 *.prof

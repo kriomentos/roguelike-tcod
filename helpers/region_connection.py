@@ -32,16 +32,17 @@ def connect_regions(dungeon: GameMap):
     #         dungeon.tiles[x, y] = tile_types.placeholder
     #     points.pop(0)
 
+
 def get_regions(walkable: np.ndarray) -> List[Set[Tuple[int, int]]]:
     regions = []
-    visited = set()
+    visited: Set[Tuple[int, int]] = set()
 
     for x in range(walkable.shape[0]):
         for y in range(walkable.shape[1]):
             if (x, y) in visited or not walkable[x, y]:
                 continue
 
-            new_region = set()
+            new_region: Set[Tuple[int, int]] = set()
             queue = [(x, y)]
 
             while queue:
@@ -53,10 +54,12 @@ def get_regions(walkable: np.ndarray) -> List[Set[Tuple[int, int]]]:
                 new_region.add(current)
                 visited.add(current)
 
-                neighbours = [(current[0] - 1, current[1]),
-                              (current[0] + 1, current[1]),
-                              (current[0], current[1] - 1),
-                              (current[0], current[1] + 1)]
+                neighbours = [
+                    (current[0] - 1, current[1]),
+                    (current[0] + 1, current[1]),
+                    (current[0], current[1] - 1),
+                    (current[0], current[1] + 1),
+                ]
 
                 for neighbour in neighbours:
                     if neighbour not in visited and walkable[neighbour]:
@@ -67,13 +70,34 @@ def get_regions(walkable: np.ndarray) -> List[Set[Tuple[int, int]]]:
 
     return regions
 
-def get_closest_points_between_regions(regions: List[Set[Tuple[int, int]]]) -> List[Tuple[Tuple[int, int], Tuple[int, int]]]:
-    points = [(list(region)[0], min(region, key=lambda p: distance_to_region(p, regions))) for region in regions]
-    return [(p1, p2) for p1, p2, _ in sorted([(p1, p2, distance(p1, p2)) for i, (p1, d1) in enumerate(points) for j, (p2, d2) in enumerate(points) if i < j], key=lambda t: t[2])]
+
+def get_closest_points_between_regions(
+    regions: List[Set[Tuple[int, int]]]
+) -> List[Tuple[Tuple[int, int], Tuple[int, int]]]:
+    points = [
+        (list(region)[0], min(region, key=lambda p: distance_to_region(p, regions)))
+        for region in regions
+    ]
+    return [
+        (p1, p2)
+        for p1, p2, _ in sorted(
+            [
+                (p1, p2, distance(p1, p2))
+                for i, (p1, d1) in enumerate(points)
+                for j, (p2, d2) in enumerate(points)
+                if i < j
+            ],
+            key=lambda t: t[2],
+        )
+    ]
     # return [(p1, p2) for i, (p1, d1) in enumerate(points) for j, (p2, d2) in enumerate(points) if i < j and d1 == d2]
 
-def distance_to_region(point_1: Tuple[int, int], regions: List[Set[Tuple[int, int]]]) -> float:
+
+def distance_to_region(
+    point_1: Tuple[int, int], regions: List[Set[Tuple[int, int]]]
+) -> float:
     return min(distance(point_1, q) for region in regions for q in region)
+
 
 def distance(point_1: Tuple[int, int], point_2: Tuple[int, int]) -> float:
     return (point_1[0] - point_2[0]) ** 2 + (point_1[1] - point_2[1]) ** 2
