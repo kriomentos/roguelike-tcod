@@ -1,4 +1,5 @@
 from __future__ import annotations
+from random import randint
 
 from typing import TYPE_CHECKING
 
@@ -31,9 +32,21 @@ class Sword(Equippable):
         super().__init__(equipment_type = EquipmentType.WEAPON, power_bonus = 3)
 
 class LeatherArmor(Equippable):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(equipment_type = EquipmentType.ARMOR, defense_bonus = 1)
 
 class ChainMail(Equippable):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(equipment_type = EquipmentType.ARMOR, defense_bonus = 3)
+
+class DefenseRing(Equippable):
+    def __init__(self) -> None:
+        super().__init__(equipment_type = EquipmentType.RING, defense_bonus = randint(1, 4))
+
+class PowerRing(Equippable):
+    def __init__(self) -> None:
+        super().__init__(equipment_type = EquipmentType.RING, power_bonus = randint(1, 4))
+
+class OmniRing(Equippable):
+    def __init__(self) -> None:
+        super().__init__(equipment_type = EquipmentType.RING, power_bonus = randint(1, 4), defense_bonus = randint(1, 4))

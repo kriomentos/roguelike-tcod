@@ -1,25 +1,28 @@
 from __future__ import annotations
 from abc import abstractmethod
+from dis import dis
 import random
 from typing import List, Optional, Tuple, TYPE_CHECKING
 
 import numpy as np
 import tcod
 import color
-from actions import Action, BumpAction, MeleeAction, MovementAction, WaitAction
+from actions import Action, BumpAction, MeleeAction, MovementAction, PickupAction, RangedAction, WaitAction
+from components import inventory
 
 if TYPE_CHECKING:
     from entity import Actor
 
 class BaseAI(Action):
     entity: Actor
+
     @abstractmethod
     def perform(self) -> None:
         pass
 
     def get_path_to(self, dest_x: int, dest_y: int) -> List[Tuple[int, int]]:
         # calculates path to traget position or returns empty list if no valid path
-        cost = np.array(self.entity.gamemap.tiles["walkable"], dtype = np.int8)
+        cost = np.array(self.entity.gamemap.tiles['walkable'], dtype = np.int8)
 
         for entity in self.entity.gamemap.entities:
             if entity.blocks_movement and cost[entity.x, entity.y]:
@@ -48,7 +51,7 @@ class Dummy(BaseAI):
     def perform(self) -> None:
         return
 
-class HostileEnemy(BaseAI):
+class SimpleHostileEnemy(BaseAI):
     def __init__(self, entity: Actor):
         super().__init__(entity)
         self.path:  List[Tuple[int, int]] = []
@@ -74,6 +77,61 @@ class HostileEnemy(BaseAI):
 
         return WaitAction(self.entity).perform()
 
+class GreedyEnemy(BaseAI):
+    def __init__(self, entity: Actor):
+        super().__init__(entity)
+        self.path:  List[Tuple[int, int]] = []
+
+    def perform(self) -> None:
+        target = next(self.engine.game_map.items, None)
+
+        # selects target from the items list, selects the first item in list
+        # if there is one the goblin with path towards it and bump into things (in theory)
+        # which should make him attack entities he stumbles into while going to pick item
+        # when he is ontop of the item he picks it up
+        # currently each goblin enemy is omnipotent and always knows location of each item on given floor
+        if target is not None and len(self.entity.inventory.items) < self.entity.inventory.capacity:
+            dx = target.x - self.entity.x
+            dy = target.y - self.entity.y
+
+            distance = max(abs(dx), abs(dy))
+
+            # path towards item only if it's in actors field of view
+            # hopefully :v
+            # if self.engine.game_map.visible[target.x, target.y]:
+            if distance <= 0:
+                return PickupAction(self.entity).perform()
+            elif 1 < distance < 10:
+                self.path = self.get_path_to(target.x, target.y)
+
+            if self.path:
+                dest_x, dest_y = self.path.pop(0)
+                return BumpAction(
+                    self.entity, dest_x - self.entity.x, dest_y - self.entity.y
+                ).perform()
+            else:
+                f'sumthin aint right'
+
+        # if there is no target to path to, goblin will wander around randomly
+        # also can bump into entites attacking them
+        else:
+            direction_x, direction_y = random.choice(
+                [
+                    (-1, -1), # northwest
+                    (0, -1), # north
+                    (1, -1), # northeast
+                    (-1, 0), # west
+                    (1, 0), # east
+                    (-1, 1), # southwest
+                    (0, 1), # south
+                    (1, 1), # southeast
+                ]
+            )
+
+            return BumpAction(self.entity, direction_x, direction_y).perform()
+
+        return WaitAction(self.entity).perform()
+
 class ConfusedEnemy(BaseAI):
     # confused actor will stumble around for given number of turns, then return to normal
     # if it stumbles into antoher actor, it will attack
@@ -87,7 +145,7 @@ class ConfusedEnemy(BaseAI):
         # return to previous ai when the effect ends
         if self.turns_remaining <= 0:
             self.engine.message_log.add_message(
-                f"The {self.entity.name} is no longer confused"
+                f'The {self.entity.name} is no longer confused'
             )
             self.entity.ai = self.previous_ai
         else:
@@ -130,14 +188,14 @@ class MimicHostileEnemy(BaseAI):
         # which is super scuffed and hacked way of handling :)
         if not self.message:
             if self.entity.fighter.hp < self.entity.fighter.max_hp or self.entity.x != self.origin_x or self.entity.y != self.origin_y:
-                self.entity.char = "M"
+                self.entity.char = 'M'
                 self.entity.color = color.anb_red
-                self.entity.name = "Mimic"
-                self.entity.fighter.defense = 2
-                self.entity.fighter.power = 4
+                self.entity.name = 'Mimic'
+                self.entity.fighter.base_defense = 2
+                self.entity.fighter.base_power = 4
                 # self.entity.ai = HostileEnemy
                 self.engine.message_log.add_message(
-                    f"The {self.entity.name} reveals it's disguise"
+                    f'The {self.entity.name} reveals it\'s disguise'
                 )
                 self.message = True
 
@@ -168,20 +226,20 @@ class MimicHostileEnemy(BaseAI):
             return WaitAction(self.entity).perform()
 
 
-class TickingEntity(BaseAI):
-    def __init__(self, entity: Actor):
-        super().__init__(entity)
+# class TickingEntity(BaseAI):
+#     def __init__(self, entity: Actor):
+#         super().__init__(entity)
 
-    def perform(self) -> None:
-        target_xy = self.entity.x, self.entity.y
-        print(f"Target xy: {target_xy}")
-        if self.entity.fighter.hp <= 0:
-            self.entity.ai = None
-        else:
-            for actor in set(self.engine.game_map.actors) - {self.entity}:
-                if actor.distance(*target_xy) <= 3:
-                    self.engine.message_log.add_message(
-                        f"The {actor.name} coughs in toxic gas, taking {self.entity.fighter.power} damage"
-                    )
-                    actor.fighter.take_damage(self.entity.fighter.power)
-            self.entity.fighter.hp -= 1
+#     def perform(self) -> None:
+#         target_xy = self.entity.x, self.entity.y
+#         print(f'Target xy: {target_xy}')
+#         if self.entity.fighter.hp <= 0:
+#             self.entity.ai = None
+#         else:
+#             for actor in set(self.engine.game_map.actors) - {self.entity}:
+#                 if actor.distance(*target_xy) <= 3:
+#                     self.engine.message_log.add_message(
+#                         f'The {actor.name} coughs in toxic gas, taking {self.entity.fighter.power} damage'
+#                     )
+#                     actor.fighter.take_damage(self.entity.fighter.power)
+#             self.entity.fighter.hp -= 1

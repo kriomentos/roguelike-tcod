@@ -12,9 +12,9 @@ if TYPE_CHECKING:
 
 def get_name_at_location(x: int, y: int, game_map: GameMap) -> str:
     if not game_map.in_bounds(x, y) or not game_map.visible[x, y]:
-        return ""
+        return 'Out of bounds'
 
-    names = ", ".join(
+    names = ', '.join(
         entity.name for entity in game_map.entities if entity.x == x and entity.y == y
     )
 
@@ -25,10 +25,10 @@ def render_bar(
     current_value: int,
     maximum_value: int,
     total_width: int,
-    fill_color: tuple,
-    empty_color: tuple,
+    fill_color: tuple[int, int, int],
+    empty_color: tuple[int, int, int],
     position: int,
-    bar_name: string,
+    bar_name: str,
 ) -> None:
     # it ends up as 0 for current_value < 3, which makes it be empty
     bar_width = int(float(current_value) / maximum_value * total_width)
@@ -50,7 +50,7 @@ def render_bar(
     console.print(
         x = 1,
         y = position,
-        string = f"{bar_name}: {current_value}/{maximum_value}",
+        string = f'{bar_name}: {current_value}/{maximum_value}',
         fg = color.black
     )
 
@@ -59,7 +59,7 @@ def render_dungeon_level(
 ) -> None:
     x, y = location
 
-    console.print(x = x, y = y, string = f"Dungeon level: {dungeon_level}")
+    console.print(x = x, y = y, string = f'Dungeon level: {dungeon_level}')
 
 def render_names_at_mouse_location(
     console: Console, x: int, y: int, engine: Engine

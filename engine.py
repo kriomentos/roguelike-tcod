@@ -36,7 +36,7 @@ class Engine:
 
     def update_fov(self) -> None:
         self.game_map.visible[:] = compute_fov(
-            self.game_map.tiles["transparent"],
+            self.game_map.tiles['transparent'],
             (self.player.x, self.player.y),
             radius = 8,
         )
@@ -57,7 +57,7 @@ class Engine:
             fill_color = color.anb_green,
             empty_color = color.anb_red,
             position = 44,
-            bar_name = "HP"
+            bar_name = 'HP'
         )
 
         render_function.render_bar(
@@ -68,7 +68,7 @@ class Engine:
             fill_color = color.anb_purple,
             empty_color = color.grey,
             position = 45,
-            bar_name = "XP"
+            bar_name = 'XP'
         )
 
         render_function.render_dungeon_level(
@@ -84,5 +84,5 @@ class Engine:
     def save_as(self, filename: str) -> None:
         '''save this Engine instance as compressed file'''
         save_data = lzma.compress(pickle.dumps(self))
-        with open(filename, "wb") as f:
+        with open(filename, 'wb') as f:
             f.write(save_data)

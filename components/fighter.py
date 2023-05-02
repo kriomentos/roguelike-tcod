@@ -56,17 +56,20 @@ class Fighter(BaseComponent):
 
     def die(self) -> None:
         if self.engine.player is self.parent:
-            death_massage = "You died"
+            death_massage = 'You died'
             death_massage_color = color.player_die
         else:
-            death_massage = f"{self.parent.name} is dead"
+            death_massage = f'{self.parent.name} is dead'
             death_massage_color = color.enemy_die
+            while len(self.parent.inventory.items) > 0:
+                item = self.parent.inventory.items[0]
+                self.parent.inventory.drop(item)
 
-        self.parent.char = "%"
+        self.parent.char = '%'
         self.parent.color = color.anb_red
         self.parent.blocks_movement = False
         self.parent.ai = None
-        self.parent.name = f"Corpse of {self.parent.name}"
+        self.parent.name = f'Corpse of {self.parent.name}'
         self.parent.render_order = RenderOrder.CORPSE
 
         self.engine.message_log.add_message(death_massage, death_massage_color)
@@ -113,11 +116,11 @@ class Ticking(BaseComponent):
             self.die()
 
     def die(self) -> None:
-        self.parent.char = ""
+        self.parent.char = ''
         self.parent.color = color.anb_red
         self.parent.blocks_movement = False
         self.parent.ai = None
-        self.parent.name = f""
+        self.parent.name = f''
         self.parent.render_order = RenderOrder.CORPSE
 
     def take_damage(self, amount: int):

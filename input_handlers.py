@@ -175,6 +175,8 @@ class MainGameEventHandler(EventHandler):
 
         player = self.engine.player
 
+        # if shift and period(>) is held traverse the stairs
+        # for now only downwards but will also handle upwards
         if key == tcod.event.K_PERIOD and modifier and tcod.event.Modifier.SHIFT:
             return actions.TakeStairsAction(player)
 
@@ -185,12 +187,12 @@ class MainGameEventHandler(EventHandler):
 
             # if the shift is held, perform other action
             # that is push the enity in front of the player
-            if modifier and tcod.event.Modifier.SHIFT:
+            if key and modifier and tcod.event.Modifier.SHIFT:
                 action = PushAction(player, dx, dy)
             # or just perform bump, which will resolve into move or attack
             # depending on if there is a target blocking path
-            else:
-                action = BumpAction(player, dx, dy)
+            # else:
+            action = BumpAction(player, dx, dy)
 
         # pass the turn doing nothing, it advances other AI entites turns
         elif key in WAIT_KEYS:
@@ -218,6 +220,9 @@ class MainGameEventHandler(EventHandler):
         # without having to interact with them
         elif key == tcod.event.K_SLASH:
             return LookHandler(self.engine)
+        elif key == tcod.event.K_z:
+            self.engine.game_map.visibility = not self.engine.game_map.visibility
+            print(f'vis: {self.engine.game_map.visibility}')
 
         return action
 
@@ -234,6 +239,7 @@ class GameOverEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym == tcod.event.K_ESCAPE:
             self.on_quit()
+        return None
 
 class HistoryViewer(EventHandler):
     # show log history on a larger window with page scrolling
@@ -324,7 +330,7 @@ class CharacterScreenEventHandler(AskUserEventHandler):
 
         y = 0
 
-        width = len(self.TITLE) + 4
+        width = len(self.TITLE) + 8
 
         console.draw_frame(
             x = x,
@@ -531,6 +537,8 @@ class SelectIndexHandler(AskUserEventHandler):
         # highlights tile under cursor
         super().on_render(console)
         x, y = self.engine.mouse_location
+        # x = x - self.engine.game_map.view_start_x
+        # y = y - self.engine.game_map.view_start_y
         console.tiles_rgb["bg"][x, y] = color.anb_white
         console.tiles_rgb["fg"][x, y] = color.anb_black
 

@@ -21,11 +21,11 @@ class Action:
         return self.entity.gamemap.engine
 
     def perform(self) -> None:
-        """Perform this action with the objects needed to determine its scope.
+        '''Perform this action with the objects needed to determine its scope.
         `self.engine` is the scope this action is being performed in.
         `self.entity` is the object performing the action.
         This method must be overridden by Action subclasses.
-        """
+        '''
         raise NotImplementedError()
 
 class PickupAction(Action):
@@ -42,16 +42,19 @@ class PickupAction(Action):
         for item in self.engine.game_map.items:
             if actor_location_x == item.x and actor_location_y == item.y:
                 if len(inventory.items) >= inventory.capacity:
-                    raise exceptions.Impossible("There's no room in your inventory")
+                    raise exceptions.Impossible('There\'s no room in your inventory')
 
                 self.engine.game_map.entities.remove(item)
                 item.parent = self.entity.inventory
                 inventory.items.append(item)
 
-                self.engine.message_log.add_message(f"You picked up {item.name}")
+                # display pickup message only for player
+                if self.entity is self.engine.player:
+                    self.engine.message_log.add_message(f'You picked up {item.name}')
+
                 return
 
-        raise exceptions.Impossible("There is nothing to pick up")
+        raise exceptions.Impossible('There is nothing to pick up')
 
 class ItemAction(Action):
     def __init__(
@@ -97,14 +100,14 @@ class WaitAction(Action):
 
 class TakeStairsAction(Action):
     def perform(self) -> None:
-        """Takes the stairs, if they exist at entity location"""
+        '''Takes the stairs, if they exist at entity location'''
         if (self.entity.x, self.entity.y) == self.engine.game_map.downstairs_location:
-            self.engine.game_world.generate_floor()
+            self.engine.game_world.go_downstairs()
             self.engine.message_log.add_message(
-                "You descend down the staircase", color.descend
+                'You descend down the staircase', color.descend
             )
         else:
-            raise exceptions.Impossible("There are no stairs here")
+            raise exceptions.Impossible('There are no stairs here')
 
 class ActionWithDirection(Action):
     def __init__(self, entity: Actor, dx: int, dy: int):
@@ -115,12 +118,12 @@ class ActionWithDirection(Action):
 
     @property
     def dest_xy(self) -> Tuple[int, int]:
-        """Returns this actions destination."""
+        '''Returns this actions destination.'''
         return self.entity.x + self.dx, self.entity.y + self.dy
 
     @property
     def blocking_entity(self) -> Optional[Entity]:
-        """Return the blocking entity at this actions destination."""
+        '''Return the blocking entity at this actions destination.'''
         return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
 
     @property
@@ -138,7 +141,7 @@ class MeleeAction(ActionWithDirection):
 
         # if no entity to attack do nothing
         if not target:
-            raise exceptions.Impossible("Nothing to attack")
+            raise exceptions.Impossible('Nothing to attack')
 
         # calculate damage
         # attack power of entity doing the action
@@ -164,6 +167,41 @@ class MeleeAction(ActionWithDirection):
                 f'{attack_desc} but does no damage.', attack_color
             ) # or not if the enemy power is too lowe
 
+class RangedAction(Action):
+    def __init__(self, entity: Actor, dx: int, dy: int):
+        super().__init__(entity)
+
+        self.dx = dx
+        self.dy = dy
+
+    @property
+    def target_actor(self) -> Optional[Actor]:
+        return self.engine.game_map.get_actor_at_location(self.dx, self.dy)
+
+    def perform(self) -> None:
+        target = self.target_actor
+
+        if not target:
+            raise exceptions.Impossible('No target')
+
+        damage = self.entity.fighter.power - target.fighter.defense
+        attack_desc = f'{self.entity.name.capitalize()} attacks {target.name}'
+
+        if self.entity is self.engine.player:
+            attack_color = color.player_atk
+        else:
+            attack_color = color.enemy_atk
+
+        if damage > 0:
+            self.engine.message_log.add_message(
+                f'{attack_desc} for {damage} hit points.', attack_color
+            )
+            target.fighter.hp -= damage
+        else:
+            self.engine.message_log.add_message(
+                f'{attack_desc} but does no damage.', attack_color
+            )
+
 class MovementAction(ActionWithDirection):
     # perform the movement action in given direction
     def perform(self) -> None:
@@ -171,13 +209,13 @@ class MovementAction(ActionWithDirection):
 
         # if the desitnaiton is out of bounds do nothing
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
-            raise exceptions.Impossible("That way is blocked")
+            raise exceptions.Impossible('That way is blocked')
         # if the destination is not walkable tile do nothing
-        if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
-            raise exceptions.Impossible("That way is blocked")
+        if not self.engine.game_map.tiles['walkable'][dest_x, dest_y]:
+            raise exceptions.Impossible('That way is blocked')
         # if the destination is blocked by another entity do nothing
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
-            raise exceptions.Impossible("That way is blocked")
+            raise exceptions.Impossible('That way is blocked')
 
         self.entity.move(self.dx, self.dy)
 
@@ -186,7 +224,7 @@ class PushAction(ActionWithDirection):
         target = self.target_actor
 
         if not target:
-            raise exceptions.Impossible("Nothing to push")
+            raise exceptions.Impossible('Nothing to push')
 
         dest_x =  target.x + self.dx
         dest_y = target.y + self.dy
@@ -195,10 +233,10 @@ class PushAction(ActionWithDirection):
 
         # if the desitnaiton is out of bounds do nothing
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
-            raise exceptions.Impossible("That way is blocked")
+            raise exceptions.Impossible('That way is blocked')
         # if the destination is not walkable tile do nothing
         # and make target take flat damage (for now)
-        if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
+        if not self.engine.game_map.tiles['walkable'][dest_x, dest_y]:
             self.engine.message_log.add_message(
                 f'{push_desc} into wall, {target.name} takes 1 damage', color.player_atk
             )

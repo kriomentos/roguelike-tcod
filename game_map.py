@@ -1,21 +1,27 @@
 from __future__ import annotations
-from typing import Iterable, Iterator, Optional, TYPE_CHECKING
-import numpy as np  # type: ignore
-from tcod.console import Console
+from typing import Iterable, Iterator, Optional, Union, TYPE_CHECKING
+import numpy as np
+import lzma
+import pickle
 
+from tcod.console import Console
 from entity import Actor, Item
 import tile_types
+
+import os.path
 
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
 
 class GameMap:
-    def __init__(self,
+    def __init__(
+        self,
         engine: Engine,
         width: int,
         height: int,
-        entities: Iterable[Entity] = ()
+        entities: Iterable[Entity] = (),
+        visibility = False
     ):
         self.engine = engine
         self.width, self.height = width, height
@@ -23,14 +29,20 @@ class GameMap:
         self.tiles = np.full((width, height), fill_value = tile_types.wall, order='F') # numpy filled with wall tiles in fortran order
 
         self.visible = np.full(
-            (width, height), fill_value = False, order = "F"
+            (width, height), fill_value = False, order = 'F'
         ) # tiles the player can see currently
 
         self.explored = np.full(
-            (width, height), fill_value = False, order = "F"
+            (width, height), fill_value = False, order = 'F'
         ) # tiles the player has seen already
 
+        self.visibility = visibility
+
         self.downstairs_location = (0, 0)
+        self.upstairs_location = (0, 0)
+
+        self.view_start_x = 0
+        self.view_start_y = 0
 
     @property
     def gamemap(self) -> GameMap:
@@ -53,18 +65,15 @@ class GameMap:
         yield from (entity for entity in self.entities if isinstance(entity, Item))
 
     # check list of entities and return one being at [x, y] location
-    def get_blocking_entity_at_location(self, location_x: int, location_y: int) -> Optional[Entity]:
+    def get_blocking_entity_at_location(self, location_x: int, location_y: int):
         for entity in self.entities:
-            if (
-                entity.blocks_movement
-                and entity.x == location_x
-                and entity.y == location_y
-            ):
+            if (entity.blocks_movement and entity.x == location_x and entity.y == location_y):
                 return entity
 
         return None
 
-    def get_actor_at_location(self, x: int, y: int) -> Optional[Actor]:
+
+    def get_actor_at_location(self, x: int, y: int):
         for actor in self.actors:
             if actor.x == x and actor.y == y:
                 return actor
@@ -77,60 +86,161 @@ class GameMap:
         return 0 <= x < self.width and 0 <= y < self.height
 
     def render(self, console: Console) -> None:
+        self.view_start_x = min(max(self.engine.player.x - int(self.engine.game_world.viewport_width / 2), 0), self.engine.game_world.map_width - self.engine.game_world.viewport_width)
+        self.view_start_y = min(max(self.engine.player.y - int(self.engine.game_world.viewport_height / 2), 0), self.engine.game_world.map_height - self.engine.game_world.viewport_height)
+        # view_end_x = min(max(self.engine.player.x + int(self.engine.game_world.viewport_width / 2), self.engine.game_world.viewport_width), self.engine.game_world.map_width)
+        # view_end_y = min(max(self.engine.player.y + int(self.engine.game_world.viewport_height / 2), self.engine.game_world.viewport_height), self.engine.game_world.map_height)
+
+        view_end_x = max(self.engine.player.x + int(self.engine.game_world.viewport_width / 2), self.engine.game_world.viewport_width)
+        view_end_y = max(self.engine.player.y + int(self.engine.game_world.viewport_height / 2), self.engine.game_world.viewport_height)
+
+        # print(
+        #     f'\n=======\n'
+        #     f'camera x: {self.view_start_x} camera y: {self.view_start_y}\n'
+        #     f'camera view_end_x: {view_end_x} camera view_end_y: {view_end_y}\n'
+        #     f'player x: {self.engine.player.x} player y: {self.engine.player.y}'
+        # )
+
+        # view_start_x:self.engine.game_world.viewport_width, view_start_y:self.engine.game_world.viewport_height used for all works
+        # but creates static camera that doesnt follow player
+        viewport_tiles = self.tiles[self.view_start_x:view_end_x, self.view_start_y:view_end_y]  # [o_x:view_end_x+1,o_y:view_end_y + 1]
+        viewport_visible = self.visible[self.view_start_x:view_end_x, self.view_start_y:view_end_y]
+        viewport_explored = self.explored[self.view_start_x:view_end_x, self.view_start_y:view_end_y]
+
         # prints the whole map, its called from within Engine when we render every bit to console
         # print based on condition whether tiles are visible or were explored already
         # if not, default to SHROUDed tile, which is just empty black square
-        console.tiles_rgb[0 : self.width, 0 : self.height] = np.select(
-            condlist = [self.visible, self.explored],
-            choicelist = [self.tiles["light"], self.tiles["dark"]],
-            default = tile_types.SHROUD,
-        )
+        # can be toggled to show every tile or only ones seen by player
+        if self.visibility == True:
+            # display whole map without FOV function
+            console.tiles_rgb[0 : self.width, 0 : self.height] = self.tiles['light']
+        else:
+            console.rgb[0:self.engine.game_world.viewport_width, 0:self.engine.game_world.viewport_height] = np.select(
+                (viewport_visible, viewport_explored),
+                (viewport_tiles['light'], viewport_tiles['dark']),
+                tile_types.SHROUD
+            )
+
+        self.engine.update_fov()
 
         # sorted list of entities to render on gamemap, based on order value
         entities_for_rendering = sorted(
             self.entities, key = lambda x: x.render_order.value
         )
 
-        # display whole map without FOV function
-        console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["light"]
-
         for entity in entities_for_rendering:
             # don't apply FOV to entites
-            console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
-            # display entity only if in FOV
-            # if self.visible[entity.x, entity.y]:
-            #     console.print(
-            #         x = entity.x, y = entity.y, string = entity.char, fg = entity.color
-            #     )
+            if self.visibility:
+                console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
+            else:
+                # display entity only if in FOV
+                if self.visible[entity.x, entity.y]:
+                    console.print(
+                        x = entity.x - self.view_start_x, y = entity.y - self.view_start_y, string = entity.char, fg = entity.color
+                    )
 
 class GameWorld:
-    """Holds settings for GameMap and generates new maps when dwelling deeper down"""
+    '''Holds settings for GameMap and generates new maps when dwelling deeper down'''
 
     def __init__(
         self,
         *,
         engine: Engine,
+        viewport_width,
+        viewport_height,
         map_width: int,
         map_height: int,
-        initial_open: float,
-        current_floor: int = 0
+        initial_open: int,
+        convolve_steps: int,
+        current_floor: int = 0,
+        maps_list: dict = {},
     ):
         self.engine = engine
+
+        self.viewport_width = viewport_width
+        self.viewport_height = viewport_height
 
         self.map_width = map_width
         self.map_height = map_height
         self.initial_open = initial_open
+        self.convolve_steps = convolve_steps
 
         self.current_floor = current_floor
+        self.maps_list = maps_list
+
+    def load_map(self, filename: str) -> Engine:
+        with open(filename, 'rb') as f:
+            engine = pickle.loads(lzma.decompress(f.read()))
+        assert isinstance(engine, Engine)
+        return engine
+
+    def save_map(self, filename: str) -> None:
+        save_data = lzma.compress(pickle.dumps(self.engine))
+        path_to_save = os.getcwd()
+        print(f'path: {path_to_save}')
+        with open(os.path.join('C:/Users/Konrad/Documents/Repo/Python-bits/saves', filename), 'wb') as f:
+            f.write(save_data)
 
     def generate_floor(self) -> None:
         from procgen import generate_dungeon
-
-        self.current_floor += 1
 
         self.engine.game_map = generate_dungeon(
             map_width = self.map_width,
             map_height = self.map_height,
             initial_open = self.initial_open,
+            convolve_steps = self.convolve_steps,
             engine = self.engine,
         )
+
+    def go_downstairs(self) -> None:
+        self.current_floor += 1
+        self.generate_floor()
+
+        # if self.current_floor in self.maps_list:
+        #     # print(
+        #     #     f'Floor in dict\n'
+        #     #     f'Iterator: {self.current_floor}\n'
+        #     # )
+        #     # self.engine.game_map.entities.remove(self.engine.player)
+
+        #     # downstairs_floor = pickle.loads(lzma.decompress(self.maps_list.get(self.current_floor)))
+
+        # else:
+        #     # print(
+        #     #     f'Floor not in dict\n'
+        #     #     f'Iterator: {self.current_floor}\n'
+        #     #     # f'dict: {self.maps_list.keys()}\n'
+        #     # )
+
+        #     # self.maps_list[self.current_floor - 1] = lzma.compress(pickle.dumps(self.engine.game_map))
+
+        #     # print(f'list after addition: {self.maps_list.keys()}')
+        #     map_name = 'level_' + str(self.current_floor) + '.sav'
+        #     print(f'lvl: {map_name}')
+        #     self.generate_floor()
+        #     self.save_map(map_name)
+
+    # def go_upstairs(self) -> None:
+    #     self.current_floor -= 1
+
+    #     if self.current_floor in self.maps_list:
+    #         print(
+    #             f'Floor in dict\n'
+    #             f'Iterator: {self.current_floor}\n'
+    #         )
+
+    #         # upstairs_floor = pickle.loads(lzma.decompress(self.maps_list[self.current_floor]))
+
+    #         # self.engine.game_map = upstairs_floor
+    #         # self.engine.player.place(
+    #         #     upstairs_floor.downstairs_location[0],
+    #         #     upstairs_floor.downstairs_location[1],
+    #         #     upstairs_floor
+    #         # )
+    #     else:
+    #         print(
+    #             f'Floor not in dict or unexpected case'
+    #             f'Iterator: {self.current_floor}\n'
+    #             # f'dict: {self.maps_list.keys()}'
+    #         )
+    #         raise NotImplementedError()
