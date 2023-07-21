@@ -12,7 +12,6 @@ def cellular_automata(dungeon: GameMap, wall_rule: int, count: Any) -> GameMap:
 
     for i in range(1, dungeon.width - 1):
         for j in range(1, dungeon.height - 1):
-            print(f'count [x,y]: {count[i, j]}')
             if count[i, j] < wall_rule:
                 dungeon.tiles[i, j] = tile_types.wall
             elif count[i, j] > wall_rule:

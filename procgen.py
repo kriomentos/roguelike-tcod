@@ -179,10 +179,10 @@ def generate_dungeon(
     for _ in range(1):
         generate_rooms(dungeon, 10, 4, 10)
 
-    # connect_regions(dungeon)
+    connect_regions(dungeon)
 
-    # for _ in range(2):
-    #     cellular_automata(dungeon, 4, wall_count)
+    for _ in range(2):
+        cellular_automata(dungeon, 4, wall_count)
 
     place_entities(dungeon, engine.game_world.current_floor)
 
