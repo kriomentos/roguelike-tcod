@@ -11,4 +11,4 @@ seed = randrange(maxsize)
 
 nprng = random.default_rng(seed)
 
-print(f'Seed: was: {seed}')
+print(f'Seed was: {seed}')

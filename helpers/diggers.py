@@ -11,14 +11,14 @@ def tunnel_between(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tup
 
     if nprng.random() < 0.5:
         # go horizontal, then vertical
-        corner_x, corner_y = target_y, y1
+        corner_x, corner_y = target_x, y1
     else:
         # go vertical, then horizontal
-        corner_x, corner_y = x1, target_x
+        corner_x, corner_y = x1, target_y
 
-    for x, y in los.bresenham((x1, y1), (corner_x, corner_y)):
+    for x, y in los.bresenham((x1, y1), (corner_x, corner_y))[1:-1].tolist():
         yield x, y
-    for x, y in los.bresenham((corner_x, corner_y), (target_x, target_y)):
+    for x, y in los.bresenham((corner_x, corner_y), (target_x, target_y))[1:-1].tolist():
         yield x, y
 
 def drunken_walk(start: Tuple[int, int], end: Tuple[int, int], dungeon: GameMap) -> Iterator[Tuple[int, int]]:

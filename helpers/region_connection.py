@@ -22,7 +22,7 @@ def connect_regions(dungeon: GameMap):
     for pair in closest_points:
         print(f'pair is a: {pair[0]} and b: {pair[1]}')
         for x, y in tunnel_between(pair[0], pair[1]):
-            dungeon.tiles[x, y] = tile_types.placeholder
+            dungeon.tiles[x, y] = tile_types.floor
         closest_points.pop(0)
     # center_point = (40, 20)
     # points = get_center_points(regions)
