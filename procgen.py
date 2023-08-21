@@ -183,8 +183,8 @@ def generate_dungeon(
 
     connect_regions(dungeon, nprng)
 
-    # for _ in range(2):
-        # cellular_automata(dungeon, 4, wall_count)
+    for _ in range(1):
+        cellular_automata(dungeon, 5, wall_count)
 
     place_entities(dungeon, engine.game_world.current_floor)
 
