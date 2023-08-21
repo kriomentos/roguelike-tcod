@@ -226,6 +226,9 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_x:
             print(f"Skipping to the next level...")
             return actions.SkipStairs(player)
+        elif key == tcod.event.K_a:
+            for entity in set(self.engine.game_map.actors) - {player}:
+                entity.fighter.die()
 
         return action
 
