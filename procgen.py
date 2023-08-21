@@ -174,9 +174,9 @@ def generate_dungeon(
     for _ in range(convolve_steps):
         cellular_automata(dungeon, 4, wall_count)
 
-    x, y = np.where(dungeon.tiles["walkable"])
-    j = nprng.integers(len(x))
-    player.place(x[j], y[j], dungeon)
+    # x, y = np.where(dungeon.tiles["walkable"])
+    # j = nprng.integers(len(x))
+    # player.place(x[j], y[j], dungeon)
 
     for _ in range(1):
         generate_rooms(dungeon, 10, 4, 10, nprng)
