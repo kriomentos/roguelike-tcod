@@ -20,60 +20,60 @@ if TYPE_CHECKING:
 
 MOVE_KEYS = {
     # Arrow keys.
-    tcod.event.K_UP: (0, -1),   # up
-    tcod.event.K_DOWN: (0, 1),  # down
-    tcod.event.K_LEFT: (-1, 0), # left
-    tcod.event.K_RIGHT: (1, 0), # right
-    tcod.event.K_HOME: (-1, -1),    # up-left
-    tcod.event.K_END: (-1, 1),  # down-left
-    tcod.event.K_PAGEUP: (1, -1),   # up-rigth
-    tcod.event.K_PAGEDOWN: (1, 1),  # down-right
+    tcod.event.KeySym.UP: (0, -1),   # up
+    tcod.event.KeySym.DOWN: (0, 1),  # down
+    tcod.event.KeySym.LEFT: (-1, 0), # left
+    tcod.event.KeySym.RIGHT: (1, 0), # right
+    tcod.event.KeySym.HOME: (-1, -1),    # up-left
+    tcod.event.KeySym.END: (-1, 1),  # down-left
+    tcod.event.KeySym.PAGEUP: (1, -1),   # up-rigth
+    tcod.event.KeySym.PAGEDOWN: (1, 1),  # down-right
     # Numpad keys.
-    tcod.event.K_KP_1: (-1, 1),
-    tcod.event.K_KP_2: (0, 1),
-    tcod.event.K_KP_3: (1, 1),
-    tcod.event.K_KP_4: (-1, 0),
-    tcod.event.K_KP_6: (1, 0),
-    tcod.event.K_KP_7: (-1, -1),
-    tcod.event.K_KP_8: (0, -1),
-    tcod.event.K_KP_9: (1, -1),
+    tcod.event.KeySym.KP_1: (-1, 1),
+    tcod.event.KeySym.KP_2: (0, 1),
+    tcod.event.KeySym.KP_3: (1, 1),
+    tcod.event.KeySym.KP_4: (-1, 0),
+    tcod.event.KeySym.KP_6: (1, 0),
+    tcod.event.KeySym.KP_7: (-1, -1),
+    tcod.event.KeySym.KP_8: (0, -1),
+    tcod.event.KeySym.KP_9: (1, -1),
     # Vi keys.
-    tcod.event.K_h: (-1, 0),
-    tcod.event.K_j: (0, 1),
-    tcod.event.K_k: (0, -1),
-    tcod.event.K_l: (1, 0),
-    tcod.event.K_y: (-1, -1),
-    tcod.event.K_u: (1, -1),
-    tcod.event.K_b: (-1, 1),
-    tcod.event.K_n: (1, 1),
+    tcod.event.KeySym.h: (-1, 0),
+    tcod.event.KeySym.j: (0, 1),
+    tcod.event.KeySym.k: (0, -1),
+    tcod.event.KeySym.l: (1, 0),
+    tcod.event.KeySym.y: (-1, -1),
+    tcod.event.KeySym.u: (1, -1),
+    tcod.event.KeySym.b: (-1, 1),
+    tcod.event.KeySym.n: (1, 1),
     # qwe ad zxc
-    # tcod.event.K_w: (0, -1),
-    # tcod.event.K_x: (0, 1),
-    # tcod.event.K_a: (-1, 0),
-    # tcod.event.K_d: (1, 0),
-    # tcod.event.K_q: (-1, -1),
-    # tcod.event.K_e: (1, -1),
-    # tcod.event.K_z: (-1, 1),
-    # tcod.event.K_c: (1, 1),
+    # tcod.event.KeySym.w: (0, -1),
+    # tcod.event.KeySym.x: (0, 1),
+    # tcod.event.KeySym.a: (-1, 0),
+    # tcod.event.KeySym.d: (1, 0),
+    # tcod.event.KeySym.q: (-1, -1),
+    # tcod.event.KeySym.e: (1, -1),
+    # tcod.event.KeySym.z: (-1, 1),
+    # tcod.event.KeySym.c: (1, 1),
 }
 
 WAIT_KEYS = {
-    tcod.event.K_PERIOD,
-    tcod.event.K_KP_5,
-    tcod.event.K_CLEAR,
-    tcod.event.K_s,
+    tcod.event.KeySym.PERIOD,
+    tcod.event.KeySym.KP_5,
+    tcod.event.KeySym.CLEAR,
+    tcod.event.KeySym.s,
 }
 
 CURSOR_Y_KEYS = {
-    tcod.event.K_UP: -1,
-    tcod.event.K_DOWN: 1,
-    tcod.event.K_PAGEUP: -10,
-    tcod.event.K_PAGEDOWN: 10,
+    tcod.event.KeySym.UP: -1,
+    tcod.event.KeySym.DOWN: 1,
+    tcod.event.KeySym.PAGEUP: -10,
+    tcod.event.KeySym.PAGEDOWN: 10,
 }
 
 CONFIRM_KEYS = {
-    tcod.event.K_RETURN,
-    tcod.event.K_KP_ENTER,
+    tcod.event.KeySym.RETURN,
+    tcod.event.KeySym.KP_ENTER,
 }
 
 ActionHandler = Union[Action, "BaseEventHandler"]
@@ -106,7 +106,7 @@ class PopupMessage(BaseEventHandler):
         self.parent = parent_handler
         self.text = text
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         self.parent.on_render(console)
         console.tiles_rgb["fg"] //= 8
         console.tiles_rgb["bg"] //= 8
@@ -163,7 +163,7 @@ class EventHandler(BaseEventHandler):
         if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
             self.engine.mouse_location = event.tile.x, event.tile.y
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         self.engine.render(console)
 
 class MainGameEventHandler(EventHandler):
@@ -177,7 +177,7 @@ class MainGameEventHandler(EventHandler):
 
         # if shift and period(>) is held traverse the stairs
         # for now only downwards but will also handle upwards
-        if key == tcod.event.K_PERIOD and modifier and tcod.event.Modifier.SHIFT:
+        if key == tcod.event.KeySym.PERIOD and modifier and tcod.event.Modifier.SHIFT:
             return actions.TakeStairsAction(player)
 
         # perform move action in a given direction
@@ -198,29 +198,29 @@ class MainGameEventHandler(EventHandler):
         elif key in WAIT_KEYS:
             action = WaitAction(player)
         # escape action, now raises SystemExit
-        elif key == tcod.event.K_ESCAPE:
+        elif key == tcod.event.KeySym.ESCAPE:
             raise SystemExit()
         # open message log history view
         # it also changes the event_handler so we can navigate it freeely
-        elif key == tcod.event.K_v:
+        elif key == tcod.event.KeySym.v:
             return HistoryViewer(self.engine)
         # pick items or other pickupable things off the game_maps "floor"
-        elif key == tcod.event.K_g:
+        elif key == tcod.event.KeySym.g:
             action = PickupAction(player)
         # open inventory to select item to use
-        elif key == tcod.event.K_i:
+        elif key == tcod.event.KeySym.i:
             return InventoryActivateHandler(self.engine)
         # open inventory to select item to drop
-        elif key == tcod.event.K_f:
+        elif key == tcod.event.KeySym.f:
             return InventoryDropHandler(self.engine)
         # open character sheet pop-up
-        elif key == tcod.event.K_c:
+        elif key == tcod.event.KeySym.c:
             return CharacterScreenEventHandler(self.engine)
         # lets user "look around" to gain information on the entities in fov
         # without having to interact with them
-        elif key == tcod.event.K_SLASH:
+        elif key == tcod.event.KeySym.SLASH:
             return LookHandler(self.engine)
-        elif key == tcod.event.K_z:
+        elif key == tcod.event.KeySym.z:
             self.engine.game_map.visibility = not self.engine.game_map.visibility
             print(f'vis: {self.engine.game_map.visibility}')
 
@@ -237,7 +237,7 @@ class GameOverEventHandler(EventHandler):
         self.on_quit()
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        if event.sym == tcod.event.K_ESCAPE:
+        if event.sym == tcod.event.KeySym.ESCAPE:
             self.on_quit()
         return None
 
@@ -248,10 +248,10 @@ class HistoryViewer(EventHandler):
         self.log_length = len(engine.message_log.messages)
         self.cursor = self.log_length - 1
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         super().on_render(console) # main state as the background
 
-        log_console = tcod.Console(console.width - 6, console.height - 6)
+        log_console = tcod.console.Console(console.width - 6, console.height - 6)
 
         # draw frame with custom banner
         log_console.draw_frame(0, 0, log_console.width, log_console.height)
@@ -282,9 +282,9 @@ class HistoryViewer(EventHandler):
             else:
                 # otherwise move while staying clamped to the bounds of log
                 self.cursor = max(0, min(self.cursor + adjust, self.log_length - 1))
-        elif event.sym == tcod.event.K_HOME:
+        elif event.sym == tcod.event.KeySym.HOME:
             self.cursor = 0 # on HOME go back to the top | first message
-        elif event.sym == tcod.event.K_END:
+        elif event.sym == tcod.event.KeySym.END:
             self.cursor = self.log_length # on END go to the bottom | last message
         else: # on any other action go back to main game state
             return MainGameEventHandler(self.engine)
@@ -296,12 +296,12 @@ class AskUserEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionHandler]:
         # by default any key exits this handler
         if event.sym in {
-            tcod.event.K_LSHIFT,
-            tcod.event.K_RSHIFT,
-            tcod.event.K_LCTRL,
-            tcod.event.K_RCTRL,
-            tcod.event.K_LALT,
-            tcod.event.K_RALT,
+            tcod.event.KeySym.LSHIFT,
+            tcod.event.KeySym.RSHIFT,
+            tcod.event.KeySym.LCTRL,
+            tcod.event.KeySym.RCTRL,
+            tcod.event.KeySym.LALT,
+            tcod.event.KeySym.RALT,
         }:
             return None
         return self.on_exit()
@@ -320,7 +320,7 @@ class AskUserEventHandler(EventHandler):
 class CharacterScreenEventHandler(AskUserEventHandler):
     TITLE = "Character sheet"
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         super().on_render(console)
 
         if self.engine.player.x <= 30:
@@ -373,7 +373,7 @@ class CharacterScreenEventHandler(AskUserEventHandler):
 class LevelUpEventHandler(AskUserEventHandler):
     TITLE = "Level up"
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         super().on_render(console)
 
         if self.engine.player.x <= 30:
@@ -414,7 +414,7 @@ class LevelUpEventHandler(AskUserEventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionHandler]:
         player = self.engine.player
         key = event.sym
-        index = key - tcod.event.K_a
+        index = key - tcod.event.KeySym.a
 
         if 0 <= index <= 2:
             if index == 0:
@@ -439,7 +439,7 @@ class InventoryEventHandler(AskUserEventHandler):
 
     TITLE = "<missing title>"
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         # render inventory menu, with items in inventory and letter to select them
         # moves to different position based on where the player is located,
         # so player can see where he is
@@ -489,7 +489,7 @@ class InventoryEventHandler(AskUserEventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionHandler]:
         player = self.engine.player
         key = event.sym
-        index = key - tcod.event.K_a
+        index = key - tcod.event.KeySym.a
 
         if 0 <= index <= 26:
             try:
@@ -533,7 +533,7 @@ class SelectIndexHandler(AskUserEventHandler):
         player = self.engine.player
         engine.mouse_location = player.x, player.y
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         # highlights tile under cursor
         super().on_render(console)
         x, y = self.engine.mouse_location
@@ -611,7 +611,7 @@ class AreaRangedAttackHandler(SelectIndexHandler):
         self.radius = radius
         self.callback = callback
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         # highlight the tile under the cursor
         super().on_render(console)
 
