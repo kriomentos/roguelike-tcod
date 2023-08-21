@@ -109,6 +109,10 @@ class TakeStairsAction(Action):
         else:
             raise exceptions.Impossible('There are no stairs here')
 
+class SkipStairs(Action):
+    def perform(self) -> None:
+        self.engine.game_world.go_downstairs()
+
 class ActionWithDirection(Action):
     def __init__(self, entity: Actor, dx: int, dy: int):
         super().__init__(entity)

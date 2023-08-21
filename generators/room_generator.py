@@ -1,21 +1,12 @@
-'''
-In it's current stae it doesn't
-requires rewrite of Bresenham line tunnel creator
-generation method, placing entities and passing arguments
-'''
 from __future__ import annotations
-import random
-from typing import Iterator, List, Tuple
+
+from typing import List, Tuple
 from game_map import GameMap
 import tile_types
-import tcod
 
+from numpy.random import Generator 
 
-TILE_MAPPING = {
-    0: '#',
-    1: '.',
-    2: '@'
-}
+from helpers.diggers import tunnel_between, drunken_walk
 
 class RectangularRoom:
     def __init__(self, x: int, y: int, width: int, height: int):
@@ -23,6 +14,8 @@ class RectangularRoom:
         self.y1 = y
         self.x2 = x + width
         self.y2 = y + height
+        self.height = height
+        self.width = width
 
     @property
     def center(self) -> Tuple[int, int]:
@@ -44,91 +37,75 @@ class RectangularRoom:
             and self.y2 >= other.y1
         )
 
-def tunnel_between(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
-    # return L shaped tunnel between two points
-    x1, y1 = start
-    x2, y2 = end
+def room_digout(room: RectangularRoom, dungeon: GameMap):
+    # surrounding walls
+    dungeon.tiles[[room.x1, room.x2], room.y1:room.y2 + 1] = tile_types.wall
+    dungeon.tiles[room.x1:room.x2 + 1, [room.y1, room.y2]] = tile_types.wall
+    # inside of the room
+    dungeon.tiles[room.inner] = tile_types.floor
 
-    if random.random() < 0.5:
-        # go horizontal, then vertical
-        corner_x, corner_y = x2, y1
-    else:
-        # go vertical, then horizontal
-        corner_x, corner_y = x1, y2
+def create_room(min_size: int, max_size: int, dungeon: GameMap, rand_generator: Generator):
+    room_w, room_h = rand_generator.integers(min_size, max_size), rand_generator.integers(min_size, max_size)
+    x, y = rand_generator.integers(0, dungeon.width - room_w - 1), rand_generator.integers(0, dungeon.height - room_h - 1)
 
-    for x, y in tcod.los.bresenham((x1, y1), (corner_x, corner_y)).tolist():
-        yield x, y
-    for x, y in tcod.los.bresenham((corner_x, corner_y), (x2, y2)).tolist():
-        yield x, y
+    if x < 0 or y > dungeon.width or room_w < 0 or room_h > dungeon.height:
+        print(f'Out of bounds corners, retry')
+        create_room(min_size, max_size, dungeon, rand_generator)
 
-# def neighbour(node):
-#     dirs = [[1, 0], [0, 1], [-1, 0], [0, -1]]
-#     result = []
-#     for dir in dirs:
-#         neighbor = [node[0].center + dir[1], node[1].center + dir[1]]
-#         if neighbor in rooms:
-#             result.append(neighbor)
-#     return result
+    room = RectangularRoom(x, y, room_w, room_h)
 
-def generate_dungeon(
+    return room
+
+def generate_rooms(
+    dungeon: GameMap,
     max_rooms: int,
     room_min_size: int,
     room_max_size: int,
-    map_width: int,
-    map_height: int,
+    rand_generator: Generator,
 ) -> GameMap:
-
-    dungeon = GameMap(map_width, map_height)
-
     rooms: List[RectangularRoom] = []
 
-    for r in range(max_rooms):
-        room_width = random.randint(room_min_size, room_max_size)
-        room_height = random.randint(room_min_size, room_max_size)
+    new_room = create_room(room_min_size, room_max_size, dungeon, rand_generator)
 
-        x = random.randint(0, dungeon.width - room_width - 1)
-        y = random.randint(0, dungeon.height - room_height - 1)
+    # # make sure the new room doesn't go out of bounds of the GameMap
+    # if new_room.x1 < 0 or new_room.x2 > dungeon.width or new_room.y1 < 0 or new_room.y2 > dungeon.height:
+    #     new_room = create_room(room_min_size, room_max_size, dungeon)
 
-        new_room = RectangularRoom(x, y, room_width, room_height)
+    room_digout(new_room, dungeon)
+
+    (player_x, player_y) = new_room.center
+    dungeon.engine.player.place(player_x, player_y, dungeon)
+
+    rooms.append(new_room)
+
+    # add new rooms adjacent to previous ones, up to max_rooms
+    for _ in range(max_rooms):
+        prev_room = rooms[-1]
+        # direction = nprng.choice(["n", "s", "e", "w"])
+        # if direction == "n":
+        #     x = nprng.integers(prev_room.x1, prev_room.x2)
+        #     y = prev_room.y1 - new_room.height
+        # elif direction == "s":
+        #     x = nprng.integers(prev_room.x1, prev_room.x2)
+        #     y = prev_room.y2
+        # elif direction == "e":
+        #     x = prev_room.x2
+        #     y = nprng.integers(prev_room.y1, prev_room.y2)
+        # elif direction == "w":
+        #     x = prev_room.x1 - new_room.width
+        #     y = nprng.integers(prev_room.y1, prev_room.y2)
+
+        new_room = create_room(room_min_size, room_max_size, dungeon, rand_generator)
 
         if any(new_room.intersects(other_room) for other_room in rooms):
-            continue # intersects go next room
-        # if not then room is valid
+            print(f'rooms intersecting')
+            continue
+        
+        room_digout(new_room, dungeon)
 
-        # dig out the room
-        dungeon.tiles[new_room.inner] = tile_types.floor
+        for x, y in tunnel_between(prev_room.center, new_room.center, rand_generator):
+            dungeon.tiles[x, y] = tile_types.floor
 
-        if len(rooms) == 0:
-            # spawn player in first room
-            pass
-        else:
-            # dig out tunnels for the current room and the previous one, we don't do it for first, as it has no room previous to it
-            for x, y in tunnel_between(rooms[-1].center, new_room.center):
-                dungeon.tiles[x, y] = tile_types.floor
-
-        # we add the new room to our list of rooms
         rooms.append(new_room)
 
-        # hacked way of placing player glyph just for graphic representation
-        dungeon.tiles[rooms[0].center] = tile_types.placeholder
-
-        # print(rooms.type())
     return dungeon
-
-def print_map(map):
-    print('\n'.join(
-        ((' '.join((TILE_MAPPING[cell] for cell in row))) for row in map.tiles['value'])
-    ))
-
-if __name__ == '__main__':
-    player = 2
-    map = generate_dungeon(
-        30, # max rooms
-        6, # min room size
-        10, # max room size
-        45, # height
-        80  # width
-    )
-    start = (20, 25)
-    # parents = breadth_first()
-    print_map(map)

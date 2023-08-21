@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from random import randint
 from components.ai import Dummy, GreedyEnemy, SimpleHostileEnemy
 from components.fighter import Fighter

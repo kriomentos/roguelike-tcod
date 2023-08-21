@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Iterable, List, Reversible, Tuple
 import textwrap
 

@@ -160,8 +160,8 @@ class EventHandler(BaseEventHandler):
         return True
 
     def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
-        if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
-            self.engine.mouse_location = event.tile.x, event.tile.y
+        # if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
+        self.engine.mouse_location = event.tile.x, event.tile.y
 
     def on_render(self, console: tcod.console.Console) -> None:
         self.engine.render(console)
@@ -223,6 +223,12 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.KeySym.z:
             self.engine.game_map.visibility = not self.engine.game_map.visibility
             print(f'vis: {self.engine.game_map.visibility}')
+        elif key == tcod.event.K_x:
+            print(f"Skipping to the next level...")
+            return actions.SkipStairs(player)
+        elif key == tcod.event.K_a:
+            for entity in set(self.engine.game_map.actors) - {player}:
+                entity.fighter.die()
 
         return action
 
