@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from random import randrange, seed
 from scipy import signal #type: ignore
 from scipy.ndimage import label, generate_binary_structure # type: ignore

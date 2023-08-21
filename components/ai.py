@@ -110,7 +110,7 @@ class GreedyEnemy(BaseAI):
                     self.entity, dest_x - self.entity.x, dest_y - self.entity.y
                 ).perform()
             else:
-                f'sumthin aint right'
+                print(f'sumthin aint right')
 
         # if there is no target to path to, goblin will wander around randomly
         # also can bump into entites attacking them
