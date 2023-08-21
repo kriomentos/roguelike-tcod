@@ -8,7 +8,9 @@ import tile_types
 
 from helpers.diggers import tunnel_between
 
-def connect_regions(dungeon: GameMap):
+from numpy.random import Generator
+
+def connect_regions(dungeon: GameMap, rand_generator: Generator):
     # We can identify the different regions of the dungeon by flood-filling the floor tiles
     regions = get_regions(dungeon.tiles["walkable"])
 
@@ -21,7 +23,7 @@ def connect_regions(dungeon: GameMap):
     closest_points = get_closest_points_between_regions(regions)
     for pair in closest_points:
         print(f'pair is a: {pair[0]} and b: {pair[1]}')
-        for x, y in tunnel_between(pair[0], pair[1]):
+        for x, y in tunnel_between(pair[0], pair[1], rand_generator):
             dungeon.tiles[x, y] = tile_types.floor
         closest_points.pop(0)
     # center_point = (40, 20)
