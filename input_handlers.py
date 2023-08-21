@@ -223,6 +223,9 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_z:
             self.engine.game_map.visibility = not self.engine.game_map.visibility
             print(f'vis: {self.engine.game_map.visibility}')
+        elif key == tcod.event.K_x:
+            print(f"Skipping to the next level...")
+            return actions.SkipStairs(player)
 
         return action
 
