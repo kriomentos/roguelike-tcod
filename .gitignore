@@ -16,3 +16,4 @@ profiling/
 .venv
 *.prof
 .vscode
+.mypy_cache
