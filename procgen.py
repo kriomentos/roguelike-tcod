@@ -178,13 +178,13 @@ def generate_dungeon(
     # j = nprng.integers(len(x))
     # player.place(x[j], y[j], dungeon)
 
-    for _ in range(1):
-        generate_rooms(dungeon, 10, 4, 10, nprng)
+    # for _ in range(1):
+    #     generate_rooms(dungeon, 10, 4, 10, nprng)
 
     connect_regions(dungeon, nprng)
 
-    for _ in range(1):
-        cellular_automata(dungeon, 6, wall_count)
+    # for _ in range(1):
+    #     cellular_automata(dungeon, 6, wall_count)
 
     place_entities(dungeon, engine.game_world.current_floor)
 

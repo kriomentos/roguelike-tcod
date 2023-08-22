@@ -16,26 +16,6 @@ def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
         handler.engine.save_as(filename)
         print('Game saved')
 
-def generate_rex_file(console: tcod.console.Console):
-    CP437_TO_UNICODE = np.asarray(tcod.tileset.CHARMAP_CP437)
-
-    # Initialize a Unicode-to-CP437 array.
-    # 0x20000 is the current full range of Unicode.
-    # fill_value=ord("?") means that "?" will be the result of any unknown codepoint.
-    UNICODE_TO_CP437 = np.full(0x20000, fill_value=ord("?"))
-    # Assign the CP437 mappings.
-    UNICODE_TO_CP437[CP437_TO_UNICODE] = np.arange(len(CP437_TO_UNICODE))
-
-    # Convert from Unicode to CP437 in-place.
-    console.ch[:] = UNICODE_TO_CP437[console.ch]
-
-    # Convert console alpha into REXPaint's alpha key color.
-    KEY_COLOR = (255, 0, 255)
-    is_transparent = console.rgba["bg"][:, :, 3] == 0
-    console.rgb["bg"][is_transparent] = KEY_COLOR
-
-    tcod.console.save_xp("example.xp", [console])
-
 def main() -> None:
     screen_width = 80
     screen_height = 50
@@ -79,7 +59,6 @@ def main() -> None:
 
         except SystemExit: # Save and quit
             save_game(handler, 'save_game.sav')
-            generate_rex_file(root_console)
 
         except BaseException: # save on any other unexpected exception
             traceback.print_exc()
