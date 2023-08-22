@@ -9,6 +9,8 @@ runstats.file
 Tests/
 saves/
 dist/
+build/
+*.spec
 main.exe
 main/
 main.spec
