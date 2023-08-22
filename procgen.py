@@ -14,11 +14,13 @@ from helpers.rng import nprng
 from helpers.region_connection import connect_regions
 
 from generators.cellular_automata import cellular_automata
-from generators.room_generatorv2 import generate_rooms
+from generators.room_generator import generate_rooms
 
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
+
+map_nprng = nprng.spawn(1)
 
 # tuples that contain information (floor number, maximum amount of entity type)
 # used for generating amount of said entities based on current floor level
@@ -160,7 +162,7 @@ def generate_dungeon(
     wall_count = GameMap(engine, map_width, map_height)
 
     # dang fast way of filling map randomly
-    dungeon.tiles = np.where(nprng.integers(0, 100, (map_height, map_width)).T > initial_open,
+    dungeon.tiles = np.where(map_nprng[0].integers(0, 100, (map_height, map_width)).T > initial_open,
         tile_types.floor, tile_types.wall
     )
 
@@ -172,17 +174,17 @@ def generate_dungeon(
     for _ in range(convolve_steps):
         cellular_automata(dungeon, 4, wall_count)
 
-    x, y = np.where(dungeon.tiles["walkable"])
-    j = nprng.integers(len(x))
-    player.place(x[j], y[j], dungeon)
+    # x, y = np.where(dungeon.tiles["walkable"])
+    # j = nprng.integers(len(x))
+    # player.place(x[j], y[j], dungeon)
 
     for _ in range(1):
-        generate_rooms(dungeon, 10, 4, 10)
+        generate_rooms(dungeon, 10, 4, 10, nprng)
 
-    # connect_regions(dungeon)
+    connect_regions(dungeon, nprng)
 
-    # for _ in range(2):
-    #     cellular_automata(dungeon, 4, wall_count)
+    for _ in range(1):
+        cellular_automata(dungeon, 5, wall_count)
 
     place_entities(dungeon, engine.game_world.current_floor)
 

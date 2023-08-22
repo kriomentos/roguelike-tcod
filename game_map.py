@@ -113,7 +113,7 @@ class GameMap:
         # can be toggled to show every tile or only ones seen by player
         if self.visibility == True:
             # display whole map without FOV function
-            console.tiles_rgb[0 : self.width, 0 : self.height] = self.tiles['light']
+            console.rgb[0 : self.width, 0 : self.height] = self.tiles['light']
         else:
             console.rgb[0:self.engine.game_world.viewport_width, 0:self.engine.game_world.viewport_height] = np.select(
                 (viewport_visible, viewport_explored),
