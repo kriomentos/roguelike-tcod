@@ -25,8 +25,9 @@ def connect_regions(dungeon: GameMap, rand_generator: Generator):
         print(f'pair is a: {pair[0]} and b: {pair[1]}')
         for x, y in tunnel_between(pair[0], pair[1], rand_generator):
             dungeon.tiles[x, y] = tile_types.floor
+            dungeon.tiles[x + 1, y + 1] = tile_types.floor
         closest_points.pop(0)
-    # center_point = (40, 20)
+    # center_point = (40, 20)n
     # points = get_center_points(regions)
     # for _ in points:
     #     print(f'going from: {points[0]} to: {center_point}')
