@@ -8,6 +8,7 @@ There will definitely be bad code practices and a lot of experimenting.
 ## TODOs | IDEAS
 
 - Joining lone rooms in cave generator
+  - This does work currently, but requires work on smoothing artefacts created after the join, also it's slow
 - Another generator for dungeons Rogue style
   - Rework room connecting method
   - Add generators for features
@@ -17,20 +18,25 @@ There will definitely be bad code practices and a lot of experimenting.
 - Improve handling of non-hostile entities
   - Separate them into their own group of Objects
 - Stats system (more complicated one)
-- Saving and loading
 - Interface (barebones for now)
-- Inventory and items (added to player)
-  - Add inventory to enemies with drops on death
 - Overworld map with points for caves/dungeons
 - More AI types
 - Graphical tiles
 - Configurable settings and graphics
 
+- Dragon type enemy, possibly with multi-tile entity handling added
+- End goal
+- Rebalance monsters, items and level scaling
+- Add eco-systems for enemies (goblins and orcs hate themselves etc.)
+- Expand on the races already existing (more types, like shamans that heal, rangers etc.)
+- Add classes (this one will require the more sophisticated stats system)
+
 ## Requirements
 
 - Python 3.7+
-- tcod 13.6.2
-- scipy 1.8.0
+- tcod 16.1+
+- scipy 1.11+
+- numpy 1.25+
 
 ## Running
 
