@@ -12,7 +12,7 @@ import color
 
 'PLAYER AND NON HOSTILE ACTORS'
 player = Actor(
-    char = '@', # string for visual representation on game map. Most ASCII symbols
+    char = chr(0x263A), # string for visual representation on game map. Most ASCII symbols
     color = color.anb_white, # color of string representation format RGB(R, G, B)
     name = 'Player', # name displayed when taking actions/interacting
     ai_cls = SimpleHostileEnemy, # type of AI to use, player doesn't need it but it must be specified for all Actors

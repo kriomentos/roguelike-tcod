@@ -86,14 +86,14 @@ MainGameEventHandler will become the active handler.
 
 class BaseEventHandler(tcod.event.EventDispatch[ActionHandler]):
     def handle_events(self, event: tcod.event.Event) -> BaseEventHandler:
-        '''handle event and return nex active event handler'''
+        '''handle event and return next active event handler'''
         state = self.dispatch(event)
         if isinstance(state, BaseEventHandler):
             return state
         assert not isinstance(state, Action), f"{self!r} can not handle actions"
         return self
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, console: tcod.console.Console) -> None:
         raise NotImplementedError()
 
     def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
@@ -223,10 +223,10 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.KeySym.z:
             self.engine.game_map.visibility = not self.engine.game_map.visibility
             print(f'vis: {self.engine.game_map.visibility}')
-        elif key == tcod.event.K_x:
+        elif key == tcod.event.KeySym.x:
             print(f"Skipping to the next level...")
             return actions.SkipStairs(player)
-        elif key == tcod.event.K_a:
+        elif key == tcod.event.KeySym.a:
             for entity in set(self.engine.game_map.actors) - {player}:
                 entity.fighter.die()
 
