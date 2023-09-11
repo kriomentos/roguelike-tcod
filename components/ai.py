@@ -82,6 +82,8 @@ class SpellCastingEnemy(BaseAI):
     def __init__(self, entity: Actor) -> None:
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = []
+        self.spell_damage = 1
+        self.spell_uses = 3
     
     def perform(self) -> None:
         target = self.engine.player
@@ -93,14 +95,19 @@ class SpellCastingEnemy(BaseAI):
         if self.engine.game_map.visible[self.entity.x, self.entity.y]:
             if distance <= 1:
                 return MeleeAction(self.entity, dx, dy).perform()
-            elif distance > 1 & distance < 7: 
-                return RangedAction(self.entity, dx, dy).perform()
+            elif distance > 1 & distance < 4 & self.spell_uses > 0:
+                self.engine.message_log.add_message(
+                    f'{self.entity.name} hurls projectile at {target.name} for {self.spell_damage} damage'
+                )
+                target.fighter.take_damage(self.spell_damage)
+                self.spell_uses -= 1
+                # return RangedAction(self.entity, dx, dy).perform()
             else:
-                return WaitAction(self.entity).perform()
+                self.path = self.get_path_to(target.x, target.y)
 
         if self.path:
             dest_x, dest_y = self.path.pop(0)
-            return MovementAction(self.entity, dest_x - self.entity.x, dest_y - self.entity.y).perform()
+            return MovementAction(self.entity, dest_x + self.entity.x, dest_y + self.entity.y).perform()
 
 class GreedyEnemy(BaseAI):
     def __init__(self, entity: Actor):
