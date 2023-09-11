@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from random import randint
-from components.ai import Dummy, GreedyEnemy, SimpleHostileEnemy
+from components.ai import Dummy, GreedyEnemy, SimpleHostileEnemy, SpellCastingEnemy
 from components.fighter import Fighter
 from components.equipment import Equipment
 from components import consumable, equippable
@@ -23,6 +23,16 @@ player = Actor(
 )
 
 'AI HOSTILE ACTORS'
+caster = Actor(
+    char = 'c',
+    color = color.anb_pink, # (63, 127, 63),
+    name = 'Caster',
+    ai_cls = SpellCastingEnemy,
+    equipment = Equipment(),
+    fighter = Fighter(hp = 10, base_defense = 0, base_power = 3),
+    inventory = Inventory(capacity = 0),
+    level = Level(xp_given = 30),
+)
 orc = Actor(
     char = 'o',
     color = color.anb_light_green, # (63, 127, 63),

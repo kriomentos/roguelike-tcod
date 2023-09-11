@@ -171,17 +171,7 @@ class MeleeAction(ActionWithDirection):
                 f'{attack_desc} but does no damage.', attack_color
             ) # or not if the enemy power is too lowe
 
-class RangedAction(Action):
-    def __init__(self, entity: Actor, dx: int, dy: int):
-        super().__init__(entity)
-
-        self.dx = dx
-        self.dy = dy
-
-    @property
-    def target_actor(self) -> Optional[Actor]:
-        return self.engine.game_map.get_actor_at_location(self.dx, self.dy)
-
+class RangedAction(ActionWithDirection):
     def perform(self) -> None:
         target = self.target_actor
 
