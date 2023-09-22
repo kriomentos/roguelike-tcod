@@ -57,9 +57,9 @@ item_chances: Dict[int, List[Tuple[Entity, int]]] = {
 }
 
 enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
-    0: [(entity_factories.orc, 80),
-        (entity_factories.caster, 100)],
-    3: [(entity_factories.troll, 15)],
+    0: [(entity_factories.orc, 180),
+        (entity_factories.caster, 180)],
+    3: [(entity_factories.troll, 50)],
     5: [(entity_factories.troll, 30)],
     7: [(entity_factories.orc, 25),
         (entity_factories.troll, 45)],
@@ -179,14 +179,14 @@ def generate_dungeon(
     j = nprng.integers(len(x))
     player.place(x[j], y[j], dungeon)
 
-    for _ in range(1):
-        generate_rooms(dungeon, 10, 4, 10, nprng)
+    # for _ in range(1):
+    #     generate_rooms(dungeon, 10, 4, 10, nprng)
 
-    connect_regions(dungeon, nprng)
+    # connect_regions(dungeon, nprng)
 
-    for _ in range(1):
-        cellular_automata(dungeon, 6, wall_count)
-        cellular_automata(dungeon, 5, wall_count)
+    # for _ in range(1):
+    #     cellular_automata(dungeon, 6, wall_count)
+    #     cellular_automata(dungeon, 5, wall_count)
 
     place_entities(dungeon, engine.game_world.current_floor)
 

@@ -9,5 +9,7 @@ for ch in base_seed:
 
 seed = randrange(maxsize)
 print(f'Seed was: {seed}')
+with open('seeds.txt', 'a') as file:
+    file.write(str(seed))
 
 nprng = random.default_rng(seed)
