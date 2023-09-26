@@ -44,13 +44,31 @@ class BaseAI(Action):
 
         # convert from List[List] to List[Tuple]
         return [(index[0], index[1]) for index in path]
+    
+    def wander_around(self):
+        # if there is no target to path to, entity will wander around randomly
+        # also can bump into entites attacking them
+        direction_x, direction_y = random.choice(
+            [
+                (-1, -1), # northwest
+                (0, -1), # north
+                (1, -1), # northeast
+                (-1, 0), # west
+                (1, 0), # east
+                (-1, 1), # southwest
+                (0, 1), # south
+                (1, 1), # southeast
+            ]
+        )
 
+        return BumpAction(self.entity, direction_x, direction_y).perform()
+    
 class Dummy(BaseAI):
     def __init__(self, entity: Actor) -> None:
         super().__init__(entity)
 
     def perform(self) -> None:
-        return
+        return WaitAction(self.entity).perform()
 
 class SimpleHostileEnemy(BaseAI):
     def __init__(self, entity: Actor):
@@ -76,6 +94,8 @@ class SimpleHostileEnemy(BaseAI):
                 self.entity, dest_x - self.entity.x, dest_y - self.entity.y
             ).perform()
 
+        self.wander_around()
+
         return WaitAction(self.entity).perform()
 
 class SpellCastingEnemy(BaseAI):
@@ -93,9 +113,9 @@ class SpellCastingEnemy(BaseAI):
         distance = max(abs(dx), abs(dy))
 
         if self.engine.game_map.visible[self.entity.x, self.entity.y]:
-            if distance <= 1:
+            if distance == 1:
                 return MeleeAction(self.entity, dx, dy).perform()
-            elif distance > 1 or distance < 4 and self.spell_uses > 0:
+            elif distance > 1 and distance < 4 and self.spell_uses > 0:
                 self.engine.message_log.add_message(
                     f'{self.entity.name} hurls projectile at {target.name} for {self.spell_damage} damage'
                 )
@@ -136,7 +156,9 @@ class GreedyEnemy(BaseAI):
                 self.path = self.get_path_to(target.x, target.y)
             elif distance > 10:
                 target = next(self.engine.game_map.items, None)
-                break
+            else:
+                print(f'nothing to target')
+                self.wander_around()
                 
 
             if self.path:
@@ -145,27 +167,9 @@ class GreedyEnemy(BaseAI):
                     self.entity, dest_x - self.entity.x, dest_y - self.entity.y
                 ).perform()
             else:
-                print(f'sumthin aint right')
+                self.wander_around()
 
-        # if there is no target to path to, goblin will wander around randomly
-        # also can bump into entites attacking them
-        else:
-            direction_x, direction_y = random.choice(
-                [
-                    (-1, -1), # northwest
-                    (0, -1), # north
-                    (1, -1), # northeast
-                    (-1, 0), # west
-                    (1, 0), # east
-                    (-1, 1), # southwest
-                    (0, 1), # south
-                    (1, 1), # southeast
-                ]
-            )
-
-            return BumpAction(self.entity, direction_x, direction_y).perform()
-
-        return WaitAction(self.entity).perform()
+        self.wander_around()
 
 class ConfusedEnemy(BaseAI):
     # confused actor will stumble around for given number of turns, then return to normal
