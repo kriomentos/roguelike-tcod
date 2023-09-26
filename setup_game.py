@@ -26,7 +26,7 @@ def new_game() -> Engine:
 
     init_open = 49
 
-    convolve_steps = 6
+    cellulara_repeats = 7
 
     player = copy.deepcopy(entity_factories.player)
 
@@ -39,7 +39,7 @@ def new_game() -> Engine:
         map_width = map_width,
         map_height = map_height,
         initial_open = init_open,
-        convolve_steps = convolve_steps,
+        cellulara_repeats = cellulara_repeats,
     )
 
     engine.game_world.generate_floor()

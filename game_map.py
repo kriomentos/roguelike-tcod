@@ -151,7 +151,7 @@ class GameWorld:
         map_width: int,
         map_height: int,
         initial_open: int,
-        convolve_steps: int,
+        cellulara_repeats: int,
         current_floor: int = 0,
         maps_list: dict = {},
     ):
@@ -163,7 +163,7 @@ class GameWorld:
         self.map_width = map_width
         self.map_height = map_height
         self.initial_open = initial_open
-        self.convolve_steps = convolve_steps
+        self.cellulara_repeats = cellulara_repeats
 
         self.current_floor = current_floor
         self.maps_list = maps_list
@@ -188,7 +188,7 @@ class GameWorld:
             map_width = self.map_width,
             map_height = self.map_height,
             initial_open = self.initial_open,
-            convolve_steps = self.convolve_steps,
+            cellulara_repeats = self.cellulara_repeats,
             engine = self.engine,
         )
 

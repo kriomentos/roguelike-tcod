@@ -59,6 +59,7 @@ item_chances: Dict[int, List[Tuple[Entity, int]]] = {
 enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
     0: [(entity_factories.orc, 180),
         (entity_factories.caster, 180)],
+    1: [(entity_factories.dummy, 200)],
     3: [(entity_factories.troll, 50)],
     5: [(entity_factories.troll, 30)],
     7: [(entity_factories.orc, 25),
@@ -153,7 +154,7 @@ def generate_dungeon(
     map_width: int,
     map_height: int,
     initial_open: int,
-    convolve_steps: int,
+    cellulara_repeats: int,
     engine: Engine,
 ) -> GameMap:
     # Generate a new dungeon map.
@@ -167,27 +168,31 @@ def generate_dungeon(
         tile_types.floor, tile_types.wall
     )
 
-    # ensures surrounding wall
     dungeon.tiles[[0, -1], :] = tile_types.wall
     dungeon.tiles[:, [0, -1]] = tile_types.wall
 
     # we go through the map and simulate cellular automata rules using convolve values
-    for _ in range(convolve_steps):
+    for _ in range(cellulara_repeats):
         cellular_automata(dungeon, 4, wall_count)
-
-    x, y = np.where(dungeon.tiles["walkable"])
-    j = nprng.integers(len(x))
-    player.place(x[j], y[j], dungeon)
 
     # for _ in range(1):
     #     generate_rooms(dungeon, 10, 4, 10, nprng)
 
-    # connect_regions(dungeon, nprng)
+    connect_regions(dungeon, nprng)
 
-    # for _ in range(1):
-    #     cellular_automata(dungeon, 6, wall_count)
-    #     cellular_automata(dungeon, 5, wall_count)
+    for _ in range(2):
+        cellular_automata(dungeon, 6, wall_count)
+        cellular_automata(dungeon, 5, wall_count)
+    
+    # ensures surrounding wall
+    dungeon.tiles[[0, -1], :] = tile_types.wall
+    dungeon.tiles[:, [0, -1]] = tile_types.wall
 
+    # place entities and player on empty non occupied walkable tiles
     place_entities(dungeon, engine.game_world.current_floor)
+
+    x, y = np.where(dungeon.tiles["walkable"])
+    j = nprng.integers(len(x))
+    player.place(x[j], y[j], dungeon)
 
     return dungeon
