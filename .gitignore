@@ -19,3 +19,4 @@ profiling/
 *.prof
 .vscode
 .mypy_cache
+seeds.txt
