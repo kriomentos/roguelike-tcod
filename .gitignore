@@ -18,3 +18,4 @@ profiling/
 .vscode
 .mypy_cache
 *.txt
+!requirements.txt
