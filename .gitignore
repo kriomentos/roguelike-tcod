@@ -1,7 +1,5 @@
 __pycache__/
 *.pyc
-output.txt
-grid_output.txt
 Ideas, concepts/
 env/
 runstats.file
@@ -19,4 +17,4 @@ profiling/
 *.prof
 .vscode
 .mypy_cache
-seeds.txt
+*.txt
