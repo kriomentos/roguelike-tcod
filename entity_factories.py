@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from random import randint
-from components.ai import Dummy, GreedyEnemy, SimpleHostileEnemy, SpellCastingEnemy
+from components.ai import Dummy, GreedyEnemy, SimpleHostileEnemy, SpellCastingEnemy, MimicHostileEnemy
 from components.fighter import Fighter
 from components.equipment import Equipment
 from components import consumable, equippable
@@ -17,7 +17,7 @@ player = Actor(
     name = 'Player', # name displayed when taking actions/interacting
     ai_cls = SimpleHostileEnemy, # type of AI to use, player doesn't need it but it must be specified for all Actors
     equipment = Equipment(),
-    fighter = Fighter(hp = 1000, base_defense = 100, base_power = 100), # base statisics for Actor
+    fighter = Fighter(hp = 1000, base_defense = 100, base_power = 2), # base statisics for Actor
     inventory = Inventory(capacity = 26), # attach Inventory to actor with set size, size determiens how many items actor can carry
     level = Level(level_up_base = 200),
 )
@@ -84,16 +84,16 @@ goblin = Actor(
 # )
 
 # NON AI DESTROYABLE ACTORS
-# table = Actor(
-#     char = '+',
-#     color = color.anb_brown,
-#     name = 'Table',
-#     ai_cls = Dummy,
-#     equipment = Equipment(),
-#     fighter = Fighter(hp = 20, base_defense = 0, base_power = 0),
-#     inventory = Inventory(capacity = 0),
-#     level = Level(xp_given = 70),
-# )
+table = Actor(
+    char = '+',
+    color = color.anb_brown,
+    name = 'Table',
+    ai_cls = MimicHostileEnemy,
+    equipment = Equipment(),
+    fighter = Fighter(hp = 20, base_defense = 0, base_power = 0),
+    inventory = Inventory(capacity = 0),
+    level = Level(xp_given = 70),
+)
 
 'ITEMS'
 big_health_potion = Item(
