@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Set, Tuple
+from typing import List, Set, Tuple, cast
 import numpy as np
 
 from game_map import GameMap
@@ -77,10 +77,10 @@ def get_regions(walkable: np.ndarray) -> List[Set[Tuple[int, int]]]:
 def get_closest_points_between_regions(
     regions: List[Set[Tuple[int, int]]]
 ) -> List[Tuple[Tuple[int, int], Tuple[int, int]]]:
-    points = [
-        (list(region)[0], min(region, key=lambda p: distance_to_region(p, regions)))
-        for region in regions
-    ]
+    # compute the region centers to avoid unnecessary recalculations
+    region_centers = compute_region_centers(regions)
+    points = [(center, min(region_centers, key=lambda p: distance(center, p))) for center in region_centers]
+
     return [
         (p1, p2)
         for p1, p2, _ in sorted(
@@ -95,12 +95,13 @@ def get_closest_points_between_regions(
     ]
     # return [(p1, p2) for i, (p1, d1) in enumerate(points) for j, (p2, d2) in enumerate(points) if i < j and d1 == d2]
 
+def compute_region_centers(regions: List[Set[Tuple[int, int]]]) -> List[Tuple[int, int]]:
+    return cast(List[Tuple[int, int]], [tuple(map(lambda x: sum(x) // len(x), zip(*region))) for region in regions])
 
 def distance_to_region(
     point_1: Tuple[int, int], regions: List[Set[Tuple[int, int]]]
 ) -> float:
     return min(distance(point_1, q) for region in regions for q in region)
-
 
 def distance(point_1: Tuple[int, int], point_2: Tuple[int, int]) -> float:
     return (point_1[0] - point_2[0]) ** 2 + (point_1[1] - point_2[1]) ** 2
