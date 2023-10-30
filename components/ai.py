@@ -115,7 +115,7 @@ class SpellCastingEnemy(BaseAI):
         if self.engine.game_map.visible[self.entity.x, self.entity.y]:
             if distance == 1:
                 return MeleeAction(self.entity, dx, dy).perform()
-            elif distance > 1 and distance < 4 and self.spell_uses > 0:
+            elif 1 < distance < 4 and self.spell_uses > 0:
                 self.engine.message_log.add_message(
                     f'{self.entity.name} hurls projectile at {target.name} for {self.spell_damage} damage'
                 )

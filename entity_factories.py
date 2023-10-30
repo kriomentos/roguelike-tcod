@@ -175,19 +175,19 @@ chain_mail = Item(
     equippable = equippable.ChainMail()
 )
 power_ring = Item(
-    char = '*',
+    char = '°',
     color = color.anb_white,
     name = 'Ring of The Gorilla',
     equippable = equippable.PowerRing()
 )
 defense_ring = Item(
-    char = '*',
+    char = '°',
     color = color.anb_white,
     name = 'Ring of The Wall',
     equippable = equippable.DefenseRing()
 )
 omni_ring = Item(
-    char = '*',
+    char = '°',
     color = color.anb_white,
     name = 'Ring of Omni',
     equippable = equippable.OmniRing()
