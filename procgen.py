@@ -15,6 +15,7 @@ from helpers.region_connection import connect_regions
 
 from generators.cellular_automata import cellular_automata
 from generators.room_generator import generate_rooms
+from generators.decorators import add_grass_features, add_rubble_and_details, add_rock_features
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -186,6 +187,10 @@ def generate_dungeon(
         cellular_automata(dungeon, 6, wall_count)
         cellular_automata(dungeon, 5, wall_count)
     
+    add_grass_features(dungeon)
+    add_rubble_and_details(dungeon)
+    add_rock_features(dungeon)
+
     # ensures surrounding wall
     dungeon.tiles[[0, -1], :] = tile_types.wall
     dungeon.tiles[:, [0, -1]] = tile_types.wall

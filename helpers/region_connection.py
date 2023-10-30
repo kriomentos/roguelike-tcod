@@ -77,7 +77,7 @@ def get_regions(walkable: np.ndarray) -> List[Set[Tuple[int, int]]]:
 def get_closest_points_between_regions(
     regions: List[Set[Tuple[int, int]]]
 ) -> List[Tuple[Tuple[int, int], Tuple[int, int]]]:
-    # compute the region centers to avoid unnecessary recalculations
+    # pre compute the region centers to avoid unnecessary recalculations
     region_centers = compute_region_centers(regions)
     points = [(center, min(region_centers, key=lambda p: distance(center, p))) for center in region_centers]
 

@@ -82,3 +82,55 @@ up_stairs = new_tile(
     dark = (ord('<'), (color.light_grey), (color.dark_grey)),
     light = (ord('<'), (color.white), (color.grey))
 )
+
+loose_grass = new_tile(
+    value = 0,
+    walkable = True,
+    transparent = True,
+    dark = (ord('░'), (color.light_grey), (color.dark_grey)),
+    light = (ord('░'), (color.anb_light_green), (color.grey))
+)
+grass = new_tile(
+    value = 0,
+    walkable = True,
+    transparent = True,
+    dark = (ord('▒'), (color.light_grey), (color.dark_grey)),
+    light = (ord('▒'), (color.anb_green), (color.grey))
+)
+dense_grass = new_tile(
+    value = 0,
+    walkable = True,
+    transparent = True,
+    dark = (ord('▓'), (color.light_grey), (color.dark_grey)),
+    light = (ord('▓'), (color.anb_green), (color.grey))
+)
+
+loose_rubble = new_tile(
+    value = 0,
+    walkable = True,
+    transparent = True,
+    dark = (ord('░'), (color.light_grey), (color.dark_grey)),
+    light = (ord('░'), (color.light_grey), (color.grey))
+)
+rubble = new_tile(
+    value = 0,
+    walkable = True,
+    transparent = True,
+    dark = (ord('▒'), (color.light_grey), (color.dark_grey)),
+    light = (ord('▒'), (color.grey), (color.grey))
+)
+
+stalagmite = new_tile(
+    value = 0,
+    walkable = False,
+    transparent = False,
+    dark = (ord('▼'), (color.light_grey), (color.dark_grey)),
+    light = (ord('▼'), (color.light_grey), (color.grey))
+)
+stalactite = new_tile(
+    value = 0,
+    walkable = False,
+    transparent = False,
+    dark = (ord('▲'), (color.light_grey), (color.dark_grey)),
+    light = (ord('▲'), (color.light_grey), (color.grey))
+)
