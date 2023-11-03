@@ -8,7 +8,6 @@ import tcod
 import color
 
 from actions import Action, BumpAction, MeleeAction, MovementAction, PickupAction, WaitAction
-from components import inventory
 from entity import Actor
 
 if TYPE_CHECKING:

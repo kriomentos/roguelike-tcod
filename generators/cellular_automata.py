@@ -3,7 +3,6 @@ from __future__ import annotations
 from game_map import GameMap
 from scipy import signal # type: ignore
 from typing import Any
-import numpy as np
 import tile_types
 
 def cellular_automata(dungeon: GameMap, wall_rule: int, count: Any) -> GameMap:
