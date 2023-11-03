@@ -24,6 +24,7 @@ class BaseAI(Action):
     def get_path_to(self, dest_x: int, dest_y: int) -> List[Tuple[int, int]]:
         # calculates path to traget position or returns empty list if no valid path
         cost = np.array(self.entity.gamemap.tiles['walkable'], dtype = np.int8)
+        x, y = np.where(self.engine.game_map.tiles)
 
         for entity in self.entity.gamemap.entities:
             if entity.blocks_movement and cost[entity.x, entity.y]:
@@ -32,6 +33,10 @@ class BaseAI(Action):
                 # higher encites them to take longer paths to surround player
                 cost[entity.x, entity.y] += 10
 
+        for i in range(len(x)):
+            # if self.engine.game_map.tiles[x[i], y[i]]['walkable'] is True:
+            cost[x[i], y[i]] += self.engine.game_map.tiles[x[i], y[i]]['value']
+                
         # create graph from the cost array (flat weight for all but active entities)
         # pass it to pathfinder
         graph = tcod.path.SimpleGraph(cost = cost, cardinal = 2, diagonal = 3)

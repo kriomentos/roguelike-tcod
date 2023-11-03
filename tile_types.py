@@ -84,21 +84,21 @@ up_stairs = new_tile(
 )
 
 loose_grass = new_tile(
-    value = 0,
+    value = 1,
     walkable = True,
     transparent = True,
     dark = (ord('░'), (color.light_grey), (color.dark_grey)),
     light = (ord('░'), (color.anb_light_green), (color.grey))
 )
 grass = new_tile(
-    value = 0,
+    value = 2,
     walkable = True,
     transparent = True,
     dark = (ord('▒'), (color.light_grey), (color.dark_grey)),
     light = (ord('▒'), (color.anb_green), (color.grey))
 )
 dense_grass = new_tile(
-    value = 0,
+    value = 3,
     walkable = True,
     transparent = True,
     dark = (ord('▓'), (color.light_grey), (color.dark_grey)),
@@ -106,14 +106,14 @@ dense_grass = new_tile(
 )
 
 loose_rubble = new_tile(
-    value = 0,
+    value = 1,
     walkable = True,
     transparent = True,
     dark = (ord('░'), (color.light_grey), (color.dark_grey)),
     light = (ord('░'), (color.light_grey), (color.grey))
 )
 rubble = new_tile(
-    value = 0,
+    value = 2,
     walkable = True,
     transparent = True,
     dark = (ord('▒'), (color.light_grey), (color.dark_grey)),

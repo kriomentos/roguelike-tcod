@@ -199,6 +199,8 @@ def generate_dungeon(
     place_entities(dungeon, engine.game_world.current_floor)
 
     x, y = np.where(dungeon.tiles["walkable"])
+    print(f'x, y: {x[0], y[0]}')
+    dungeon.tiles[x[0], y[0]] = tile_types.placeholder
     j = nprng.integers(len(x))
     player.place(x[j], y[j], dungeon)
 
