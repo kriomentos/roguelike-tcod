@@ -8,7 +8,6 @@ import tcod
 import color
 
 from actions import Action, BumpAction, MeleeAction, MovementAction, PickupAction, WaitAction
-from components import inventory
 from entity import Actor
 
 if TYPE_CHECKING:
@@ -24,7 +23,7 @@ class BaseAI(Action):
     def get_path_to(self, dest_x: int, dest_y: int) -> List[Tuple[int, int]]:
         # calculates path to traget position or returns empty list if no valid path
         cost = np.array(self.entity.gamemap.tiles['walkable'], dtype = np.int8)
-        x, y = np.where(self.engine.game_map.tiles)
+        x, y = np.where(self.engine.game_map.tiles['walkable'])
 
         for entity in self.entity.gamemap.entities:
             if entity.blocks_movement and cost[entity.x, entity.y]:
@@ -35,7 +34,7 @@ class BaseAI(Action):
 
         for i in range(len(x)):
             # if self.engine.game_map.tiles[x[i], y[i]]['walkable'] is True:
-            cost[x[i], y[i]] += self.engine.game_map.tiles[x[i], y[i]]['value']
+            cost[x[i], y[i]] += self.engine.game_map.tiles[x[i], y[i]]['weight']
                 
         # create graph from the cost array (flat weight for all but active entities)
         # pass it to pathfinder

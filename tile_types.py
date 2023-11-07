@@ -17,7 +17,7 @@ graphic_dt = np.dtype(
 # Tile struct used for statically defined tile data.
 tile_dt = np.dtype(
     [
-        ('value', int),
+        ('weight', int),
         ('walkable', np.bool_),  # True if this tile can be walked over.
         ('transparent', np.bool_),   # True if this tile doesn't block FOV.
         ('dark', graphic_dt),   # Graphics for when this tile is not in FOV.
@@ -27,27 +27,27 @@ tile_dt = np.dtype(
 
 def new_tile(
     *,  # Enforce the use of keywords, so that parameter order doesn't matter.
-    value: int,
+    weight: int,
     walkable: int,
     transparent: int,
     dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
     light: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
 ) -> np.ndarray:
     '''Helper function for defining individual tile types '''
-    return np.array((value, walkable, transparent, dark, light), dtype = tile_dt)
+    return np.array((weight, walkable, transparent, dark, light), dtype = tile_dt)
 
 # unexplored, unseen tiles
 SHROUD = np.array((ord(' '), (color.white), (color.black)), dtype = graphic_dt)
 
 placeholder = new_tile(
-    value = -100,
+    weight = -100,
     walkable = True,
     transparent = True,
     dark = (ord(' '), (color.white), (color.white)),
     light = (ord(' '), (color.white), (color.white)),
 )
 placeholder1 = new_tile(
-    value = -100,
+    weight = -100,
     walkable = True,
     transparent = True,
     dark = (ord(' '), (color.anb_red), (color.anb_red)),
@@ -55,28 +55,28 @@ placeholder1 = new_tile(
 )
 
 floor = new_tile(
-    value = 1,
+    weight = 1,
     walkable = True,
     transparent = True,
     dark = (ord(' '), (color.light_grey), (color.dark_grey)),
     light = (ord(' '), (color.white), (color.grey)),
 )
 wall = new_tile(
-    value = 0,
+    weight = 0,
     walkable = False,
     transparent = False,
     dark = (ord('#'), (color.light_grey), (color.dark_grey)),
     light = (ord('#'), (color.white), (color.grey)),
 )
 down_stairs = new_tile(
-    value = 2,
+    weight = 2,
     walkable = True,
     transparent = True,
     dark = (ord('>'), (color.light_grey), (color.dark_grey)),
     light = (ord('>'), (color.white), (color.grey))
 )
 up_stairs = new_tile(
-    value = 2,
+    weight = 2,
     walkable = True,
     transparent = True,
     dark = (ord('<'), (color.light_grey), (color.dark_grey)),
@@ -84,21 +84,21 @@ up_stairs = new_tile(
 )
 
 loose_grass = new_tile(
-    value = 1,
+    weight = 1,
     walkable = True,
     transparent = True,
     dark = (ord('░'), (color.light_grey), (color.dark_grey)),
     light = (ord('░'), (color.anb_light_green), (color.grey))
 )
 grass = new_tile(
-    value = 2,
+    weight = 2,
     walkable = True,
     transparent = True,
     dark = (ord('▒'), (color.light_grey), (color.dark_grey)),
     light = (ord('▒'), (color.anb_green), (color.grey))
 )
 dense_grass = new_tile(
-    value = 3,
+    weight = 3,
     walkable = True,
     transparent = True,
     dark = (ord('▓'), (color.light_grey), (color.dark_grey)),
@@ -106,14 +106,14 @@ dense_grass = new_tile(
 )
 
 loose_rubble = new_tile(
-    value = 1,
+    weight = 1,
     walkable = True,
     transparent = True,
     dark = (ord('░'), (color.light_grey), (color.dark_grey)),
     light = (ord('░'), (color.light_grey), (color.grey))
 )
 rubble = new_tile(
-    value = 2,
+    weight = 2,
     walkable = True,
     transparent = True,
     dark = (ord('▒'), (color.light_grey), (color.dark_grey)),
@@ -121,14 +121,14 @@ rubble = new_tile(
 )
 
 stalagmite = new_tile(
-    value = 0,
+    weight = 0,
     walkable = False,
     transparent = False,
     dark = (ord('▼'), (color.light_grey), (color.dark_grey)),
     light = (ord('▼'), (color.light_grey), (color.grey))
 )
 stalactite = new_tile(
-    value = 0,
+    weight = 0,
     walkable = False,
     transparent = False,
     dark = (ord('▲'), (color.light_grey), (color.dark_grey)),

@@ -1,6 +1,4 @@
 from __future__ import annotations
-import string
-
 from typing import Tuple, TYPE_CHECKING
 
 import color

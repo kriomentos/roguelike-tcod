@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Iterable, Iterator, Optional, Union, TYPE_CHECKING
+from typing import Iterable, Iterator, TYPE_CHECKING
 import numpy as np
 import lzma
 import pickle

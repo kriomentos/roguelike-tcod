@@ -3,8 +3,6 @@ from __future__ import annotations
 import tcod
 import traceback
 
-import numpy as np
-
 import color
 import exceptions
 import input_handlers
