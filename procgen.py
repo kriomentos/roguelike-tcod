@@ -15,7 +15,7 @@ from helpers.region_connection import connect_regions
 
 from generators.cellular_automata import cellular_automata
 from generators.room_generator import generate_rooms
-from generators.decorators import add_grass_features, add_rubble_and_details, add_rock_features
+from generators.decorators import add_grass_features, add_rubble_and_details, add_rock_features, add_features
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -187,9 +187,11 @@ def generate_dungeon(
         cellular_automata(dungeon, 6, wall_count)
         cellular_automata(dungeon, 5, wall_count)
     
-    add_grass_features(dungeon)
-    add_rubble_and_details(dungeon)
-    add_rock_features(dungeon)
+    add_features(dungeon)
+
+    # add_grass_features(dungeon)
+    # add_rubble_and_details(dungeon)
+    # add_rock_features(dungeon)
 
     # ensures surrounding wall
     dungeon.tiles[[0, -1], :] = tile_types.wall
@@ -199,8 +201,6 @@ def generate_dungeon(
     place_entities(dungeon, engine.game_world.current_floor)
 
     x, y = np.where(dungeon.tiles["walkable"])
-    print(f'x, y: {x[0], y[0]}')
-    dungeon.tiles[x[0], y[0]] = tile_types.placeholder
     j = nprng.integers(len(x))
     player.place(x[j], y[j], dungeon)
 

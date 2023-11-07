@@ -46,7 +46,7 @@ caster = Actor(
 )
 orc = Actor(
     char = 'o',
-    color = color.anb_light_green, # (63, 127, 63),
+    color = color.anb_light_brown, # (63, 127, 63),
     name = 'Orc',
     ai_cls = SimpleHostileEnemy,
     equipment = Equipment(),
@@ -56,7 +56,7 @@ orc = Actor(
 )
 troll = Actor(
     char = 'T',
-    color = color.anb_green, # (0, 127, 0),
+    color = color.anb_brown, # (0, 127, 0),
     name = 'Troll',
     ai_cls = SimpleHostileEnemy,
     equipment = Equipment(),
@@ -66,7 +66,7 @@ troll = Actor(
 )
 goblin = Actor(
     char = 'g',
-    color = color.anb_green, # (0, 127, 0),
+    color = color.anb_light_brown, # (0, 127, 0),
     name = 'Goblin',
     ai_cls = GreedyEnemy,
     equipment = Equipment(),
