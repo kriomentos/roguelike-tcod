@@ -139,9 +139,9 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
         # 80% chance for orc 20% for troll
         if not any(entity.x == x[j] and entity.y == y[j] for entity in dungeon.entities):
             entity.spawn(dungeon, x[j], y[j])
-            if entity is entity_factories.goblin:
-                entity_factories.sword.spawn(dungeon, x[j] - 2, y[j])
-                entity_factories.health_potion.spawn(dungeon, x[j] - 1, y[j] - 2)
+            # if entity is entity_factories.goblin:
+            #     entity_factories.sword.spawn(dungeon, x[j] - 2, y[j])
+            #     entity_factories.health_potion.spawn(dungeon, x[j] - 1, y[j] - 2)
             print(f'Placed {entity.name} at: ', x[j], y[j])
 
     j = nprng.integers(len(x))
@@ -150,8 +150,8 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
     dungeon.tiles[x[j], y[j]] = tile_types.down_stairs
     dungeon.downstairs_location = (x[j], y[j])
     # insert stairs going up level
-    # dungeon.tiles[x[j + 1], y[j + 1]] = tile_types.up_stairs
-    # dungeon.upstairs_location = (x[j + 1], y[j + 1])
+    dungeon.tiles[x[j + 1], y[j + 1]] = tile_types.up_stairs
+    dungeon.upstairs_location = (x[j + 1], y[j + 1])
 
 def generate_dungeon(
     map_width: int,
@@ -202,6 +202,6 @@ def generate_dungeon(
 
     x, y = np.where(dungeon.tiles["walkable"])
     j = nprng.integers(len(x))
-    player.place(x[j], y[j], dungeon)
+    player.place(dungeon.downstairs_location[0], dungeon.downstairs_location[1], dungeon)
 
     return dungeon

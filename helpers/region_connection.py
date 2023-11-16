@@ -22,7 +22,6 @@ def connect_regions(dungeon: GameMap, rand_generator: Generator):
     # We can do this by finding the closest pair of points between regions and carving a tunnel between them
     closest_points = get_closest_points_between_regions(regions)
     for pair in closest_points:
-        print(f'pair is a: {pair[0]} and b: {pair[1]}')
         for x, y in tunnel_between(pair[0], pair[1], rand_generator):
             dungeon.tiles[x, y] = tile_types.floor
             dungeon.tiles[x + 1, y + 1] = tile_types.floor

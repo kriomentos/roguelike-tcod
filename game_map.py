@@ -4,6 +4,7 @@ import numpy as np
 import lzma
 import pickle
 
+import exceptions
 from tcod.console import Console
 from entity import Actor, Item
 import tile_types
@@ -71,7 +72,6 @@ class GameMap:
                 return entity
 
         return None
-
 
     def get_actor_at_location(self, x: int, y: int):
         for actor in self.actors:
@@ -153,7 +153,7 @@ class GameWorld:
         initial_open: int,
         cellulara_repeats: int,
         current_floor: int = 0,
-        maps_list: dict = {},
+        floors_list: dict = {},
     ):
         self.engine = engine
 
@@ -166,7 +166,7 @@ class GameWorld:
         self.cellulara_repeats = cellulara_repeats
 
         self.current_floor = current_floor
-        self.maps_list = maps_list
+        self.floors_list = floors_list
 
     def load_map(self, filename: str) -> Engine:
         with open(filename, 'rb') as f:
@@ -177,7 +177,6 @@ class GameWorld:
     def save_map(self, filename: str) -> None:
         save_data = lzma.compress(pickle.dumps(self.engine))
         path_to_save = os.getcwd()
-        print(f'path: {path_to_save}')
         with open(os.path.join('C:/Users/Konrad/Documents/Repo/Python-bits/saves', filename), 'wb') as f:
             f.write(save_data)
 
@@ -193,54 +192,55 @@ class GameWorld:
         )
 
     def go_downstairs(self) -> None:
-        self.current_floor += 1
-        self.generate_floor()
+        if self.current_floor + 1 in self.floors_list:
+            print(
+                f'lower floor in dict\n'
+                f'flr_number: {self.current_floor + 1}\n'
+            )
+            floor_to_descend = self.floors_list[self.current_floor + 1] # pickle.loads(lzma.decompress(self.floors_list[self.current_floor + 1]))
 
-        # if self.current_floor in self.maps_list:
-        #     # print(
-        #     #     f'Floor in dict\n'
-        #     #     f'Iterator: {self.current_floor}\n'
-        #     # )
-        #     # self.engine.game_map.entities.remove(self.engine.player)
+            self.engine.game_map = floor_to_descend
+            self.engine.player.place(
+                self.engine.game_map.upstairs_location[0],
+                self.engine.game_map.upstairs_location[1],
+                self.engine.game_map
+            )
+            self.engine.update_fov()
 
-        #     # downstairs_floor = pickle.loads(lzma.decompress(self.maps_list.get(self.current_floor)))
+            self.current_floor += 1
+        else:   
+            floor_to_save = self.engine.game_map
 
-        # else:
-        #     # print(
-        #     #     f'Floor not in dict\n'
-        #     #     f'Iterator: {self.current_floor}\n'
-        #     #     # f'dict: {self.maps_list.keys()}\n'
-        #     # )
+            self.generate_floor()
+            
+            self.floors_list[self.current_floor] = floor_to_save # lzma.compress(pickle.dumps(floor_to_save))
 
-        #     # self.maps_list[self.current_floor - 1] = lzma.compress(pickle.dumps(self.engine.game_map))
+            print(f'list after addition: {self.floors_list.keys()}')
+            map_name = 'level_' + str(self.current_floor) + '.sav'
 
-        #     # print(f'list after addition: {self.maps_list.keys()}')
-        #     map_name = 'level_' + str(self.current_floor) + '.sav'
-        #     print(f'lvl: {map_name}')
-        #     self.generate_floor()
-        #     self.save_map(map_name)
+            self.current_floor += 1
 
-    # def go_upstairs(self) -> None:
-    #     self.current_floor -= 1
+            # self.save_map(map_name)
 
-    #     if self.current_floor in self.maps_list:
-    #         print(
-    #             f'Floor in dict\n'
-    #             f'Iterator: {self.current_floor}\n'
-    #         )
+    def go_upstairs(self) -> None:
+        if self.current_floor - 1 in self.floors_list:
+            print(
+                f'upper floor in dict\n'
+                f'flr_number: {self.current_floor - 1}\n'
+            )
 
-    #         # upstairs_floor = pickle.loads(lzma.decompress(self.maps_list[self.current_floor]))
+            floor_to_ascend = self.floors_list[self.current_floor - 1] # pickle.loads(lzma.decompress(self.floors_list[self.current_floor - 1]))
 
-    #         # self.engine.game_map = upstairs_floor
-    #         # self.engine.player.place(
-    #         #     upstairs_floor.downstairs_location[0],
-    #         #     upstairs_floor.downstairs_location[1],
-    #         #     upstairs_floor
-    #         # )
-    #     else:
-    #         print(
-    #             f'Floor not in dict or unexpected case'
-    #             f'Iterator: {self.current_floor}\n'
-    #             # f'dict: {self.maps_list.keys()}'
-    #         )
-    #         raise NotImplementedError()
+            self.engine.game_map = floor_to_ascend
+            self.engine.player.place(
+                self.engine.game_map.downstairs_location[0],
+                self.engine.game_map.downstairs_location[1],
+                self.engine.game_map
+            )
+            self.engine.update_fov()
+        else:
+            print(
+                f'Floor not in dict or unexpected case\n'
+                f'Iterator: {self.current_floor}\n'
+            )
+            raise exceptions.Impossible("No upper floor to ascend to!")
