@@ -229,6 +229,14 @@ class GameWorld:
                 f'flr_number: {self.current_floor - 1}\n'
             )
 
+            if self.current_floor + 1 not in self.floors_list:
+                floor_to_save = self.engine.game_map
+                self.floors_list[self.current_floor] = floor_to_save # lzma.compress(pickle.dumps(floor_to_save))
+
+                print(
+                    f'current floor wasn\'t saved, doin that now to avoid issues on next descent\n'
+                    f'list after addition: {self.floors_list.keys()}')
+
             floor_to_ascend = self.floors_list[self.current_floor - 1] # pickle.loads(lzma.decompress(self.floors_list[self.current_floor - 1]))
 
             self.engine.game_map = floor_to_ascend
@@ -238,6 +246,7 @@ class GameWorld:
                 self.engine.game_map
             )
             self.engine.update_fov()
+            self.current_floor -= 1
         else:
             print(
                 f'Floor not in dict or unexpected case\n'

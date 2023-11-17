@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os.path
+
 import lzma
 import pickle
 import color
@@ -84,5 +86,7 @@ class Engine:
     def save_as(self, filename: str) -> None:
         '''save this Engine instance as compressed file'''
         save_data = lzma.compress(pickle.dumps(self))
-        with open(filename, 'wb') as f:
+        path_to_save = os.getcwd()
+        print(f'saving to: {os.path.join(path_to_save, "saves", filename)}')
+        with open(os.path.join(path_to_save, "saves", filename), 'wb') as f:
             f.write(save_data)
