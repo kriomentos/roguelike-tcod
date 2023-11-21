@@ -4,11 +4,12 @@ from abc import abstractmethod
 from typing import Optional, Tuple, TYPE_CHECKING
 
 import color
+from entity import Actor
 import exceptions
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Actor, Entity, Item
+    from entity import Actor, Entity, Item, Object
 
 # default action
 class Action:
@@ -55,6 +56,27 @@ class PickupAction(Action):
                 return
 
         raise exceptions.Impossible('There is nothing to pick up')
+
+class InteractionAction(Action):
+    def __init__(
+        self, 
+        entity: Actor, 
+        object: Object, 
+        target_xy: Tuple[int, int] = None
+    ) -> None:
+        super().__init__(entity)
+        self.object = object
+        self.target_xy = target_xy
+
+
+    # rethink targetting to be more versatile not just actor bound
+    @property
+    def target(self) -> Optional[Actor]:
+        return self.engine.game_map.get_actor_at_location(*self.target_xy)
+
+    def perform(self) -> None:
+        if self.object.interaction:
+            self.object.interaction.interact(self)
 
 class ItemAction(Action):
     def __init__(
