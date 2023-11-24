@@ -6,7 +6,7 @@ import pickle
 
 import exceptions
 from tcod.console import Console
-from entity import Actor, Item
+from entity import Actor, Item, Object
 import tile_types
 
 import os.path
@@ -52,6 +52,14 @@ class GameMap:
     @property
     def area(self):
         return self.width * self.height
+    
+    @property
+    def objects(self) -> Iterator[Object]:
+        yield from (
+            entity
+            for entity in self.entities
+            if isinstance(entity, Object)
+        )
 
     @property
     def actors(self) -> Iterator[Actor]:
@@ -71,6 +79,13 @@ class GameMap:
             if (entity.blocks_movement and entity.x == location_x and entity.y == location_y):
                 return entity
 
+        return None
+    
+    def get_object_at_location(self, x: int, y: int):
+        for object in self.objects:
+            if object.x == x and object.y == y:
+                return object
+        
         return None
 
     def get_actor_at_location(self, x: int, y: int):

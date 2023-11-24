@@ -15,7 +15,7 @@ from helpers.region_connection import connect_regions
 
 from generators.cellular_automata import cellular_automata
 from generators.room_generator import generate_rooms
-from generators.decorators import add_grass_features, add_rubble_and_details, add_rock_features, add_features
+from generators.decorators import add_features
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -138,7 +138,7 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
         # if it does not then place one of the monsters
         # 80% chance for orc 20% for troll
         if not any(entity.x == x[j] and entity.y == y[j] for entity in dungeon.entities):
-            entity.spawn(dungeon, x[j], y[j])
+            entity.spawn(x[j], y[j], dungeon)
             # if entity is entity_factories.goblin:
             #     entity_factories.sword.spawn(dungeon, x[j] - 2, y[j])
             #     entity_factories.health_potion.spawn(dungeon, x[j] - 1, y[j] - 2)
@@ -202,6 +202,18 @@ def generate_dungeon(
 
     x, y = np.where(dungeon.tiles["walkable"])
     j = nprng.integers(len(x))
-    player.place(dungeon.downstairs_location[0], dungeon.downstairs_location[1], dungeon)
+    player.place(
+        x[j], # dungeon.downstairs_location[0], 
+        y[j], # dungeon.downstairs_location[1], 
+        dungeon
+    )
+
+
+    print(f'object at: {x[j] + 1} and {y[j]}')
+    entity_factories.placeholder.spawn(
+        x[j] + 1,
+        y[j],
+        dungeon
+    )
 
     return dungeon

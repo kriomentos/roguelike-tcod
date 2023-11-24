@@ -86,7 +86,8 @@ class Engine:
     def save_as(self, filename: str) -> None:
         '''save this Engine instance as compressed file'''
         save_data = lzma.compress(pickle.dumps(self))
-        path_to_save = os.getcwd()
-        print(f'saving to: {os.path.join(path_to_save, "saves", filename)}')
-        with open(os.path.join(path_to_save, "saves", filename), 'wb') as f:
+        path_to_save = os.path.join(os.getcwd(), 'saves', filename)
+        print(f'saving to: {path_to_save}')
+        os.makedirs(os.path.dirname(path_to_save), exist_ok = True)
+        with open(path_to_save, 'wb') as f:
             f.write(save_data)

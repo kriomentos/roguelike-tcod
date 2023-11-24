@@ -4,11 +4,31 @@ from random import randint
 from components.ai import Dummy, GreedyEnemy, SimpleHostileEnemy, SpellCastingEnemy, MimicHostileEnemy
 from components.fighter import Fighter
 from components.equipment import Equipment
-from components import consumable, equippable
+from components import consumable, equippable, interactable
 from components.inventory import Inventory
 from components.level import Level
-from entity import Actor, Item
+from entity import Actor, Item, Object
 import color
+
+placeholder = Object(
+    char = "=",
+    color = color.anb_red,
+    name = "OBJECT PLACEHOLDER",
+    interaction = interactable.BasicInteraction()
+)
+
+placeholder1 = Object(
+    char = "=",
+    color = color.anb_red,
+    name = "OBJECT NUMERO DOS",
+    interaction = interactable.BasicInteraction()
+)
+placeholder2 = Object(
+    char = "=",
+    color = color.anb_red,
+    name = "YET ANOTHER OBJECT",
+    interaction = interactable.BasicInteraction()
+)
 
 'PLAYER AND NON HOSTILE ACTORS'
 player = Actor(

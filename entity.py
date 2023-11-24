@@ -3,11 +3,11 @@ from __future__ import annotations
 import copy
 import math
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union
-from game_map import GameMap
 
 from render_order import RenderOrder
 
 if TYPE_CHECKING:
+    from game_map import GameMap
     from components.ai import BaseAI
     from components.consumable import Consumable
     from components.interactable import Interactable
@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     from components.fighter import Fighter
     from components.inventory import Inventory
     from components.level import Level
-    from game_map import GameMap
 
 T = TypeVar('T', bound = 'Entity')
 
@@ -52,8 +51,8 @@ class Entity:
         return self.parent.gamemap
 
     # creating copy of generic entity, used by factories to spawn it on game map
-    def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
-        clone = copy.deepcopy(self) # create deep copy of provided facotry entity
+    def spawn(self: T, x: int, y: int, gamemap: GameMap) -> T:
+        clone = copy.deepcopy(self) # create deep copy of provided factry entity
         clone.x = x # using factories we just copy cooridnates provided during placement
         clone.y = y
         clone.parent = gamemap

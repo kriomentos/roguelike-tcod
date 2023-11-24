@@ -4,7 +4,6 @@ from abc import abstractmethod
 from typing import Optional, Tuple, TYPE_CHECKING
 
 import color
-from entity import Actor
 import exceptions
 
 if TYPE_CHECKING:
@@ -62,19 +61,19 @@ class InteractionAction(Action):
         self, 
         entity: Actor, 
         object: Object, 
-        target_xy: Tuple[int, int] = None
+        target_xy: Optional[Tuple[int, int]] = None
     ) -> None:
         super().__init__(entity)
         self.object = object
         self.target_xy = target_xy
-
-
     # rethink targetting to be more versatile not just actor bound
-    @property
-    def target(self) -> Optional[Actor]:
-        return self.engine.game_map.get_actor_at_location(*self.target_xy)
+    # @property
+    # def target_object(self) -> Optional[Object]:
+    #     return self.engine.game_map.get_object_at_location(*self.target_xy)
 
     def perform(self) -> None:
+        print(f'performing interaction...')
+        self.target_xy = (self.object.x, self.object.y)
         if self.object.interaction:
             self.object.interaction.interact(self)
 
@@ -141,7 +140,7 @@ class SkipStairs(Action):
         self.engine.game_world.go_downstairs()
 
 class ActionWithDirection(Action):
-    def __init__(self, entity: Actor, dx: int, dy: int):
+    def __init__(self, entity: Actor | Object, dx: int, dy: int):
         super().__init__(entity)
 
         self.dx = dx
@@ -160,6 +159,10 @@ class ActionWithDirection(Action):
     @property
     def target_actor(self) -> Optional[Actor]:
         return self.engine.game_map.get_actor_at_location(*self.dest_xy)
+    
+    @property
+    def target_object(self) -> Optional[Object]:
+        return self.engine.game_map.get_object_at_location(*self.dest_xy)
 
     @abstractmethod
     def perform(self) -> None:
@@ -242,7 +245,7 @@ class MovementAction(ActionWithDirection):
 
 class PushAction(ActionWithDirection):
     def perform(self) -> None:
-        target = self.target_actor
+        target = self.blocking_entity
 
         if not target:
             raise exceptions.Impossible('Nothing to push')
@@ -269,8 +272,8 @@ class PushAction(ActionWithDirection):
             self.engine.message_log.add_message(
                 f'{push_desc} into {self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y).name}, both take 1 damage', color.player_atk
             )
-            target.fighter.hp -= 1
-            self.engine.game_map.get_actor_at_location(dest_x, dest_y).fighter.hp -= 1
+            # target.fighter.hp -= 1
+            # self.engine.game_map.get_actor_at_location(dest_x, dest_y).fighter.hp -= 1
             return
 
         # push the target in the direction we try to move
@@ -281,5 +284,8 @@ class BumpAction(ActionWithDirection):
 
         if self.target_actor:
             return MeleeAction(self.entity, self.dx, self.dy).perform()
+        elif self.target_object:
+            print(f'object interaction attempt\n')
+            return InteractionAction(self.entity, self.target_object).perform()
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()

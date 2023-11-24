@@ -66,12 +66,12 @@ def new_game() -> Engine:
     return engine
 
 def load_game(filename: str) -> Engine:
-    path_to_load = os.getcwd()
+    path_to_load = os.path.join(os.getcwd(), 'saves', filename)
     # load Engine instance from file
-    with open(os.path.join(path_to_load, "saves", filename), 'rb') as f:
+    with open(path_to_load, 'rb') as f:
         engine = pickle.loads(lzma.decompress(f.read()))
     assert isinstance(engine, Engine)
-    print(f'engine.g_world.list.vals: {engine.game_world.floors_list.values()}')
+    
     return engine
 
 class MainMenu(input_handlers.BaseEventHandler):
