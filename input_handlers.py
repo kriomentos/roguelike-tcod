@@ -323,6 +323,57 @@ class AskUserEventHandler(EventHandler):
         # returns to main handler
         return MainGameEventHandler(self.engine)
 
+class InteractionSelectionEventHandler(AskUserEventHandler):
+    TITLE = "Select interaction"
+
+    def on_render(self, console: tcod.console.Console) -> None:
+        super().on_render(console)
+
+        if self.engine.player.x <= 30:
+            x = 40
+        else:
+            x = 0
+        
+        y = 0
+
+        width = len(self.TITLE) + 8
+        
+        console.draw_frame(
+            x = x,
+            y = y,
+            width = width,
+            height = 7,
+            title = self.TITLE,
+            clear = True,
+            fg = (color.white),
+            bg = (color.black),
+        )
+
+        console.print(
+            x = x + 1,
+            y = 4,
+            string = f"a) Example option to select"
+        )
+        console.print(
+            x = x + 1,
+            y = 5,
+            string = f"b) Example option to select"
+        )
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionHandler]:
+        player = self.engine.player
+        key = event.sym
+        index = key - tcod.event.KeySym.a
+
+        if 0 <= index <= 1:
+            if index == 0:
+                self.engine.message_log.add_message("Player seleced option {index}", color.anb_red)
+            else:
+                self.engine.message_log.add_message("Selected {index}", color.anb_red)
+        else:
+            self.engine.message_log.add_message("Invalid entry", color.inavlid)
+
+
 class CharacterScreenEventHandler(AskUserEventHandler):
     TITLE = "Character sheet"
 
