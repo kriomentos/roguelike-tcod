@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 # default action
 class Action:
-    def __init__(self, entity: Actor) -> None:
+    def __init__(self, entity: Actor | Object) -> None:
         super().__init__()
         self.entity = entity
 

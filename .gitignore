@@ -19,3 +19,5 @@ profiling/
 .mypy_cache
 *.txt
 !requirements.txt
+.dmypy.json
+mypy.ini
