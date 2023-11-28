@@ -12,6 +12,7 @@ from actions import (
     WaitAction
 )
 import color
+from engine import Engine
 import exceptions
 
 if TYPE_CHECKING:
@@ -200,6 +201,8 @@ class MainGameEventHandler(EventHandler):
         # escape action, now raises SystemExit
         elif key == tcod.event.KeySym.ESCAPE:
             raise SystemExit()
+        elif key == tcod.event.KeySym.o:
+            return SelectInteractableEventHandler(self.engine)
         # open message log history view
         # it also changes the event_handler so we can navigate it freeely
         elif key == tcod.event.KeySym.v:
@@ -323,8 +326,45 @@ class AskUserEventHandler(EventHandler):
         # returns to main handler
         return MainGameEventHandler(self.engine)
 
+class SelectInteractableEventHandler(AskUserEventHandler):
+    def __init__(self, engine: Engine):
+        super().__init__(engine)
+        self.player = self.engine.player
+        engine.mouse_location = self.player.x, self.player.y
+
+    def on_render(self, console: tcod.console.Console) -> None:
+        super().on_render(console)
+        x, y = self.engine.mouse_location
+        console.tiles_rgb["bg"][x, y] = color.anb_white
+        console.tiles_rgb["fg"][x, y] = color.anb_black
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionHandler]:
+        key = event.sym
+
+        if key in MOVE_KEYS:
+            dx, dy = MOVE_KEYS[key]
+
+            x, y = self.engine.mouse_location
+            x += dx
+            y += dy
+            x = max(self.player.x- 1, min(x, self.player.x + 1))
+            y = max(self.player.y - 1, min(y, self.player.y + 1))
+            self.engine.mouse_location = x, y
+
+            return None
+        elif key in CONFIRM_KEYS:
+            return self.on_index_selected(*self.engine.mouse_location)
+        return super().ev_keydown(event)
+
+    def on_index_selected(self, x: int, y: int) -> Optional[ActionHandler]:
+        return InteractionSelectionEventHandler(self.engine, (x, y))
+    
 class InteractionSelectionEventHandler(AskUserEventHandler):
     TITLE = "Select interaction"
+
+    def __init__(self, engine: Engine, selected_target: Tuple[int, int]):
+        super().__init__(engine)
+        self.selected_target = selected_target
 
     def on_render(self, console: tcod.console.Console) -> None:
         super().on_render(console)
@@ -336,7 +376,7 @@ class InteractionSelectionEventHandler(AskUserEventHandler):
         
         y = 0
 
-        width = len(self.TITLE) + 8
+        width = len(self.TITLE) + 15
         
         console.draw_frame(
             x = x,
@@ -351,28 +391,36 @@ class InteractionSelectionEventHandler(AskUserEventHandler):
 
         console.print(
             x = x + 1,
-            y = 4,
+            y = 1,
             string = f"a) Example option to select"
         )
         console.print(
             x = x + 1,
-            y = 5,
+            y = 2,
             string = f"b) Example option to select"
         )
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionHandler]:
-        player = self.engine.player
         key = event.sym
         index = key - tcod.event.KeySym.a
 
         if 0 <= index <= 1:
             if index == 0:
-                self.engine.message_log.add_message("Player seleced option {index}", color.anb_red)
+                self.engine.message_log.add_message("Player selected option a", color.anb_red)
+                try:
+                    print(f'Option {index}, target at: {self.selected_target} it was {self.engine.game_map.get_object_at_location(self.selected_target[0], self.selected_target[1]).name}')
+                except AttributeError:
+                    print(f'Option {index}, selected {self.selected_target}, not an entity')
             else:
-                self.engine.message_log.add_message("Selected {index}", color.anb_red)
+                self.engine.message_log.add_message("Selected b", color.anb_red)
+            
         else:
             self.engine.message_log.add_message("Invalid entry", color.inavlid)
-
+        
+        return super().ev_keydown(event)
+    
+    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[ActionHandler]:
+        return None
 
 class CharacterScreenEventHandler(AskUserEventHandler):
     TITLE = "Character sheet"
@@ -550,11 +598,11 @@ class InventoryEventHandler(AskUserEventHandler):
 
         if 0 <= index <= 26:
             try:
-                selected_tem = player.inventory.items[index]
+                selected_item = player.inventory.items[index]
             except IndexError:
                 self.engine.message_log.add_message("Invalid entry", color.inavlid)
                 return None
-            return self.on_item_selected(selected_tem)
+            return self.on_item_selected(selected_item)
         return super().ev_keydown(event)
 
     def on_item_selected(self, item: Item) -> Optional[ActionHandler]:

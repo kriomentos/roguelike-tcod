@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 # default action
 class Action:
-    def __init__(self, entity: Actor | Object) -> None:
+    def __init__(self, entity: Actor) -> None:
         super().__init__()
         self.entity = entity
 
@@ -61,7 +61,7 @@ class InteractionAction(Action):
         self, 
         entity: Actor, 
         object: Object, 
-        target_xy: Optional[Tuple[int, int]] = None
+        target_xy: Tuple[int, int]
     ) -> None:
         super().__init__(entity)
         self.object = object
@@ -140,7 +140,7 @@ class SkipStairs(Action):
         self.engine.game_world.go_downstairs()
 
 class ActionWithDirection(Action):
-    def __init__(self, entity: Actor | Object, dx: int, dy: int):
+    def __init__(self, entity: Actor, dx: int, dy: int):
         super().__init__(entity)
 
         self.dx = dx
@@ -261,18 +261,28 @@ class PushAction(ActionWithDirection):
         # if the destination is not walkable tile do nothing
         # and make target take flat damage (for now)
         if not self.engine.game_map.tiles['walkable'][dest_x, dest_y]:
-            self.engine.message_log.add_message(
-                f'{push_desc} into wall, {target.name} takes 1 damage', color.player_atk
-            )
-            target.fighter.hp -= 1
+            if isinstance(target, Actor):
+                self.engine.message_log.add_message(
+                    f'{push_desc} into wall, {target.name} takes 1 damage', color.player_atk
+                )
+                target.fighter.hp -= 1
+            else:
+                self.engine.message_log.add_message(
+                    f'{push_desc} into wall', color.player_atk
+                )
             return
         # if the destination is blocked by another enitty make the target take damage
         # but do nothing otherwise
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
-            self.engine.message_log.add_message(
-                f'{push_desc} into {self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y).name}, both take 1 damage', color.player_atk
-            )
-            # target.fighter.hp -= 1
+            if isinstance(target, Actor):
+                self.engine.message_log.add_message(
+                    f'{push_desc} into {self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y).name}, both take 1 damage', color.player_atk
+                )
+                target.fighter.hp -= 1
+            else:
+                self.engine.message_log.add_message(
+                    f'{push_desc} into into {self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y).name}', color.player_atk
+                )
             # self.engine.game_map.get_actor_at_location(dest_x, dest_y).fighter.hp -= 1
             return
 
@@ -286,6 +296,6 @@ class BumpAction(ActionWithDirection):
             return MeleeAction(self.entity, self.dx, self.dy).perform()
         elif self.target_object:
             print(f'object interaction attempt\n')
-            return InteractionAction(self.entity, self.target_object).perform()
+            return InteractionAction(self.entity, self.target_object, (self.target_object.x, self.target_object.y)).perform()
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()

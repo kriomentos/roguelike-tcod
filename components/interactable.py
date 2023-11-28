@@ -9,7 +9,8 @@ from entity import Actor
 from exceptions import Impossible
 from input_handlers import (
     ActionHandler,
-    PushAction
+    InteractionSelectionEventHandler,
+    SelectInteractableEventHandler
 )
 
 if TYPE_CHECKING:
@@ -19,7 +20,7 @@ class Interactable(BaseComponent):
     parent: Object
 
     def get_action(self, user: Actor) -> Optional[ActionHandler]:
-        return actions.InteractionAction(user, self.parent)
+        return SelectInteractableEventHandler(self.engine)
 
     def interact(self, action: actions.InteractionAction) -> None:
         raise NotImplementedError()
@@ -28,8 +29,11 @@ class BasicInteraction(Interactable):
     def __init__(self) -> None:
         super().__init__()
 
-    def get_action(self, user: Actor) -> PushAction:
-        pass
+    def get_action(self, user: Actor) -> SelectInteractableEventHandler:
+        self.engine.message_log.add_message(
+            'Select interaction to perform', color.needs_target
+        )
+        return SelectInteractableEventHandler(self.engine)
 
     def interact(self, action: actions.InteractionAction) -> None:
         user = action.entity
