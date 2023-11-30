@@ -17,7 +17,7 @@ import exceptions
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Item
+    from entity import Item, Actor
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -109,8 +109,8 @@ class PopupMessage(BaseEventHandler):
 
     def on_render(self, console: tcod.console.Console) -> None:
         self.parent.on_render(console)
-        console.tiles_rgb["fg"] //= 8
-        console.tiles_rgb["bg"] //= 8
+        console.rgb["fg"] //= 8
+        console.rgb["bg"] //= 8
 
         console.print(
             console.width // 2,
@@ -335,8 +335,8 @@ class SelectInteractableEventHandler(AskUserEventHandler):
     def on_render(self, console: tcod.console.Console) -> None:
         super().on_render(console)
         x, y = self.engine.mouse_location
-        console.tiles_rgb["bg"][x, y] = color.anb_white
-        console.tiles_rgb["fg"][x, y] = color.anb_black
+        console.rgb["bg"][x, y] = color.anb_white
+        console.rgb["fg"][x, y] = color.anb_black
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionHandler]:
         key = event.sym
@@ -359,8 +359,14 @@ class SelectInteractableEventHandler(AskUserEventHandler):
     def on_index_selected(self, x: int, y: int) -> Optional[ActionHandler]:
         return InteractionSelectionEventHandler(self.engine, (x, y))
     
+
+INTERACTIONS = {
+    'object': ['option 1', 'option 2', 'option 3'],
+    'actor': ['other 1', 'other 2', 'other 3', 'other 4'],
+    'other': ['it is', 'what it', 'is', 'joever', 'orewa', 'ochinchin'],
+}
 class InteractionSelectionEventHandler(AskUserEventHandler):
-    TITLE = "Select interaction"
+    TITLE = "<missing title>"
 
     def __init__(self, engine: Engine, selected_target: Tuple[int, int]):
         super().__init__(engine)
@@ -368,6 +374,22 @@ class InteractionSelectionEventHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.console.Console) -> None:
         super().on_render(console)
+        if hasattr(self.engine.game_map.get_blocking_entity_at_location(self.selected_target[0], self.selected_target[1]), 'interaction'):
+            interactions_list = INTERACTIONS['object']
+        elif hasattr(self.engine.game_map.get_blocking_entity_at_location(self.selected_target[0], self.selected_target[1]), 'fighter'):
+            interactions_list = INTERACTIONS['actor']
+        else:
+            interactions_list = INTERACTIONS['other']
+
+        try:
+            self.TITLE = self.engine.game_map.get_blocking_entity_at_location(self.selected_target[0], self.selected_target[1]).name
+        except AttributeError:
+            self.TITLE = "Non-entity type"
+
+        height = len(interactions_list) + 2
+
+        if height <= 3:
+            height = 3
 
         if self.engine.player.x <= 30:
             x = 40
@@ -382,40 +404,33 @@ class InteractionSelectionEventHandler(AskUserEventHandler):
             x = x,
             y = y,
             width = width,
-            height = 7,
+            height = height,
             title = self.TITLE,
             clear = True,
             fg = (color.white),
             bg = (color.black),
         )
 
-        console.print(
-            x = x + 1,
-            y = 1,
-            string = f"a) Example option to select"
-        )
-        console.print(
-            x = x + 1,
-            y = 2,
-            string = f"b) Example option to select"
-        )
+        if len(interactions_list) > 0:
+            for i, option in enumerate(interactions_list):
+                option_key = chr(ord("a") + i)
+
+                option_string = f'({option_key} {option})'
+
+                console.print(x + 1, y + i + 1, option_string)
+        else:
+            console.print(x + 1, y + 1, 'HUH WHAT')
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionHandler]:
         key = event.sym
         index = key - tcod.event.KeySym.a
 
-        if 0 <= index <= 1:
-            if index == 0:
-                self.engine.message_log.add_message("Player selected option a", color.anb_red)
-                try:
-                    print(f'Option {index}, target at: {self.selected_target} it was {self.engine.game_map.get_object_at_location(self.selected_target[0], self.selected_target[1]).name}')
-                except AttributeError:
-                    print(f'Option {index}, selected {self.selected_target}, not an entity')
-            else:
-                self.engine.message_log.add_message("Selected b", color.anb_red)
-            
-        else:
-            self.engine.message_log.add_message("Invalid entry", color.inavlid)
+        if 0 <= index <= 26:
+            try:
+                print(f'Option {index}, target at: {self.selected_target} it was {self.engine.game_map.get_blocking_entity_at_location(self.selected_target[0], self.selected_target[1]).name}')
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry", color.inavlid)
+                return None
         
         return super().ev_keydown(event)
     
@@ -644,8 +659,8 @@ class SelectIndexHandler(AskUserEventHandler):
         x, y = self.engine.mouse_location
         # x = x - self.engine.game_map.view_start_x
         # y = y - self.engine.game_map.view_start_y
-        console.tiles_rgb["bg"][x, y] = color.anb_white
-        console.tiles_rgb["fg"][x, y] = color.anb_black
+        console.rgb["bg"][x, y] = color.anb_white
+        console.rgb["fg"][x, y] = color.anb_black
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionHandler]:
         # handle key movement or confirmation keys
