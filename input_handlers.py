@@ -355,6 +355,14 @@ class SelectInteractableEventHandler(AskUserEventHandler):
         elif key in CONFIRM_KEYS:
             return self.on_index_selected(*self.engine.mouse_location)
         return super().ev_keydown(event)
+    
+    def ev_mousebuttondown(
+        self, event: tcod.event.MouseButtonDown
+    ) -> Optional[ActionHandler]:
+        if self.engine.game_map.in_bounds(*event.tile):
+            if event.button == 1:
+                return self.on_index_selected(*event.tile)
+        return super().ev_mousebuttondown(event)
 
     def on_index_selected(self, x: int, y: int) -> Optional[ActionHandler]:
         return InteractionSelectionEventHandler(self.engine, (x, y))
@@ -375,18 +383,18 @@ class InteractionSelectionEventHandler(AskUserEventHandler):
     def on_render(self, console: tcod.console.Console) -> None:
         super().on_render(console)
         if hasattr(self.engine.game_map.get_blocking_entity_at_location(self.selected_target[0], self.selected_target[1]), 'interaction'):
-            interactions_list = INTERACTIONS['object']
+            self.interactions_list = INTERACTIONS['object']
         elif hasattr(self.engine.game_map.get_blocking_entity_at_location(self.selected_target[0], self.selected_target[1]), 'fighter'):
-            interactions_list = INTERACTIONS['actor']
+            self.interactions_list = INTERACTIONS['actor']
         else:
-            interactions_list = INTERACTIONS['other']
+            self.interactions_list = INTERACTIONS['other']
 
         try:
             self.TITLE = self.engine.game_map.get_blocking_entity_at_location(self.selected_target[0], self.selected_target[1]).name
         except AttributeError:
             self.TITLE = "Non-entity type"
 
-        height = len(interactions_list) + 2
+        height = len(self.interactions_list) + 2
 
         if height <= 3:
             height = 3
@@ -411,8 +419,8 @@ class InteractionSelectionEventHandler(AskUserEventHandler):
             bg = (color.black),
         )
 
-        if len(interactions_list) > 0:
-            for i, option in enumerate(interactions_list):
+        if len(self.interactions_list) > 0:
+            for i, option in enumerate(self.interactions_list):
                 option_key = chr(ord("a") + i)
 
                 option_string = f'({option_key} {option})'
@@ -426,16 +434,12 @@ class InteractionSelectionEventHandler(AskUserEventHandler):
         index = key - tcod.event.KeySym.a
 
         if 0 <= index <= 26:
-            try:
-                print(f'Option {index}, target at: {self.selected_target} it was {self.engine.game_map.get_blocking_entity_at_location(self.selected_target[0], self.selected_target[1]).name}')
-            except IndexError:
-                self.engine.message_log.add_message("Invalid entry", color.inavlid)
-                return None
+            if hasattr(self.selected_target, 'name'):
+                print(f'Option {self.interactions_list[index]}, target at: {self.selected_target} it was {self.engine.game_map.get_blocking_entity_at_location(self.selected_target[0], self.selected_target[1]).name}')
+            else:
+                print(f'Option {self.interactions_list[index]}, target at: {self.selected_target}')
         
         return super().ev_keydown(event)
-    
-    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[ActionHandler]:
-        return None
 
 class CharacterScreenEventHandler(AskUserEventHandler):
     TITLE = "Character sheet"
