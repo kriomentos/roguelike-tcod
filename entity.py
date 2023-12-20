@@ -131,7 +131,7 @@ class Object(Entity):
             char: str = '?', 
             color: Tuple[int, int, int] = (255, 255, 255), 
             name: str = '<Unnamed>', 
-            interaction: Optional[Interactable],
+            interaction: Optional[Interactable] = None,
     ):
         super().__init__( 
             x = x, 

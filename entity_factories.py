@@ -14,20 +14,20 @@ placeholder = Object(
     char = "=",
     color = color.anb_red,
     name = "OBJECT PLACEHOLDER",
-    interaction = interactable.BasicInteraction()
+    interaction = None,
 )
 
 placeholder1 = Object(
     char = "=",
     color = color.anb_red,
     name = "OBJECT NUMERO DOS",
-    interaction = interactable.BasicInteraction()
+    interaction = None,
 )
 placeholder2 = Object(
     char = "=",
     color = color.anb_red,
     name = "YET ANOTHER OBJECT",
-    interaction = interactable.BasicInteraction()
+    interaction = None,
 )
 
 'PLAYER AND NON HOSTILE ACTORS'

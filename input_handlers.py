@@ -373,6 +373,7 @@ INTERACTIONS = {
     'actor': ['other 1', 'other 2', 'other 3', 'other 4'],
     'other': ['it is', 'what it', 'is', 'joever', 'orewa', 'ochinchin'],
 }
+
 class InteractionSelectionEventHandler(AskUserEventHandler):
     TITLE = "<missing title>"
 

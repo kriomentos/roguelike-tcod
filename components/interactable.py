@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from typing import Optional, Tuple, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
-import actions
 import color
 from components.base_component import BaseComponent
 from entity import Actor
-from exceptions import Impossible
 from input_handlers import (
     ActionHandler,
     InteractionSelectionEventHandler,
@@ -21,9 +19,6 @@ class Interactable(BaseComponent):
 
     def get_action(self, user: Actor) -> Optional[ActionHandler]:
         return SelectInteractableEventHandler(self.engine)
-
-    def interact(self, action: actions.InteractionAction) -> None:
-        raise NotImplementedError()
     
 class BasicInteraction(Interactable):
     def __init__(self) -> None:
@@ -34,12 +29,3 @@ class BasicInteraction(Interactable):
             'Select interaction to perform', color.needs_target
         )
         return SelectInteractableEventHandler(self.engine)
-
-    def interact(self, action: actions.InteractionAction) -> None:
-        user = action.entity
-        target = action.target_xy
-        targeted_object = self.engine.game_map.get_object_at_location(target[0], target[1])
-
-        self.engine.message_log.add_message(
-            f'User {user.name} interacted with {targeted_object.name}'
-        )

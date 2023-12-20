@@ -56,27 +56,6 @@ class PickupAction(Action):
 
         raise exceptions.Impossible('There is nothing to pick up')
 
-class InteractionAction(Action):
-    def __init__(
-        self, 
-        entity: Actor, 
-        object: Object, 
-        target_xy: Tuple[int, int]
-    ) -> None:
-        super().__init__(entity)
-        self.object = object
-        self.target_xy = target_xy
-    # rethink targetting to be more versatile not just actor bound
-    # @property
-    # def target_object(self) -> Optional[Object]:
-    #     return self.engine.game_map.get_object_at_location(*self.target_xy)
-
-    def perform(self) -> None:
-        print(f'performing interaction...')
-        self.target_xy = (self.object.x, self.object.y)
-        if self.object.interaction:
-            self.object.interaction.interact(self)
-
 class ItemAction(Action):
     def __init__(
         self,
@@ -294,8 +273,5 @@ class BumpAction(ActionWithDirection):
 
         if self.target_actor:
             return MeleeAction(self.entity, self.dx, self.dy).perform()
-        elif self.target_object:
-            print(f'object interaction attempt\n')
-            return InteractionAction(self.entity, self.target_object, (self.target_object.x, self.target_object.y)).perform()
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()
