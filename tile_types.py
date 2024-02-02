@@ -134,3 +134,18 @@ stalactite = new_tile(
     dark = (ord('▲'), (color.light_grey), (color.dark_grey)),
     light = (ord('▲'), (color.light_grey), (color.grey))
 )
+
+shallow_water = new_tile(
+    weight = 0,
+    walkable = True,
+    transparent = True,
+    dark = (ord('~'), (color.light_grey), (color.dark_grey)),
+    light = (ord('~'), (color.anb_blue), (color.grey))
+)
+deep_water = new_tile(
+    weight = 5,
+    walkable = True,
+    transparent = True,
+    dark = (ord('~'), (color.light_grey), (color.dark_grey)),
+    light = (ord('~'), (color.anb_deep_blue), (color.grey))
+)

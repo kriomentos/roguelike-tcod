@@ -15,7 +15,7 @@ from helpers.region_connection import connect_regions
 
 from generators.cellular_automata import cellular_automata
 from generators.room_generator import generate_rooms
-from generators.decorators import add_features
+from generators.decorators import add_features, add_aquifers
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -202,6 +202,9 @@ def generate_dungeon(
 
     x, y = np.where(dungeon.tiles["walkable"])
     j = nprng.integers(len(x))
+    
+    add_aquifers(x[j], y[j], dungeon)
+
     player.place(
         x[j], # dungeon.downstairs_location[0], 
         y[j], # dungeon.downstairs_location[1], 

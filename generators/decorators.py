@@ -32,8 +32,27 @@ def add_features(dungeon: GameMap) -> GameMap:
                 dungeon.tiles[x[j], y[j]] = tile_types.stalactite
             elif chance > .5:
                 dungeon.tiles[x[j], y[j]] = tile_types.stalagmite
+        # elif feature == 3:
+        #     print(f'\n\nAdding single water spot...\n\n')
+        #     add_aquifers(x[j], y[j], dungeon)
 
     return dungeon
+
+def add_aquifers(x: np.NDArray[np.intp], y: np.NDArray[np.intp], dungeon: GameMap):
+    chance = nprng.random()
+
+    dungeon.tiles[x, y] = tile_types.deep_water
+    dungeon.tiles[[x-1,x+1], y-1:y+2] = tile_types.deep_water
+    dungeon.tiles[x, [y-1,y+1]] = tile_types.deep_water
+
+    if chance < .5:
+        # shallow aquifer
+        dungeon.tiles[x, y] = tile_types.shallow_water
+    elif chance > .5:
+        dungeon.tiles[x, y] = tile_types.deep_water
+        # deep aquifer
+
+    return
 
 def add_grass_features(dungeon: GameMap) -> GameMap:
     # Implement logic to add stalagmites and stalactites to the cave map
