@@ -21,7 +21,7 @@ class BaseAI(Action):
         pass
 
     def get_path_to(self, dest_x: int, dest_y: int) -> List[Tuple[int, int]]:
-        # calculates path to traget position or returns empty list if no valid path
+        # calculates path to target position or returns empty list if no valid path
         cost = np.array(self.entity.gamemap.tiles['walkable'], dtype = np.int8)
         x, y = np.where(self.engine.game_map.tiles['walkable'])
 
@@ -29,7 +29,7 @@ class BaseAI(Action):
             if entity.blocks_movement and cost[entity.x, entity.y]:
                 # add to the cost of blocked position
                 # lower means more entity crowding behind each other
-                # higher encites them to take longer paths to surround player
+                # higher incites them to take longer paths to surround player
                 cost[entity.x, entity.y] += 10
 
         for i in range(len(x)):
@@ -51,7 +51,7 @@ class BaseAI(Action):
     
     def wander_around(self):
         # if there is no target to path to, entity will wander around randomly
-        # also can bump into entites attacking them
+        # also can bump into entities attacking them
         direction_x, direction_y = random.choice(
             [
                 (-1, -1), # northwest
@@ -143,7 +143,7 @@ class GreedyEnemy(BaseAI):
         # selects target from the items list, selects the first item in list
         # if there is one the goblin with path towards it and bump into things (in theory)
         # which should make him attack entities he stumbles into while going to pick item
-        # when he is ontop of the item he picks it up
+        # when he is on top of the item he picks it up
         # currently each goblin enemy is omnipotent and always knows location of each item on given floor
         if target is not None and len(self.entity.inventory.items) < self.entity.inventory.capacity:
             dx = target.x - self.entity.x
@@ -177,7 +177,7 @@ class GreedyEnemy(BaseAI):
 
 class ConfusedEnemy(BaseAI):
     # confused actor will stumble around for given number of turns, then return to normal
-    # if it stumbles into antoher actor, it will attack
+    # if it stumbles into another actor, it will attack
     def __init__(self, entity: Actor, previous_ai: Optional[BaseAI], turns_remaining: int):
         super().__init__(entity)
 

@@ -31,7 +31,7 @@ class Entity:
         char: str = '?', # string character for visual representation
         color: Tuple[int, int, int] = (255, 255, 255), # RGB value for provided char
         name: str = '<Unnamed>', # name to be displayed when inspecting/interacting with entity
-        blocks_movement: bool = False, # does the enitty block player movement
+        blocks_movement: bool = False, # does the entity block player movement
         render_order: RenderOrder = RenderOrder.CORPSE
     ):
         self.x = x
@@ -52,15 +52,15 @@ class Entity:
 
     # creating copy of generic entity, used by factories to spawn it on game map
     def spawn(self: T, x: int, y: int, gamemap: GameMap) -> T:
-        clone = copy.deepcopy(self) # create deep copy of provided factry entity
-        clone.x = x # using factories we just copy cooridnates provided during placement
+        clone = copy.deepcopy(self) # create deep copy of provided factory entity
+        clone.x = x # using factories we just copy coordinates provided during placement
         clone.y = y
         clone.parent = gamemap
         gamemap.entities.add(clone) # add clone to the gamemap object to hold
         return clone
 
     def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
-        # palce entity at new location, handles moving across gamemaps
+        # place entity at new location, handles moving across gamemaps
         self.x = x
         self.y = y
         # gamemap.entities.add(self)

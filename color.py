@@ -29,7 +29,7 @@ enemy_atk = anb_brown
 player_die = anb_red
 enemy_die = anb_orange
 
-inavlid = anb_yellow
+invalid = anb_yellow
 impossible = anb_grey
 error = anb_red
 

@@ -117,7 +117,7 @@ class GameMap:
         # )
 
         # view_start_x:self.engine.game_world.viewport_width, view_start_y:self.engine.game_world.viewport_height used for all works
-        # but creates static camera that doesnt follow player
+        # but creates static camera that doesn't follow player
         viewport_tiles = self.tiles[self.view_start_x:view_end_x, self.view_start_y:view_end_y]  # [o_x:view_end_x+1,o_y:view_end_y + 1]
         viewport_visible = self.visible[self.view_start_x:view_end_x, self.view_start_y:view_end_y]
         viewport_explored = self.explored[self.view_start_x:view_end_x, self.view_start_y:view_end_y]
@@ -144,7 +144,7 @@ class GameMap:
         )
 
         for entity in entities_for_rendering:
-            # don't apply FOV to entites
+            # don't apply FOV to entities
             if self.visibility:
                 console.print(x = entity.x, y = entity.y, string = entity.char, fg = entity.color)
             else:

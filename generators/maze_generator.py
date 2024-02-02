@@ -60,7 +60,7 @@ class Maze:
 
         self.generate(sx, sy)
 
-        # numpy fancy indexing, select all indices of value 0.5 and change thme to -1
+        # numpy fancy indexing, select all indices of value 0.5 and change them to -1
         self.__maze[self.__maze == 0.5] = -1
 
         for i in range(0, 35):

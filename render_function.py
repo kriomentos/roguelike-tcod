@@ -4,7 +4,7 @@ from typing import Tuple, TYPE_CHECKING
 import color
 
 if TYPE_CHECKING:
-    from tcod import Console
+    from tcod.console import Console
     from engine import Engine
     from game_map import GameMap
 
@@ -62,7 +62,7 @@ def render_dungeon_level(
 def render_names_at_mouse_location(
     console: Console, x: int, y: int, engine: Engine
 ) -> None:
-    # grabs current moust position over grid
+    # grabs current mouse position over grid
     mouse_x, mouse_y = engine.mouse_location
     # gets information about given coordinate hovered
     name_at_mouse_location = get_name_at_location(

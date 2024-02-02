@@ -98,7 +98,7 @@ class caveGen:
                 self.__map[rand_r, rand_c] = FLOOR
                 open_count -= 1
 
-        # run cellular automata given number of times, it rans two sets of rules that I personally
+        # run cellular automata given number of times, it runs two sets of rules that I personally
         # selected as "looking good" with the code I wrote for it
         # it tends to create central "hub" like big space with corridors out of it and smaller pockets near edges
         # overall it makes more open caves, running just 4, 5 makes tighter caves

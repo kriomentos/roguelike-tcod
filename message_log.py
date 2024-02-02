@@ -61,7 +61,7 @@ class MessageLog:
         messages: Reversible[Message],
     ) -> None:
         # render the messages provided
-        # we start with last and work bakwards,
+        # we start with last and work backwards,
         # it makes them look like they are scrolling upwards
         y_offset = height - 1
 

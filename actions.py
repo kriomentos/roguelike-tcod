@@ -210,7 +210,7 @@ class MovementAction(ActionWithDirection):
     def perform(self) -> None:
         dest_x, dest_y = self.dest_xy
 
-        # if the desitnaiton is out of bounds do nothing
+        # if the destination is out of bounds do nothing
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
             raise exceptions.Impossible('That way is blocked')
         # if the destination is not walkable tile do nothing
@@ -234,7 +234,7 @@ class PushAction(ActionWithDirection):
 
         push_desc = f'{self.entity.name.capitalize()} pushes {target.name}'
 
-        # if the desitnaiton is out of bounds do nothing
+        # if the destination is out of bounds do nothing
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
             raise exceptions.Impossible('That way is blocked')
         # if the destination is not walkable tile do nothing
@@ -250,7 +250,7 @@ class PushAction(ActionWithDirection):
                     f'{push_desc} into wall', color.player_atk
                 )
             return
-        # if the destination is blocked by another enitty make the target take damage
+        # if the destination is blocked by another entity make the target take damage
         # but do nothing otherwise
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
             if isinstance(target, Actor):

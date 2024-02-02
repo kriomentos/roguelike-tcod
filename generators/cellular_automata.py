@@ -6,9 +6,9 @@ from typing import Any
 import tile_types
 
 def cellular_automata(dungeon: GameMap, wall_rule: int, count: Any) -> GameMap:
-    # on each pass we recalculate amount of neighbours, which gives much smoother output
+    # on each pass we recalculate amount of neighbors, which gives much smoother output
     # more passes equals smoother map and less artifacts
-    # we check the number of neighbours including tile itself is less/more than wall_rule
+    # we check the number of neighbors including tile itself is less/more than wall_rule
     # and let it "die" or not
     count = signal.convolve2d(dungeon.tiles['weight'], [[1, 1, 1], [1, 1, 1], [1, 1, 1]], mode = 'same')
 

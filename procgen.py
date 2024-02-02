@@ -36,7 +36,7 @@ max_monsters_per_floor = [
     (6, 5),
 ]
 
-# dictionaires of weighted entites for spawning
+# dictionaries of weighted entities for spawning
 # higher weight means higher chance of spawning
 # dict key is the floor number where they start appearing
 item_chances: Dict[int, List[Tuple[Entity, int]]] = {
@@ -116,7 +116,7 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
         0, get_max_value_for_floor(max_items_per_floor, floor_number)
     )
 
-    # select random postion for enemy using numpy.where
+    # select random position for enemy using numpy.where
     # we look only at positions that are floors,
     # this way we avoid placing the enemies in walls,
     # and we don't need more complicated checks

@@ -1,4 +1,4 @@
-'''Handle loading and initalization of game seesions'''
+'''Handle loading and initialization of game sessions'''
 from __future__ import annotations
 
 import os.path
@@ -83,7 +83,7 @@ class MainMenu(input_handlers.BaseEventHandler):
         console.print(
             console.width // 2,
             console.height // 2 - 4,
-            'SCUFFED ROUGELIKE',
+            'SCUFFED ROGUELIKE',
             fg = color.menu_title,
             alignment = 2,
         )

@@ -27,7 +27,7 @@ MOVE_KEYS = {
     tcod.event.KeySym.RIGHT: (1, 0), # right
     tcod.event.KeySym.HOME: (-1, -1),    # up-left
     tcod.event.KeySym.END: (-1, 1),  # down-left
-    tcod.event.KeySym.PAGEUP: (1, -1),   # up-rigth
+    tcod.event.KeySym.PAGEUP: (1, -1),   # up-right
     tcod.event.KeySym.PAGEDOWN: (1, 1),  # down-right
     # Numpad keys.
     tcod.event.KeySym.KP_1: (-1, 1),
@@ -187,7 +187,7 @@ class MainGameEventHandler(EventHandler):
             dx, dy = MOVE_KEYS[key]
 
             # if the shift is held, perform other action
-            # that is push the enity in front of the player
+            # that is push the entity in front of the player
             if key and modifier and tcod.event.Modifier.SHIFT:
                 action = PushAction(player, dx, dy)
             # or just perform bump, which will resolve into move or attack
@@ -195,7 +195,7 @@ class MainGameEventHandler(EventHandler):
             # else:
             action = BumpAction(player, dx, dy)
 
-        # pass the turn doing nothing, it advances other AI entites turns
+        # pass the turn doing nothing, it advances other AI entities turns
         elif key in WAIT_KEYS:
             action = WaitAction(player)
         # escape action, now raises SystemExit
@@ -204,7 +204,7 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.KeySym.o:
             return SelectInteractableEventHandler(self.engine)
         # open message log history view
-        # it also changes the event_handler so we can navigate it freeely
+        # it also changes the event_handler so we can navigate it freely
         elif key == tcod.event.KeySym.v:
             return HistoryViewer(self.engine)
         # pick items or other pickupable things off the game_maps "floor"
@@ -492,7 +492,7 @@ class CharacterScreenEventHandler(AskUserEventHandler):
         console.print(
             x = x + 1,
             y = y + 5,
-            string = f"Defence: {self.engine.player.fighter.defense}"
+            string = f"Defense: {self.engine.player.fighter.defense}"
         )
 
 class LevelUpEventHandler(AskUserEventHandler):
@@ -549,7 +549,7 @@ class LevelUpEventHandler(AskUserEventHandler):
             else:
                 player.level.increase_defense()
         else:
-            self.engine.message_log.add_message("Invalid entry", color.inavlid)
+            self.engine.message_log.add_message("Invalid entry", color.invalid)
 
             return None
 
@@ -620,7 +620,7 @@ class InventoryEventHandler(AskUserEventHandler):
             try:
                 selected_item = player.inventory.items[index]
             except IndexError:
-                self.engine.message_log.add_message("Invalid entry", color.inavlid)
+                self.engine.message_log.add_message("Invalid entry", color.invalid)
                 return None
             return self.on_item_selected(selected_item)
         return super().ev_keydown(event)
@@ -697,7 +697,7 @@ class SelectIndexHandler(AskUserEventHandler):
     def ev_mousebuttondown(
         self, event: tcod.event.MouseButtonDown
     ) -> Optional[ActionHandler]:
-        # left click confimrs
+        # left click confirms
         if self.engine.game_map.in_bounds(*event.tile):
             if event.button == 1:
                 return self.on_index_selected(*event.tile)
@@ -723,7 +723,7 @@ class SingleRangedAttackHandler(SelectIndexHandler):
         return self.callback((x, y))
 
 class AreaRangedAttackHandler(SelectIndexHandler):
-    # handles targetting area within given radius, any entity in area will be affected
+    # handles targeting area within given radius, any entity in area will be affected
 
     def __init__(
         self,
