@@ -202,20 +202,13 @@ def generate_dungeon(
 
     x, y = np.where(dungeon.tiles["walkable"])
     j = nprng.integers(len(x))
+    i = nprng.integers(len(x))
     
     add_aquifers(x[j], y[j], dungeon)
 
     player.place(
-        x[j], # dungeon.downstairs_location[0], 
-        y[j], # dungeon.downstairs_location[1], 
-        dungeon
-    )
-
-
-    print(f'object at: {x[j] + 1} and {y[j]}')
-    entity_factories.placeholder.spawn(
-        x[j] + 1,
-        y[j],
+        x[i], # dungeon.downstairs_location[0], 
+        y[i], # dungeon.downstairs_location[1], 
         dungeon
     )
 

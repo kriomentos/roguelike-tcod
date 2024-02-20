@@ -3,8 +3,10 @@ from game_map import GameMap
 import tile_types
 
 import numpy as np
+import numpy.typing as npt
 
 from helpers.rng import nprng
+from helpers.diggers import drunken_walk
 
 def add_features(dungeon: GameMap) -> GameMap:
     x, y = np.where(dungeon.tiles['walkable'])
@@ -38,19 +40,45 @@ def add_features(dungeon: GameMap) -> GameMap:
 
     return dungeon
 
-def add_aquifers(x: np.NDArray[np.intp], y: np.NDArray[np.intp], dungeon: GameMap):
+def add_aquifers(x: int, y: int, dungeon: GameMap):
     chance = nprng.random()
 
-    dungeon.tiles[x, y] = tile_types.deep_water
-    dungeon.tiles[[x-1,x+1], y-1:y+2] = tile_types.deep_water
-    dungeon.tiles[x, [y-1,y+1]] = tile_types.deep_water
+    start = (x, y)
 
-    if chance < .5:
-        # shallow aquifer
+    spill_size = nprng.integers(1, 10)
+    max_step = 100 # nprng.integers(0, 50)
+    spill_step = 0
+    spill_direction = nprng.integers(0, 3)
+
+    if spill_direction == 0:
+        end = (x - spill_size, y - spill_size)
+    elif spill_direction == 1:
+        end = (x - spill_size, y + spill_size)
+    elif spill_direction == 2:
+        end = (x + spill_size, y - spill_size)
+    elif spill_direction == 3:
+        end = (x + spill_size, y + spill_size)
+
+    print(f'start: {start}, end: {end}')
+
+    while spill_step != max_step:
+        if nprng.random() < .5: # up or down
+            if nprng.random() < .5:
+                x += 1 # go down
+            else:
+                x += -1 # go up
+        else: # left or right
+            if nprng.random() < .5:
+                y += 1 # go right
+            else:
+                y += -1 # go left
+
+        spill_step += 1
+
+        x = max(1, min(x, dungeon.width - 3))
+        y = max(1, min(y, dungeon.height - 3))
+
         dungeon.tiles[x, y] = tile_types.shallow_water
-    elif chance > .5:
-        dungeon.tiles[x, y] = tile_types.deep_water
-        # deep aquifer
 
     return
 

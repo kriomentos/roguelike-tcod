@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from typing import Callable, Optional, Tuple, TYPE_CHECKING, Union
 import tcod
+from tcod import libtcodpy
 import actions
 from actions import (
     Action,
@@ -265,7 +266,7 @@ class HistoryViewer(EventHandler):
         # draw frame with custom banner
         log_console.draw_frame(0, 0, log_console.width, log_console.height)
         log_console.print_box(
-            0, 0, log_console.width, 1, "~Message log~", alignment = tcod.CENTER
+            0, 0, log_console.width, 1, "~Message log~", alignment = libtcodpy.CENTER
         )
 
         # render message log using cursor parameter
