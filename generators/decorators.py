@@ -59,8 +59,6 @@ def add_aquifers(x: int, y: int, dungeon: GameMap):
     elif spill_direction == 3:
         end = (x + spill_size, y + spill_size)
 
-    print(f'start: {start}, end: {end}')
-
     while spill_step != max_step:
         if nprng.random() < .5: # up or down
             if nprng.random() < .5:
@@ -78,7 +76,10 @@ def add_aquifers(x: int, y: int, dungeon: GameMap):
         x = max(1, min(x, dungeon.width - 3))
         y = max(1, min(y, dungeon.height - 3))
 
-        dungeon.tiles[x, y] = tile_types.shallow_water
+        walkable_tiles = np.where(dungeon.tiles['walkable'])
+        
+        if x in walkable_tiles[0] and y in walkable_tiles[1]:
+            dungeon.tiles[x, y] = tile_types.shallow_water
 
     return
 

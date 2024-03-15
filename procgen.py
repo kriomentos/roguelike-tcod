@@ -155,6 +155,9 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
     dungeon.tiles[x[j + 1], y[j + 1]] = tile_types.up_stairs
     dungeon.upstairs_location = (x[j + 1], y[j + 1])
 
+# x left to right
+# y up to down
+
 def generate_dungeon(
     map_width: int,
     map_height: int,
@@ -172,18 +175,13 @@ def generate_dungeon(
     dungeon.tiles = np.where(map_nprng[0].integers(0, 100, (map_height, map_width)).T > initial_open,
         tile_types.floor, tile_types.wall
     )
-    # dungeon.tiles.fill(tile_types.wall)
+
     dungeon.tiles[[0, -1], :] = tile_types.wall
     dungeon.tiles[:, [0, -1]] = tile_types.wall
-
-    generate_rooms(dungeon, 1, 1, 10, nprng)
 
     # # we go through the map and simulate cellular automata rules using convolve values
     for _ in range(cellulara_repeats):
         cellular_automata(dungeon, 4, wall_count)
-
-    # for _ in range(1):
-    #     generate_rooms(dungeon, 10, 4, 10, nprng)
 
     connect_regions(dungeon, nprng)
 
@@ -193,22 +191,24 @@ def generate_dungeon(
     
     add_features(dungeon)
 
-    # add_grass_features(dungeon)
-    # add_rubble_and_details(dungeon)
-    # add_rock_features(dungeon)
+
+
+    dungeon.tiles.fill(tile_types.wall)
+
+    generate_rooms(dungeon, 30, 3, 11, nprng)
+
+    # place entities and player on empty non occupied walkable tiles
+    # place_entities(dungeon, engine.game_world.current_floor)
 
     # ensures surrounding wall
     dungeon.tiles[[0, -1], :] = tile_types.wall
     dungeon.tiles[:, [0, -1]] = tile_types.wall
 
-    # place entities and player on empty non occupied walkable tiles
-    place_entities(dungeon, engine.game_world.current_floor)
-
     x, y = np.where(dungeon.tiles["walkable"])
     j = nprng.integers(len(x))
     i = nprng.integers(len(x))
     
-    add_aquifers(x[j], y[j], dungeon)
+    # add_aquifers(x[j], y[j], dungeon)
 
     player.place(
         x[i], # dungeon.downstairs_location[0], 

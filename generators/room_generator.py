@@ -27,7 +27,7 @@ class RectangularRoom:
     # return inside of the room, not counting the walls
     @property
     def inner(self) -> Tuple[slice, slice]:
-        return slice(self.x1 + 1, self.x2), slice(self.y1 + 1, self.y2)
+        return slice(self.x1, self.x2), slice(self.y1, self.y2)
 
     def intersects(self, other: RectangularRoom) -> bool:
         return(

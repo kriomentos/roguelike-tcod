@@ -50,7 +50,7 @@ class GameMap:
         return self
 
     @property
-    def area(self):
+    def area(self) -> int:
         return self.width * self.height
     
     @property
@@ -74,21 +74,21 @@ class GameMap:
         yield from (entity for entity in self.entities if isinstance(entity, Item))
 
     # check list of entities and return one being at [x, y] location
-    def get_blocking_entity_at_location(self, location_x: int, location_y: int):
+    def get_blocking_entity_at_location(self, location_x: int, location_y: int) -> (Entity | None):
         for entity in self.entities:
             if (entity.blocks_movement and entity.x == location_x and entity.y == location_y):
                 return entity
 
         return None
     
-    def get_object_at_location(self, x: int, y: int):
+    def get_object_at_location(self, x: int, y: int) -> (Object | None):
         for object in self.objects:
             if object.x == x and object.y == y:
                 return object
         
         return None
 
-    def get_actor_at_location(self, x: int, y: int):
+    def get_actor_at_location(self, x: int, y: int) -> (Actor | None):
         for actor in self.actors:
             if actor.x == x and actor.y == y:
                 return actor
