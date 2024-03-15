@@ -44,9 +44,8 @@ def room_digout(room: RectangularRoom, dungeon: GameMap):
     # inside of the room
     dungeon.tiles[room.inner] = tile_types.floor
 
-def create_room(min_size: int, max_size: int, dungeon: GameMap, rand_generator: Generator):
+def create_room(min_size: int, max_size: int, x: int, y: int, dungeon: GameMap, rand_generator: Generator):
     room_w, room_h = rand_generator.integers(min_size, max_size), rand_generator.integers(min_size, max_size)
-    x, y = rand_generator.integers(0, dungeon.width - room_w - 1), rand_generator.integers(0, dungeon.height - room_h - 1)
 
     if x < 0 or y > dungeon.width or room_w < 0 or room_h > dungeon.height:
         print(f'Out of bounds corners, retry')
@@ -64,6 +63,7 @@ def generate_rooms(
     rand_generator: Generator,
 ) -> GameMap:
     rooms: List[RectangularRoom] = []
+    x, y = rand_generator.integers(0, dungeon.width - 1), rand_generator.integers(0, dungeon.height - 1)
 
     new_room = create_room(room_min_size, room_max_size, dungeon, rand_generator)
 

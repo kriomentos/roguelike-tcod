@@ -14,8 +14,10 @@ from helpers.rng import nprng
 from helpers.region_connection import connect_regions
 
 from generators.cellular_automata import cellular_automata
-from generators.room_generator import generate_rooms
+# from generators.room_generator import generate_rooms
 from generators.decorators import add_features, add_aquifers
+
+from generators.room_gen_2 import generate_rooms
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -170,11 +172,13 @@ def generate_dungeon(
     dungeon.tiles = np.where(map_nprng[0].integers(0, 100, (map_height, map_width)).T > initial_open,
         tile_types.floor, tile_types.wall
     )
-
+    # dungeon.tiles.fill(tile_types.wall)
     dungeon.tiles[[0, -1], :] = tile_types.wall
     dungeon.tiles[:, [0, -1]] = tile_types.wall
 
-    # we go through the map and simulate cellular automata rules using convolve values
+    generate_rooms(dungeon, 1, 1, 10, nprng)
+
+    # # we go through the map and simulate cellular automata rules using convolve values
     for _ in range(cellulara_repeats):
         cellular_automata(dungeon, 4, wall_count)
 
