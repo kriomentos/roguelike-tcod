@@ -22,3 +22,6 @@ profiling/
 .dmypy.json
 mypy.ini
 build.bat
+main.cmd
+main.build/
+main.dist/
