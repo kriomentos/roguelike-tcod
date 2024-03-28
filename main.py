@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from os import path
+
 import tcod
 import traceback
 
@@ -18,8 +20,9 @@ def main() -> None:
     screen_width = 80
     screen_height = 50
 
+    path_to_tileset = path.abspath(path.join(path.dirname(__file__), './tilesets/Taffer_10x10.png'))
     tileset = tcod.tileset.load_tilesheet(
-        'tilesets/Taffer_10x10.png', 16, 16, tcod.tileset.CHARMAP_CP437
+        path_to_tileset, 16, 16, tcod.tileset.CHARMAP_CP437
     )
 
     handler: input_handlers.BaseEventHandler = setup_game.MainMenu()

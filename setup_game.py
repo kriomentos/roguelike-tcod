@@ -17,7 +17,8 @@ import entity_factories
 import input_handlers
 from game_map import GameWorld
 
-background_image = tcod.image.load('menu_background.png')[:, :, :3]
+path_to_background_image = os.path.abspath(os.path.join(os.path.dirname(__file__), 'menu_background.png'))
+background_image = tcod.image.load(path_to_background_image)[:, :, :3]
 
 def new_game() -> Engine:
     # return a brand new game session as Engine instance
@@ -97,7 +98,7 @@ class MainMenu(input_handlers.BaseEventHandler):
 
         menu_width = 24
         for i, text in enumerate(
-            ['[N] Play a new game', '[C] Continue last game', '[Q] Quit']
+            ['[N] Play a new game', '[C] Continue last game', '[O] Options', '[Q] Quit']
         ):
             console.print(
                 console.width // 2,
@@ -124,5 +125,7 @@ class MainMenu(input_handlers.BaseEventHandler):
                 return input_handlers.PopupMessage(self, f'Failed to load save:\n{exc}')
         elif event.sym == tcod.event.KeySym.n:
             return input_handlers.MainGameEventHandler(new_game())
+        elif event.sym == tcod.event.KeySym.o:
+            return input_handlers.PopupMessage(self, 'Options')
 
         return None

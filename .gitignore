@@ -21,3 +21,4 @@ profiling/
 !requirements.txt
 .dmypy.json
 mypy.ini
+build.bat

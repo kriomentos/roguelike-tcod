@@ -191,11 +191,9 @@ def generate_dungeon(
     
     add_features(dungeon)
 
+    # dungeon.tiles.fill(tile_types.wall)
 
-
-    dungeon.tiles.fill(tile_types.wall)
-
-    generate_rooms(dungeon, 30, 3, 11, nprng)
+    # generate_rooms(dungeon, 30, 3, 11, nprng)
 
     # place entities and player on empty non occupied walkable tiles
     # place_entities(dungeon, engine.game_world.current_floor)
@@ -208,7 +206,7 @@ def generate_dungeon(
     j = nprng.integers(len(x))
     i = nprng.integers(len(x))
     
-    # add_aquifers(x[j], y[j], dungeon)
+    add_aquifers(x[j], y[j], dungeon)
 
     player.place(
         x[i], # dungeon.downstairs_location[0], 

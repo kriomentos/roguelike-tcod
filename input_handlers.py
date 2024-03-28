@@ -224,7 +224,7 @@ class MainGameEventHandler(EventHandler):
         # without having to interact with them
         elif key == tcod.event.KeySym.SLASH:
             return LookHandler(self.engine)
-        elif key == tcod.event.KeySym.z:
+        elif key == tcod.event.KeySym.m:
             self.engine.game_map.visibility = not self.engine.game_map.visibility
             print(f'vis: {self.engine.game_map.visibility}')
         elif key == tcod.event.KeySym.x:
@@ -233,6 +233,8 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.KeySym.a:
             for entity in set(self.engine.game_map.actors) - {player}:
                 entity.fighter.die()
+        elif key == tcod.event.KeySym.z:
+            return None
 
         return action
 
