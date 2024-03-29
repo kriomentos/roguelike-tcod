@@ -76,6 +76,7 @@ class GameMap:
     # check list of entities and return one being at [x, y] location
     def get_blocking_entity_at_location(self, location_x: int, location_y: int) -> (Entity | None):
         for entity in self.entities:
+            assert entity is not None
             if (entity.blocks_movement and entity.x == location_x and entity.y == location_y):
                 return entity
 

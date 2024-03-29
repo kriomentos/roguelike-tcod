@@ -189,14 +189,14 @@ def generate_dungeon(
         cellular_automata(dungeon, 6, wall_count)
         cellular_automata(dungeon, 5, wall_count)
     
-    add_features(dungeon)
+    # add_features(dungeon)
 
     # dungeon.tiles.fill(tile_types.wall)
 
     # generate_rooms(dungeon, 30, 3, 11, nprng)
 
     # place entities and player on empty non occupied walkable tiles
-    # place_entities(dungeon, engine.game_world.current_floor)
+    place_entities(dungeon, engine.game_world.current_floor)
 
     # ensures surrounding wall
     dungeon.tiles[[0, -1], :] = tile_types.wall
@@ -211,6 +211,16 @@ def generate_dungeon(
     player.place(
         x[i], # dungeon.downstairs_location[0], 
         y[i], # dungeon.downstairs_location[1], 
+        dungeon
+    )
+    entity_factories.dummy.place(
+        x[i + 1], # dungeon.downstairs_location[0], 
+        y[i], # dungeon.downstairs_location[1], 
+        dungeon
+    )
+    entity_factories.table.place(
+        x[i], # dungeon.downstairs_location[0], 
+        y[i+ 1], # dungeon.downstairs_location[1], 
         dungeon
     )
 

@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from abc import abstractmethod
 
 from typing import Optional, Tuple, TYPE_CHECKING
@@ -9,6 +10,8 @@ import exceptions
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity, Item, Object
+
+from entity import Actor
 
 # default action
 class Action:
@@ -254,19 +257,21 @@ class PushAction(ActionWithDirection):
         # but do nothing otherwise
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
             if isinstance(target, Actor):
+                blocking_entity = self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y)
+                assert blocking_entity is not None
                 self.engine.message_log.add_message(
-                    f'{push_desc} into {self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y).name}, both take 1 damage', color.player_atk
+                    f'{push_desc} into {blocking_entity.name}, both take 1 damage', color.player_atk
                 )
                 target.fighter.hp -= 1
             else:
                 self.engine.message_log.add_message(
-                    f'{push_desc} into into {self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y).name}', color.player_atk
+                    f'{push_desc} into {target.name}', color.player_atk
                 )
             # self.engine.game_map.get_actor_at_location(dest_x, dest_y).fighter.hp -= 1
             return
 
         # push the target in the direction we try to move
-        target.move(self.dx + 1, self.dy + 1)
+        target.move(self.dx, self.dy)
 
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:

@@ -184,16 +184,16 @@ class MainGameEventHandler(EventHandler):
 
         # perform move action in a given direction
         # if modifier key is held change the behavior
-        if key in MOVE_KEYS:
-            dx, dy = MOVE_KEYS[key]
 
-            # if the shift is held, perform other action
-            # that is push the entity in front of the player
-            if key and modifier and tcod.event.Modifier.SHIFT:
-                action = PushAction(player, dx, dy)
+        # if the shift is held, perform other action
+        # that is push the entity in front of the player
+        if key in MOVE_KEYS and modifier and tcod.event.Modifier.SHIFT:
+            dx, dy = MOVE_KEYS[key]
+            action = PushAction(player, dx, dy)
+        elif key in MOVE_KEYS:
+            dx, dy = MOVE_KEYS[key]
             # or just perform bump, which will resolve into move or attack
             # depending on if there is a target blocking path
-            # else:
             action = BumpAction(player, dx, dy)
 
         # pass the turn doing nothing, it advances other AI entities turns
@@ -394,7 +394,9 @@ class InteractionSelectionEventHandler(AskUserEventHandler):
             self.interactions_list = INTERACTIONS['other']
 
         try:
-            self.TITLE = self.engine.game_map.get_blocking_entity_at_location(self.selected_target[0], self.selected_target[1]).name
+            target = self.engine.game_map.get_blocking_entity_at_location(self.selected_target[0], self.selected_target[1])
+            assert target is not None
+            self.TITLE = target.name
         except AttributeError:
             self.TITLE = "Non-entity type"
 
@@ -405,6 +407,7 @@ class InteractionSelectionEventHandler(AskUserEventHandler):
 
         if self.engine.player.x <= 30:
             x = 40
+
         else:
             x = 0
         
@@ -439,7 +442,9 @@ class InteractionSelectionEventHandler(AskUserEventHandler):
 
         if 0 <= index <= 26:
             if hasattr(self.selected_target, 'name'):
-                print(f'Option {self.interactions_list[index]}, target at: {self.selected_target} it was {self.engine.game_map.get_blocking_entity_at_location(self.selected_target[0], self.selected_target[1]).name}')
+                _selected_target = self.engine.game_map.get_blocking_entity_at_location(self.selected_target[0], self.selected_target[1])
+                assert _selected_target is not None
+                print(f'Option {self.interactions_list[index]}, target at: {self.selected_target} it was {_selected_target.name}')
             else:
                 print(f'Option {self.interactions_list[index]}, target at: {self.selected_target}')
         

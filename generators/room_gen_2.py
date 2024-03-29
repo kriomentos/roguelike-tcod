@@ -24,7 +24,7 @@ def create_room(x: int, y: int, x2: int, y2: int, dungeon: GameMap, rng: Generat
         print(f'out of bounds room placement attempt... skipping')
         x, y = rng.integers(0, dungeon.width - 1), rng.integers(0, dungeon.height- 1)
         room_w, room_h = rng.integers(2, 10), rng.integers(2, 10) 
-        create_room(x, y, dungeon, room_rng, room_w, room_h)
+        create_room(x, y, room_w, room_h, dungeon, room_rng)
 
     room = RectangularRoom(x, y, x2, y2)
 

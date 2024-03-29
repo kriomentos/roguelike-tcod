@@ -49,7 +49,7 @@ def create_room(min_size: int, max_size: int, x: int, y: int, dungeon: GameMap, 
 
     if x < 0 or y > dungeon.width or room_w < 0 or room_h > dungeon.height:
         print(f'Out of bounds corners, retry')
-        create_room(min_size, max_size, dungeon, rand_generator)
+        create_room(min_size, max_size, x, y, dungeon, rand_generator)
 
     room = RectangularRoom(x, y, room_w, room_h)
 
@@ -65,7 +65,7 @@ def generate_rooms(
     rooms: List[RectangularRoom] = []
     x, y = rand_generator.integers(0, dungeon.width - 1), rand_generator.integers(0, dungeon.height - 1)
 
-    new_room = create_room(room_min_size, room_max_size, dungeon, rand_generator)
+    new_room = create_room(room_min_size, room_max_size, x, y, dungeon, rand_generator)
 
     # # make sure the new room doesn't go out of bounds of the GameMap
     # if new_room.x1 < 0 or new_room.x2 > dungeon.width or new_room.y1 < 0 or new_room.y2 > dungeon.height:
@@ -81,21 +81,21 @@ def generate_rooms(
     # add new rooms adjacent to previous ones, up to max_rooms
     for _ in range(max_rooms):
         prev_room = rooms[-1]
-        # direction = nprng.choice(["n", "s", "e", "w"])
-        # if direction == "n":
-        #     x = nprng.integers(prev_room.x1, prev_room.x2)
-        #     y = prev_room.y1 - new_room.height
-        # elif direction == "s":
-        #     x = nprng.integers(prev_room.x1, prev_room.x2)
-        #     y = prev_room.y2
-        # elif direction == "e":
-        #     x = prev_room.x2
-        #     y = nprng.integers(prev_room.y1, prev_room.y2)
-        # elif direction == "w":
-        #     x = prev_room.x1 - new_room.width
-        #     y = nprng.integers(prev_room.y1, prev_room.y2)
+        direction = rand_generator.choice(["n", "s", "e", "w"])
+        if direction == "n":
+            x = rand_generator.integers(prev_room.x1, prev_room.x2)
+            y = prev_room.y1 - new_room.height
+        elif direction == "s":
+            x = rand_generator.integers(prev_room.x1, prev_room.x2)
+            y = prev_room.y2
+        elif direction == "e":
+            x = prev_room.x2
+            y = rand_generator.integers(prev_room.y1, prev_room.y2)
+        elif direction == "w":
+            x = prev_room.x1 - new_room.width
+            y = rand_generator.integers(prev_room.y1, prev_room.y2)
 
-        new_room = create_room(room_min_size, room_max_size, dungeon, rand_generator)
+        new_room = create_room(room_min_size, room_max_size, x, y, dungeon, rand_generator)
 
         if any(new_room.intersects(other_room) for other_room in rooms):
             print(f'rooms intersecting')

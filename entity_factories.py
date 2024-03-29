@@ -37,7 +37,7 @@ player = Actor(
     name = 'Player', # name displayed when taking actions/interacting
     ai_cls = SimpleHostileEnemy, # type of AI to use, player doesn't need it but it must be specified for all Actors
     equipment = Equipment(),
-    fighter = Fighter(hp = 1000, base_defense = 100, base_power = 2), # base statistics for Actor
+    fighter = Fighter(hp = 1000, base_defense = 100, base_power = 0), # base statistics for Actor
     inventory = Inventory(capacity = 26), # attach Inventory to actor with set size, size determines how many items actor can carry
     level = Level(level_up_base = 200),
 )
