@@ -29,7 +29,7 @@ def new_game() -> Engine:
 
     init_open = 49
 
-    cellulara_repeats = 7
+    cellautomata_repeats = 7
 
     player = copy.deepcopy(entity_factories.player)
 
@@ -42,7 +42,7 @@ def new_game() -> Engine:
         map_width = map_width,
         map_height = map_height,
         initial_open = init_open,
-        cellulara_repeats = cellulara_repeats,
+        cellautomata_repeats = cellautomata_repeats,
     )
 
     engine.game_world.generate_floor()
@@ -126,6 +126,6 @@ class MainMenu(input_handlers.BaseEventHandler):
         elif event.sym == tcod.event.KeySym.n:
             return input_handlers.MainGameEventHandler(new_game())
         elif event.sym == tcod.event.KeySym.o:
-            return input_handlers.PopupMessage(self, 'Options')
+            return input_handlers.GetTilesetsListHandler()
 
         return None

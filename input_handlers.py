@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import os
 from typing import Callable, Optional, Tuple, TYPE_CHECKING, Union
+from glob import glob
 import tcod
 from tcod import libtcodpy
+from tcod.console import Console
+from tcod.event import KeyDown
 import actions
 from actions import (
     Action,
@@ -234,7 +237,7 @@ class MainGameEventHandler(EventHandler):
             for entity in set(self.engine.game_map.actors) - {player}:
                 entity.fighter.die()
         elif key == tcod.event.KeySym.z:
-            return None
+            return GetTilesetsListHandler(self.engine)
 
         return action
 
@@ -407,7 +410,6 @@ class InteractionSelectionEventHandler(AskUserEventHandler):
 
         if self.engine.player.x <= 30:
             x = 40
-
         else:
             x = 0
         
@@ -744,7 +746,7 @@ class AreaRangedAttackHandler(SelectIndexHandler):
         self.radius = radius
         self.callback = callback
 
-    def on_render(self, console: tcod.console.Console) -> None:
+    def on_render(self, console: Console) -> None:
         # highlight the tile under the cursor
         super().on_render(console)
 
@@ -760,3 +762,34 @@ class AreaRangedAttackHandler(SelectIndexHandler):
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
         return self.callback((x, y))
+    
+class GetTilesetsListHandler(AskUserEventHandler):
+    TITLE = "TILESET LIST"
+
+    def on_render(self, console: tcod.console.Console) -> None:
+        super().on_render(console)
+
+        print(glob('./tilesets/*.png'))
+        
+        height = len(glob('./tilesets/*.png'))
+        width = len(self.TITLE) + 15
+
+        if height <= 3:
+            height = 3
+
+        x = 0
+        y = 0
+
+        console.draw_frame(
+            x = x,
+            y = y,
+            width = width,
+            height = height,
+            title = self.TITLE,
+            clear = True,
+            fg = (color.white),
+            bg = (color.black),
+        )
+
+    def ev_keydown(self, event: KeyDown) -> Optional[ActionHandler]:
+        return super().ev_keydown(event)

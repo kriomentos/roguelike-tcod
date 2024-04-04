@@ -162,7 +162,7 @@ def generate_dungeon(
     map_width: int,
     map_height: int,
     initial_open: int,
-    cellulara_repeats: int,
+    cellautomata_repeats: int,
     engine: Engine,
 ) -> GameMap:
     # Generate a new dungeon map.
@@ -180,7 +180,7 @@ def generate_dungeon(
     dungeon.tiles[:, [0, -1]] = tile_types.wall
 
     # # we go through the map and simulate cellular automata rules using convolve values
-    for _ in range(cellulara_repeats):
+    for _ in range(cellautomata_repeats):
         cellular_automata(dungeon, 4, wall_count)
 
     connect_regions(dungeon, nprng)
