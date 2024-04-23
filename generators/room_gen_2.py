@@ -11,6 +11,13 @@ from generators.room_generator import RectangularRoom
 
 room_rng = nprng.spawn(1)[0]
 
+def setup_room_gen(dungeon: GameMap) -> GameMap:
+    dungeon.tiles.fill(tile_types.wall)
+
+    generate_rooms(dungeon, 30, 3, 11, room_rng)
+
+    return dungeon
+
 def dig_room(room: RectangularRoom, dungeon: GameMap) -> None:
     # dungeon.tiles[[room.x1, room.x2], room.y1:room.y2] = tile_types.wall
     # dungeon.tiles[room.x1:room.x2, [room.y1, room.y2]] = tile_types.wall

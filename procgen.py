@@ -11,13 +11,12 @@ import tile_types
 import entity_factories
 
 from helpers.rng import nprng
-from helpers.region_connection import connect_regions
 
-from generators.cellular_automata import cellular_automata
+from generators.cellular_automata import setup_cellular_automata
 # from generators.room_generator import generate_rooms
 from generators.decorators import add_features, add_aquifers
 
-from generators.room_gen_2 import generate_rooms
+from generators.room_gen_2 import setup_room_gen
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -171,29 +170,13 @@ def generate_dungeon(
     # helper map to hold convolve calculation
     wall_count = GameMap(engine, map_width, map_height)
 
-    # dang fast way of filling map randomly
-    dungeon.tiles = np.where(map_nprng[0].integers(0, 100, (map_height, map_width)).T > initial_open,
-        tile_types.floor, tile_types.wall
-    )
-
-    dungeon.tiles[[0, -1], :] = tile_types.wall
-    dungeon.tiles[:, [0, -1]] = tile_types.wall
-
-    # # we go through the map and simulate cellular automata rules using convolve values
-    for _ in range(cellautomata_repeats):
-        cellular_automata(dungeon, 4, wall_count)
-
-    connect_regions(dungeon, nprng)
-
-    for _ in range(2):
-        cellular_automata(dungeon, 6, wall_count)
-        cellular_automata(dungeon, 5, wall_count)
+    choice = map_nprng[0].integers(0, 1, endpoint = True)
+    if choice == 0:
+        setup_cellular_automata(dungeon, map_nprng[0], wall_count)
+    else:
+        setup_room_gen(dungeon)
     
     # add_features(dungeon)
-
-    # dungeon.tiles.fill(tile_types.wall)
-
-    # generate_rooms(dungeon, 30, 3, 11, nprng)
 
     # place entities and player on empty non occupied walkable tiles
     place_entities(dungeon, engine.game_world.current_floor)
@@ -211,16 +194,6 @@ def generate_dungeon(
     player.place(
         x[i], # dungeon.downstairs_location[0], 
         y[i], # dungeon.downstairs_location[1], 
-        dungeon
-    )
-    entity_factories.dummy.place(
-        x[i + 1], # dungeon.downstairs_location[0], 
-        y[i], # dungeon.downstairs_location[1], 
-        dungeon
-    )
-    entity_factories.table.place(
-        x[i], # dungeon.downstairs_location[0], 
-        y[i+ 1], # dungeon.downstairs_location[1], 
         dungeon
     )
 
