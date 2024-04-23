@@ -98,7 +98,7 @@ class MainMenu(input_handlers.BaseEventHandler):
 
         menu_width = 24
         for i, text in enumerate(
-            ['[N] Play a new game', '[C] Continue last game', '[O] Options', '[Q] Quit']
+            ['[N] Play a new game', '[C] Continue last game', '[Q] Quit']
         ):
             console.print(
                 console.width // 2,
@@ -125,7 +125,5 @@ class MainMenu(input_handlers.BaseEventHandler):
                 return input_handlers.PopupMessage(self, f'Failed to load save:\n{exc}')
         elif event.sym == tcod.event.KeySym.n:
             return input_handlers.MainGameEventHandler(new_game())
-        elif event.sym == tcod.event.KeySym.o:
-            return input_handlers.GetTilesetsListHandler()
 
         return None

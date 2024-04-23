@@ -763,18 +763,20 @@ class AreaRangedAttackHandler(SelectIndexHandler):
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
         return self.callback((x, y))
     
+import traceback
+
 class GetTilesetsListHandler(AskUserEventHandler):
     TITLE = "TILESET LIST"
 
     def on_render(self, console: tcod.console.Console) -> None:
         super().on_render(console)
 
-        print(glob('./tilesets/*.png'))
+        tileset_list = glob('./tilesets/*.png')
         
-        height = len(glob('./tilesets/*.png'))
-        width = len(self.TITLE) + 15
+        height = len(tileset_list) + 2
+        width = len(self.TITLE) + len(os.path.basename(max(tileset_list, key = len)))
 
-        if height <= 3:
+        if height < 3:
             height = 3
 
         x = 0
@@ -791,5 +793,46 @@ class GetTilesetsListHandler(AskUserEventHandler):
             bg = (color.black),
         )
 
+        if height > 0:
+            for i, tileset in enumerate(tileset_list):
+                option_key = chr(ord('a') + i)
+                option_string = f'({option_key} {os.path.basename(tileset)})'
+                console.print(x + 1, y + i + 1, option_string)
+        else:
+            console.print(x + 1, y + 1, 'NO TILESETS FOUND')
+
     def ev_keydown(self, event: KeyDown) -> Optional[ActionHandler]:
+        key = event.sym
+        index = key - tcod.event.KeySym.a
+
+        if 0 <= index <= 26:
+            try:
+                selected_item = glob('./tilesets/*.png')[index]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry", color.invalid)
+                return None
+            print(f'chose: {selected_item}')
+            try:
+                new_console = tcod.console.Console(80, 50, order = 'F')
+                ne_tilest = tcod.tileset.load_tilesheet(selected_item, 16, 16,  tcod.tileset.CHARMAP_CP437)
+                
+                with tcod.context.new(
+                    columns = 80,
+                    rows = 50,
+                    tileset = ne_tilest,
+                    title = 'Test',
+                    vsync = True,
+                ) as new_context:
+                    try:
+                        while True:
+                            new_console.clear()
+                            new_context.present(new_console)
+                    except Exception:
+                        traceback.print_exc()
+
+                self.engine.update_fov()
+            except Exception as err:
+                print(f"Unexpected {err=}, {type(err)=} when loading tileset")
+                raise
+
         return super().ev_keydown(event)
