@@ -160,8 +160,6 @@ def place_entities(dungeon: GameMap, floor_number: int) -> None:
 def generate_dungeon(
     map_width: int,
     map_height: int,
-    initial_open: int,
-    cellautomata_repeats: int,
     engine: Engine,
 ) -> GameMap:
     # Generate a new dungeon map.

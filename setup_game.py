@@ -27,10 +27,6 @@ def new_game() -> Engine:
     viewport_width = 80
     viewport_height = 40
 
-    init_open = 49
-
-    cellautomata_repeats = 7
-
     player = copy.deepcopy(entity_factories.player)
 
     engine = Engine(player = player)
@@ -41,8 +37,6 @@ def new_game() -> Engine:
         viewport_height = viewport_height,
         map_width = map_width,
         map_height = map_height,
-        initial_open = init_open,
-        cellautomata_repeats = cellautomata_repeats,
     )
 
     engine.game_world.generate_floor()

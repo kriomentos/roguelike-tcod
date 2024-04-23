@@ -166,8 +166,6 @@ class GameWorld:
         viewport_height,
         map_width: int,
         map_height: int,
-        initial_open: int,
-        cellautomata_repeats: int,
         current_floor: int = 0,
         floors_list: dict = {},
     ):
@@ -178,8 +176,6 @@ class GameWorld:
 
         self.map_width = map_width
         self.map_height = map_height
-        self.initial_open = initial_open
-        self.cellautomata_repeats = cellautomata_repeats
 
         self.current_floor = current_floor
         self.floors_list = floors_list
@@ -202,8 +198,6 @@ class GameWorld:
         self.engine.game_map = generate_dungeon(
             map_width = self.map_width,
             map_height = self.map_height,
-            initial_open = self.initial_open,
-            cellautomata_repeats = self.cellautomata_repeats,
             engine = self.engine,
         )
 
