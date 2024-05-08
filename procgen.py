@@ -15,8 +15,9 @@ from helpers.rng import nprng
 from generators.cellular_automata import setup_cellular_automata
 # from generators.room_generator import generate_rooms
 from generators.decorators import add_features, add_aquifers
-
 from generators.room_gen_2 import setup_room_gen
+
+from generators.bsp_tree import Branch
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -194,5 +195,9 @@ def generate_dungeon(
         y[i], # dungeon.downstairs_location[1], 
         dungeon
     )
+    
+    node = Branch((80,40), (0, 0))
+    path_list = node.split(2, [])
+    node.get_leaves(path_list)
 
     return dungeon
