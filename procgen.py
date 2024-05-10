@@ -198,6 +198,9 @@ def generate_dungeon(
     
     node = Branch((80,40), (0, 0))
     path_list = node.split(2, [])
-    node.get_leaves(path_list)
+    # print(f'leaf: {node.get_leaves()}')
+    for leaf in node.get_leaves():
+        # assert isinstance(leaf, Branch)
+        print(f'leaf: {leaf[0][0].size}, second one: {leaf[1]}')
 
     return dungeon

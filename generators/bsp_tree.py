@@ -8,50 +8,60 @@ class Branch:
     def __init__(self, starting_size: Tuple[int, int], starting_position: Tuple[int, int]) -> None:
         self.size = starting_size
         self.position = starting_position
+        self.left_child: Branch = None
+        self.right_child: Branch = None
 
     @property
     def center(self) -> Tuple[int, int]:
         return self.size[0] + self.position[0] / 2, self.size[1] + self.position[1] / 2
 
-    def split(self, remaining: int, paths: List):
+    def size(self) -> Tuple[int, int]:
+        return self.size
+    
+    def position(self) -> Tuple[int, int]:
+        return self.position
+
+    def split(self, remaining: int, paths: List) -> List:
         split_percent = nprng.uniform(0.3, 0.7)
         split_horizontal = self.size[1] >= self.size[0]
 
-        print(f'size: {self.size}, position: {self.position}')
         print(f'split %: {split_percent}, horizontal?: {split_horizontal}')
         if split_horizontal:
             left_height = int(self.size[1] * split_percent)
-            left_child = Branch((self.size[0], left_height), self.position)
-            right_child = Branch(
+            self.left_child = Branch((self.size[0], left_height), self.position)
+            self.right_child = Branch(
                 (self.size[0], self.size[1] - left_height),
                 (self.position[0], self.position[1] + left_height)
             )
-            print(f'split horizontal')
+            print(f'left leaf: {self.left_child.size, self.left_child.position}, right leaf: {self.right_child.size, self.right_child.position}\n')
         else:
             left_width = int(self.size[0] * split_percent)
-            left_child = Branch((left_width, self.size[1]), self.position)
-            right_child = Branch(
+            self.left_child = Branch((left_width, self.size[1]), self.position)
+            self.right_child = Branch(
                 (self.size[0] - left_width, self.size[1]),
                 (self.position[0] + left_width, self.position[1])
             )
-            print(f'split vertical')
+            print(f'left leaf: {self.left_child.size, self.left_child.position}, right leaf: {self.right_child.size, self.right_child.position}\n')
 
-        path = {'left': left_child.center, 'right': right_child.center}
+        path = {'left': self.left_child, 'right': self.right_child}
 
         paths.append(path)
 
         if remaining > 0:
-            left_child.split(remaining - 1, paths)
-            right_child.split(remaining - 1, paths)
+            self.left_child.split(remaining - 1, paths)
+            self.right_child.split(remaining - 1, paths)
 
         return paths
 
-    def get_leaves(self, paths: List):
-        if not paths:
+    def get_leaves(self) -> Branch: #, paths: List[dict[str, Branch]]
+        if not (self.left_child and self.right_child):
             return self
         else:
-           for path in paths:
-               print(f'path: {path}\n')
+            try:
+                return self.left_child.get_leaves(), self.right_child.get_leaves()
+            except AttributeError:
+                return self
+
 # drawing it out, rewrite and implement as function in this file
 
 # extends Node2D
