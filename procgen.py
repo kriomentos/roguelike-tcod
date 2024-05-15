@@ -17,7 +17,7 @@ from generators.cellular_automata import setup_cellular_automata
 from generators.decorators import add_features, add_aquifers
 from generators.room_gen_2 import setup_room_gen
 
-from generators.bsp_tree import Branch
+from generators.bsp_tree import Branch, get_leaves
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -196,11 +196,20 @@ def generate_dungeon(
         dungeon
     )
     
-    node = Branch((80,40), (0, 0))
-    path_list = node.split(2, [])
-    # print(f'leaf: {node.get_leaves()}')
-    for leaf in node.get_leaves():
-        # assert isinstance(leaf, Branch)
-        print(f'leaf: {leaf[0][0].size}, second one: {leaf[1]}')
+    node = Branch((78,38), (0, 0))
+    split_amount = 3
+    path_list = node.split(split_amount, [])
+    leaf_list = get_leaves(node)
+    print(f'leaf: {leaf_list =}')
+    for branch in leaf_list:
+        if branch is not None:
+            print(f'Branch size: {branch.size} and position: {branch.position}\n')
+            for x in range(branch.size[0]):
+                for y in range(branch.size[1]):
+                    if not is_inside_pad(x, y, branch):
+                        dungeon.tiles[x + branch.position[0], y + branch.position[1]] = tile_types.placeholder
 
     return dungeon
+
+def is_inside_pad(x, y, leaf):
+    return x <= 2 or y <= 2 or x >= leaf.size[0] - 2 or y >= leaf.size[1] - 2

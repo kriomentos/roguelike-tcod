@@ -53,34 +53,16 @@ class Branch:
 
         return paths
 
-    def get_leaves(self) -> Branch: #, paths: List[dict[str, Branch]]
-        if not (self.left_child and self.right_child):
-            return self
-        else:
-            try:
-                return self.left_child.get_leaves(), self.right_child.get_leaves()
-            except AttributeError:
-                return self
+def get_leaves(branch): #, paths: List[dict[str, Branch]]
+    if branch is None:
+        return []
+
+    branches = [branch.left_child, branch.right_child]
+    branches.extend(get_leaves(branch.left_child))
+    branches.extend(get_leaves(branch.right_child))
+    return branches
 
 # drawing it out, rewrite and implement as function in this file
-
-# extends Node2D
-
-# var root_node: Branch
-# var tile_size: int =  16
-# var world_size = Vector2i(60,30)
-
-# var tilemap: TileMap
-# var paths: Array = []
-
-# func _draw():
-# 	var rng = RandomNumberGenerator.new()
-# 	for leaf in root_node.get_leaves():
-# 		var padding = Vector4i(rng.randi_range(2,3),rng.randi_range(2,3),rng.randi_range(2,3),rng.randi_range(2,3))
-# 		for x in range(leaf.size.x):
-# 			for y in range(leaf.size.y):
-# 				if not is_inside_padding(x,y, leaf, padding) :
-# 					tilemap.set_cell(0, Vector2i(x + leaf.position.x,y + leaf.position.y), 2, Vector2i(2, 2))
 # 	for path in paths:
 # 		if path['left'].y == path['right'].y:
 # 			for i in range(path['right'].x - path['left'].x):
@@ -88,12 +70,3 @@ class Branch:
 # 		else:
 # 			for i in range(path['right'].y - path['left'].y):
 # 				tilemap.set_cell(0, Vector2i(path['left'].x,path['left'].y+i), 2, Vector2i(2, 2))
-# func _ready():
-# 	tilemap = get_node("TileMap")
-# 	root_node  = Branch.new(Vector2i(0,0), world_size)
-# 	root_node.split(2, paths)
-# 	queue_redraw()
-# 	pass
-
-# func is_inside_padding(x, y, leaf, padding):
-# 	return x <= padding.x or y <= padding.y or x >= leaf.size.x - padding.z or y >= leaf.size.y - padding.w
