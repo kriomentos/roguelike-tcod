@@ -132,6 +132,48 @@ class SpellCastingEnemy(BaseAI):
             dest_x, dest_y = self.path.pop(0)
             return MovementAction(self.entity, dest_x - self.entity.x, dest_y - self.entity.y).perform()
 
+class HealingEnemy(BaseAI):
+    def __init__(self, entity: Actor) -> None:
+        super().__init__(entity)
+        self.path: List[Tuple[int, int]] = []
+        self.spell_power = 1
+        self.spell_cooldown = 2
+
+    def perform(self) -> None:
+        player = self.engine.player
+        dx_to_player = player.x - self.entity.x
+        dy_to_player = player.y - self.entity.y
+
+        distance_to_player = max(abs(dx_to_player), abs(dy_to_player))
+        distance_to_target = 0
+
+        for target_actor in self.engine.game_map.actors:
+            if isinstance(target_actor, Actor) and target_actor is not player:
+                assert target_actor is not None
+                if target_actor.fighter.max_hp != target_actor.fighter.hp:
+                    dx_to_target = target_actor.x - self.entity.x
+                    dy_to_target = target_actor.y - self.entity.y
+                    distance_to_target = max(abs(dx_to_target), abs(dy_to_target))
+                    
+                if distance_to_player == 1:
+                    return MeleeAction(self.entity, dx_to_player, dy_to_player).perform()
+                elif 2 < distance_to_target < 5 and self.spell_cooldown > 0:
+                    self.engine.message_log.add_message(
+                        f'{self.entity.name} heals {target_actor.name} for {self.spell_power}'
+                    )
+                    target_actor.fighter.heal(self.spell_power)
+                    self.spell_cooldown -= 1
+                elif self.spell_cooldown == 0:
+                    self.spell_cooldown = 2
+                else:
+                    self.path = self.get_path_to(target_actor.x, target_actor.y)
+
+            if self.path:
+                dest_x, dest_y = self.path.pop(0)
+                return MovementAction(self.entity, dest_x - self.entity.x, dest_y - self.entity.y).perform()
+            else:
+                self.wander_around()
+
 class GreedyEnemy(BaseAI):
     def __init__(self, entity: Actor):
         super().__init__(entity)

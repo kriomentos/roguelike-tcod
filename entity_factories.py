@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from random import randint
-from components.ai import Dummy, GreedyEnemy, SimpleHostileEnemy, SpellCastingEnemy, MimicHostileEnemy
+from components.ai import Dummy, GreedyEnemy, SimpleHostileEnemy, SpellCastingEnemy, MimicHostileEnemy, HealingEnemy
 from components.fighter import Fighter
 from components.equipment import Equipment
 from components import consumable, equippable, interactable
@@ -37,7 +37,7 @@ player = Actor(
     name = 'Player', # name displayed when taking actions/interacting
     ai_cls = SimpleHostileEnemy, # type of AI to use, player doesn't need it but it must be specified for all Actors
     equipment = Equipment(),
-    fighter = Fighter(hp = 1000, base_defense = 100, base_power = 0), # base statistics for Actor
+    fighter = Fighter(hp = 1000, base_defense = 2, base_power = 1), # base statistics for Actor
     inventory = Inventory(capacity = 26), # attach Inventory to actor with set size, size determines how many items actor can carry
     level = Level(level_up_base = 200),
 )
@@ -64,9 +64,19 @@ caster = Actor(
     inventory = Inventory(capacity = 0),
     level = Level(xp_given = 30),
 )
+healer = Actor(
+    char = 'h',
+    color = color.anb_green,
+    name = 'Healer',
+    ai_cls = HealingEnemy,
+    equipment = Equipment(),
+    fighter = Fighter(hp = 5, base_defense = 0, base_power = 1),
+    inventory = Inventory(capacity = 0),
+    level = Level(xp_given = 20),
+)
 orc = Actor(
     char = 'o',
-    color = color.anb_light_brown, # (63, 127, 63),
+    color = color.anb_light_brown,
     name = 'Orc',
     ai_cls = SimpleHostileEnemy,
     equipment = Equipment(),
@@ -76,7 +86,7 @@ orc = Actor(
 )
 troll = Actor(
     char = 'T',
-    color = color.anb_brown, # (0, 127, 0),
+    color = color.anb_brown,
     name = 'Troll',
     ai_cls = SimpleHostileEnemy,
     equipment = Equipment(),
@@ -86,7 +96,7 @@ troll = Actor(
 )
 goblin = Actor(
     char = 'g',
-    color = color.anb_light_brown, # (0, 127, 0),
+    color = color.anb_light_brown,
     name = 'Goblin',
     ai_cls = GreedyEnemy,
     equipment = Equipment(),

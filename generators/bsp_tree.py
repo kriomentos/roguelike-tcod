@@ -8,8 +8,8 @@ class Branch:
     def __init__(self, starting_size: Tuple[int, int], starting_position: Tuple[int, int]) -> None:
         self.size = starting_size
         self.position = starting_position
-        self.left_child: Branch
-        self.right_child: Branch
+        self.left_child: Branch = None # type: ignore
+        self.right_child: Branch = None # type: ignore
 
     @property
     def center(self) -> Tuple[int, int]:

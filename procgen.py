@@ -195,19 +195,31 @@ def generate_dungeon(
         y[i], # dungeon.downstairs_location[1], 
         dungeon
     )
+
+    entity_factories.healer.spawn(
+        x[i + 2],
+        y[i + 3],
+        dungeon
+    )
+
+    entity_factories.orc.spawn(
+        x[i - 1],
+        y[i - 1],
+        dungeon
+    )
     
     node = Branch((78,38), (0, 0))
     split_amount = 3
     path_list = node.split(split_amount, [])
     leaf_list = get_leaves(node)
     print(f'leaf: {leaf_list =}')
-    for branch in leaf_list:
-        if branch is not None:
-            print(f'Branch size: {branch.size} and position: {branch.position}\n')
-            for x in range(branch.size[0]):
-                for y in range(branch.size[1]):
-                    if not is_inside_pad(x, y, branch):
-                        dungeon.tiles[x + branch.position[0], y + branch.position[1]] = tile_types.placeholder
+    # for branch in leaf_list:
+    #     if branch is not None:
+    #         print(f'Branch size: {branch.size} and position: {branch.position}\n')
+    #         for x in range(branch.size[0]):
+    #             for y in range(branch.size[1]):
+    #                 if not is_inside_pad(x, y, branch):
+    #                     dungeon.tiles[x + branch.position[0], y + branch.position[1]] = tile_types.placeholder
 
     return dungeon
 
