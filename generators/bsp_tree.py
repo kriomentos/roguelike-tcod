@@ -8,18 +8,12 @@ class Branch:
     def __init__(self, starting_size: Tuple[int, int], starting_position: Tuple[int, int]) -> None:
         self.size = starting_size
         self.position = starting_position
-        self.left_child: Branch = None
-        self.right_child: Branch = None
+        self.left_child: Branch
+        self.right_child: Branch
 
     @property
     def center(self) -> Tuple[int, int]:
-        return self.size[0] + self.position[0] / 2, self.size[1] + self.position[1] / 2
-
-    def size(self) -> Tuple[int, int]:
-        return self.size
-    
-    def position(self) -> Tuple[int, int]:
-        return self.position
+        return self.size[0] + int(self.position[0] / 2), self.size[1] + int(self.position[1] / 2)
 
     def split(self, remaining: int, paths: List) -> List:
         split_percent = nprng.uniform(0.3, 0.7)
