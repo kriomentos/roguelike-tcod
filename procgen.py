@@ -17,7 +17,7 @@ from generators.cellular_automata import setup_cellular_automata
 from generators.decorators import add_features, add_aquifers
 from generators.room_gen_2 import setup_room_gen
 
-from generators.bsp_tree import Branch, get_leaves
+from generators.bsp_tree import Branch, get_leaves, branches_overlap
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -208,20 +208,29 @@ def generate_dungeon(
         dungeon
     )
     
-    node = Branch((78,38), (0, 0))
-    split_amount = 3
+    node = Branch((70,30), (0, 0))
+    split_amount = 2
     path_list = node.split(split_amount, [])
     leaf_list = get_leaves(node)
-    print(f'leaf: {leaf_list =}')
-    # for branch in leaf_list:
-    #     if branch is not None:
-    #         print(f'Branch size: {branch.size} and position: {branch.position}\n')
-    #         for x in range(branch.size[0]):
-    #             for y in range(branch.size[1]):
-    #                 if not is_inside_pad(x, y, branch):
-    #                     dungeon.tiles[x + branch.position[0], y + branch.position[1]] = tile_types.placeholder
+    print(f'{leaf_list =}')
+    for branch in leaf_list:
+        overlap = False
+        for other_branch in leaf_list:
+            if branch != other_branch and branches_overlap(branch, other_branch):
+                overlap = True
+                print(f'overlapping branches? {branch.position, branch.size} : {other_branch.position, other_branch.size}')
+                break
+        if overlap:
+            continue
+
+        print(f'Branch size: {branch.size} and position: {branch.position}\n')
+        for x in range(branch.size[0]-2):
+            for y in range(branch.size[1]-2):
+                if not is_inside_pad(x, y, branch):
+                    dungeon.tiles[x + branch.position[0], y + branch.position[1]] = tile_types.placeholder
+                    print(f'placing tile: {x + branch.position[0]} and {y + branch.position[1]}')
 
     return dungeon
 
 def is_inside_pad(x, y, leaf):
-    return x <= 2 or y <= 2 or x >= leaf.size[0] - 2 or y >= leaf.size[1] - 2
+    return x <= 3 or y <= 3 or x >= leaf.size[0] - 3 or y >= leaf.size[1] - 3

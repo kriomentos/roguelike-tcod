@@ -47,14 +47,27 @@ class Branch:
 
         return paths
 
-def get_leaves(branch): #, paths: List[dict[str, Branch]]
+def get_leaves(branch: Branch) -> list[Branch]: #, paths: List[dict[str, Branch]]
     if branch is None:
         return []
+    if branch is not None:
+        branches = [branch.left_child, branch.right_child]
+        branches.extend(get_leaves(branch.left_child))
+        branches.extend(get_leaves(branch.right_child))
 
-    branches = [branch.left_child, branch.right_child]
-    branches.extend(get_leaves(branch.left_child))
-    branches.extend(get_leaves(branch.right_child))
-    return branches
+    only_branches = [x for x in branches if x != None]
+
+    return only_branches
+
+def branches_overlap(branch1: Branch, branch2: Branch) -> bool:
+    x1_min, y1_min = branch1.position
+    x1_max, y1_max = x1_min + branch1.size[0], y1_min + branch1.size[1]
+    
+    x2_min, y2_min = branch2.position
+    x2_max, y2_max = x2_min + branch2.size[0], y2_min + branch2.size[1]
+    
+    overlap = not (x1_max <= x2_min or x1_min >= x2_max or y1_max <= y2_min or y1_min >= y2_max)
+    return overlap
 
 # drawing it out, rewrite and implement as function in this file
 # 	for path in paths:
