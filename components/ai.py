@@ -154,25 +154,28 @@ class HealingEnemy(BaseAI):
                     dx_to_target = target_actor.x - self.entity.x
                     dy_to_target = target_actor.y - self.entity.y
                     distance_to_target = max(abs(dx_to_target), abs(dy_to_target))
+
+                    if 5 < distance_to_target < 9:
+                        self.path = self.get_path_to(target_actor.x, target_actor.y)
+                    elif distance_to_target <= 5 and self.spell_cooldown > 0:
+                        self.engine.message_log.add_message(
+                            f'{self.entity.name} heals {target_actor.name} for {self.spell_power}'
+                        )
+                        target_actor.fighter.heal(self.spell_power)
+                        self.spell_cooldown -= 1
+                    elif self.spell_cooldown == 0:
+                        self.spell_cooldown = 2
+                    else:
+                        self.wander_around()
                     
                 if distance_to_player == 1:
                     return MeleeAction(self.entity, dx_to_player, dy_to_player).perform()
-                elif 2 < distance_to_target < 5 and self.spell_cooldown > 0:
-                    self.engine.message_log.add_message(
-                        f'{self.entity.name} heals {target_actor.name} for {self.spell_power}'
-                    )
-                    target_actor.fighter.heal(self.spell_power)
-                    self.spell_cooldown -= 1
-                elif self.spell_cooldown == 0:
-                    self.spell_cooldown = 2
-                else:
-                    self.path = self.get_path_to(target_actor.x, target_actor.y)
-
-            if self.path:
-                dest_x, dest_y = self.path.pop(0)
-                return MovementAction(self.entity, dest_x - self.entity.x, dest_y - self.entity.y).perform()
-            else:
-                self.wander_around()
+                
+        if self.path:
+            dest_x, dest_y = self.path.pop(0)
+            return MovementAction(self.entity, dest_x - self.entity.x, dest_y - self.entity.y).perform()
+        else:
+            self.wander_around()
 
 class GreedyEnemy(BaseAI):
     def __init__(self, entity: Actor):

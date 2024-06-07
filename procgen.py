@@ -38,6 +38,14 @@ max_monsters_per_floor = [
     (6, 5),
 ]
 
+def max_items(floor_number = int) -> Tuple[int, int]:
+    item_number = floor_number / 2
+    return (floor_number, item_number)
+
+def max_monsters(floor_number = int) -> Tuple[int, int]:
+    monster_number = 1/15 * (33 + floor_number * (-5 + 2 * floor_number))
+    return (floor_number, monster_number)
+
 # dictionaries of weighted entities for spawning
 # higher weight means higher chance of spawning
 # dict key is the floor number where they start appearing
@@ -63,26 +71,30 @@ enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
     0: [(entity_factories.orc, 180),
         (entity_factories.caster, 180),
         (entity_factories.table, 150)],
-    1: [(entity_factories.dummy, 200),
-        (entity_factories.table, 200)],
+    1: [(entity_factories.dummy, 100),
+        (entity_factories.table, 100)],
     3: [(entity_factories.troll, 50)],
     5: [(entity_factories.troll, 30)],
     7: [(entity_factories.orc, 25),
-        (entity_factories.troll, 45)],
+        (entity_factories.troll, 45),
+        (entity_factories.healer, 20)],
+    9: [(entity_factories.healer, 35)],
 }
 
 def get_max_value_for_floor(
-    max_value: List[Tuple[int, int]], floor: int
+    max_value: Tuple[int, int], floor: int
 ) -> int:
     current_value = 0
 
-    for floor_minimum, value in max_value:
-        if floor_minimum > floor:
-            break
-        else:
-            current_value = value
+    floor_minimum, value = max_value
+    if floor_minimum > floor:
+        current_value = max_monsters(floor)[1]
+    else:
+        current_value = value
 
-    return current_value
+    print(f'{int(current_value)= }')
+
+    return int(current_value)
 
 def get_entities_at_random(
     weighted_chance_by_floor: Dict[int, List[Tuple[Entity, int]]],
@@ -112,10 +124,10 @@ def get_entities_at_random(
 
 def place_entities(dungeon: GameMap, floor_number: int) -> None:
     number_of_monsters = randint(
-        0, get_max_value_for_floor(max_monsters_per_floor, floor_number)
+        0, get_max_value_for_floor(max_monsters(floor_number), floor_number)
     )
     number_of_items = randint(
-        0, get_max_value_for_floor(max_items_per_floor, floor_number)
+        0, get_max_value_for_floor(max_items(floor_number), floor_number)
     )
 
     # select random position for enemy using numpy.where
@@ -224,8 +236,8 @@ def generate_dungeon(
             continue
 
         print(f'Branch size: {branch.size} and position: {branch.position}\n')
-        for x in range(branch.size[0]-2):
-            for y in range(branch.size[1]-2):
+        for x in range(branch.size[0]-2): #type: ignore
+            for y in range(branch.size[1]-2): #type: ignore
                 if not is_inside_pad(x, y, branch):
                     dungeon.tiles[x + branch.position[0], y + branch.position[1]] = tile_types.placeholder
                     print(f'placing tile: {x + branch.position[0]} and {y + branch.position[1]}')
